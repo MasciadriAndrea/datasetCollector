@@ -54,6 +54,39 @@ public class DayDAOSql implements DayDAO {
 	
 	@Override
 	public void deleteDay(Integer id){
-		//TODO
+		//delete everything contained
+		try{  
+			  	//retrieve all dailyActivities	
+				 DayHasActivityDAOSql dayHasActivityDAO=new DayHasActivityDAOSql();
+				 List<DayHasActivity> das=dayHasActivityDAO.getDayHasActivityByDay(id);
+				 for(DayHasActivity da: das){
+					 //TODO
+					 dayHasActivityDAO.deleteDayHasActivity(da.getId());
+				}
+				
+				//retrieve all sensorsets
+				 SensorsetDAOSql sensorsetDAO=new SensorsetDAOSql();
+				 List<Sensorset> ss=sensorsetDAO.getSensorsetByDay(id);
+				 for(Sensorset s: ss){
+					 //TODO
+					 sensorsetDAO.deleteSensorset(s.getId());
+				}
+				 
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		
+		
+		//delete actual
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "DELETE FROM Day WHERE id = ?";
+		PreparedStatement preparedStatement;
+		try {
+			preparedStatement = dbConnection.prepareStatement(selectSQL);
+			preparedStatement.setInt(1, id);
+			preparedStatement.executeQuery(selectSQL );
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

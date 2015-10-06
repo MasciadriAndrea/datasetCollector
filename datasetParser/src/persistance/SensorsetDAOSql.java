@@ -42,6 +42,8 @@ public class SensorsetDAOSql implements SensorsetDAO {
 	
 	@Override
 	public void deleteSensorset(Integer id){
-		//TODO
+		
+		
+		 
 	}
 }

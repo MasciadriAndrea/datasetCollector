@@ -87,6 +87,73 @@ public class HouseDAOSql implements HouseDAO {
 	
 	@Override
 	public void deleteHouse(Integer id){
-		//TODO
+		//delete everything contained
+			try{
+			
+			//retrieve all the days
+			  DayDAOSql dayDao=new DayDAOSql();
+			  List<Day> ds=dayDao.getDayByHouse(id);
+			  for(Day d: ds){
+				dayDao.deleteDay(d.getId());
+			}
+				
+			//retrieve all the activities
+			 ActivityDAOSql activityDao=new ActivityDAOSql();
+			 List<Activity> acs=activityDao.getActivityByHouse(id);
+			 for(Activity ac: acs){
+				 //TODO
+				activityDao.deleteActivity(ac.getId());
+			}
+			 
+			//retrieve all the residents
+			 ResidentDAOSql residentDao=new ResidentDAOSql();
+			 List<Resident> rss=residentDao.getResidentByHouse(id);
+			 for(Resident rs: rss){
+				//TODO
+				residentDao.deleteResident(rs.getId());
+			}
+			
+			//retrieve all the sensors
+			 SensorDAOSql sensorDao=new SensorDAOSql();
+			 List<Sensor> ss=sensorDao.getSensorByHouse(id);
+			 for(Sensor s: ss){
+				//TODO
+				sensorDao.deleteSensor(s.getId());
+			 }
+			 
+			//retrieve all the location
+			 LocationDAOSql locationDao=new LocationDAOSql();
+			 List<Location> ls=locationDao.getLocationByHouse(id);
+			 for(Location l: ls){
+				//TODO
+				locationDao.deleteLocation(l.getId());
+			 }
+			
+			//retrieve all the sensorType
+			 SensorTypeDAOSql sensorTypeDao=new SensorTypeDAOSql();
+			 List<SensorType> sts=sensorTypeDao.getSensorTypeByHouse(id);
+			 for(SensorType st: sts){
+				//TODO
+				sensorTypeDao.deleteSensorType(st.getId());
+			}
+			 
+					
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				
+				
+				//delete actual
+				
+				Connection dbConnection=DbManager.getInstance().getConnection();
+				String selectSQL = "DELETE FROM House WHERE id = ?";
+				PreparedStatement preparedStatement;
+				try {
+					preparedStatement = dbConnection.prepareStatement(selectSQL);
+					preparedStatement.setInt(1, id);
+					preparedStatement.executeQuery(selectSQL );
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 	}
 }

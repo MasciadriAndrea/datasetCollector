@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class House {
-	private Integer Id;
-	private String Name;
+	private Integer id;
+	private String name;
 	private List<Resident> residents;
 	private List<Location> locations;
 	private List<Sensor> sensors;
@@ -15,8 +15,8 @@ public class House {
 	
 	public House(Integer id, String name) {
 		super();
-		Id = id;
-		Name = name;
+		id = id;
+		name = name;
 		this.residents = new ArrayList<Resident>();
 		this.locations = new ArrayList<Location>();
 		this.sensors = new ArrayList<Sensor>();
@@ -25,16 +25,16 @@ public class House {
 		this.activities = new ArrayList<Activity>();
 	}
 	public Integer getId() {
-		return Id;
+		return id;
 	}
 	public void setId(Integer id) {
-		Id = id;
+		id = id;
 	}
 	public String getName() {
-		return Name;
+		return name;
 	}
 	public void setName(String name) {
-		Name = name;
+		name = name;
 	}
 	public List<Resident> getResidents() {
 		return residents;

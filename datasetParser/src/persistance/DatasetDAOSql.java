@@ -43,6 +43,31 @@ public class DatasetDAOSql implements DatasetDAO {
 	
 	@Override
 	public void deleteDataset(Integer id){
-		//TODO
+		//delete everything contained
+		
+		HouseDAOSql houseDao=new HouseDAOSql();
+		List<House> houses;
+		try {
+			houses = houseDao.getHouseByDS(id);
+			for(House h: houses){
+				houseDao.deleteHouse(h.getId());
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		
+		
+		//delete actual
+		
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "DELETE FROM Dataset WHERE id = ?";
+		PreparedStatement preparedStatement;
+		try {
+			preparedStatement = dbConnection.prepareStatement(selectSQL);
+			preparedStatement.setInt(1, id);
+			preparedStatement.executeQuery(selectSQL );
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }
