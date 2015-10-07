@@ -16,7 +16,7 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 	public List<DayHasActivity> getDayHasActivityByDay(Integer id) throws SQLException{
 		List<DayHasActivity> st=new ArrayList<DayHasActivity>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT id,start,end,Activity_id FROM Day_has_Activity WHERE Day_id = ?";
+		String selectSQL = "SELECT id,startSec,endSec,Activity_id FROM Day_has_Activity WHERE Day_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
@@ -25,8 +25,8 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 		Integer endd= 0;
 		Integer aid=0;
 		while (rs.next()) {
-			startd = Integer.parseInt(rs.getString("start"));
-			endd = Integer.parseInt(rs.getString("end"));
+			startd = Integer.parseInt(rs.getString("startSec"));
+			endd = Integer.parseInt(rs.getString("endSec"));
 			idd = Integer.parseInt(rs.getString("id"));
 			aid = Integer.parseInt(rs.getString("Activity_id"));
 			

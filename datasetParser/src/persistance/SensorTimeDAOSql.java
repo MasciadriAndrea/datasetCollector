@@ -16,7 +16,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 	public List<SensorTime> getSensorTimeBySensorsetId(Integer id) throws SQLException{
 		List<SensorTime> st=new ArrayList<SensorTime>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT id,Sensor_id,status FROM Sensorset_has_Sensor WHERE Sensorset_id = ?";
+		String selectSQL = "SELECT id,Sensor_id,value FROM Sensorset_has_Sensor WHERE Sensorset_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
@@ -26,7 +26,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 		while (rs.next()) {
 			idst = Integer.parseInt(rs.getString("id"));
 			ids = Integer.parseInt(rs.getString("Sensor_id"));
-			status= rs.getString("status");
+			status= rs.getString("value");
 			
 			//get sensor
 			 SensorDAOSql sensorDao=new SensorDAOSql();

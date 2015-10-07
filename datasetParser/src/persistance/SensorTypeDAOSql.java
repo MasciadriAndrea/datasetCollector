@@ -30,6 +30,22 @@ public class SensorTypeDAOSql implements SensorTypeDAO {
 	}
 	
 	@Override
+	public SensorType getSensorTypeById(Integer id) throws SQLException{
+		SensorType st=null;
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "SELECT name FROM SensorType WHERE id = ?";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
+		preparedStatement.setInt(1, id);
+		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		String namest=""; 
+		while (rs.next()) {
+			namest = rs.getString("name");
+			st=new SensorType(id,namest);
+		}
+		return st;
+	}
+	
+	@Override
 	public void updateSensorType(SensorType st){
 		//TODO
 	}

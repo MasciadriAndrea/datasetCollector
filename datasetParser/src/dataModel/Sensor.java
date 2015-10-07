@@ -5,14 +5,19 @@ public class Sensor {
 	private String name;
 	private String x;
 	private String y;
+	private SensorType type;//add this everywhere
+	private Location location;//add this everywhere
 	
-	public Sensor(Integer id, String name, String x, String y) {
+	public Sensor(Integer id, String name, String x, String y, SensorType type, Location location) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.x = x;
 		this.y = y;
+		this.type=type;
+		this.location=location;
 	}
+	
 	public Integer getId() {
 		return id;
 	}
@@ -36,6 +41,22 @@ public class Sensor {
 	}
 	public void setY(String y) {
 		this.y = y;
+	}
+
+	public SensorType getType() {
+		return type;
+	}
+
+	public void setType(SensorType type) {
+		this.type = type;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
 	}
 	
 	

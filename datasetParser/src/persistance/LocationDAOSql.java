@@ -30,6 +30,22 @@ public class LocationDAOSql implements LocationDAO {
 	}
 	
 	@Override
+	public Location getLocationById(Integer id) throws SQLException{
+		Location st=null;
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "SELECT name FROM Location WHERE id = ?";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
+		preparedStatement.setInt(1, id);
+		ResultSet rs = preparedStatement.executeQuery(selectSQL ); 
+		String namel= "";
+		while (rs.next()) {
+			namel = rs.getString("name");
+			st=new Location(id, namel);
+		}
+		return st;
+	}
+	
+	@Override
 	public void updateLocation(Location st){
 		//TODO
 	}
