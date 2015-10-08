@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,57 +33,145 @@ public class HouseDAOSql implements HouseDAO {
 			nameh = rs.getString("name");
 			idh = Integer.valueOf(rs.getString("id"));
 			House h=new House(idh,nameh);
-			
-			//retrieve all the sensorType
-			 SensorTypeDAOSql sensorTypeDao=new SensorTypeDAOSql();
-			 List<SensorType> st=sensorTypeDao.getSensorTypeByHouse(idh);
-			 h.setSensorTypes(st);
-			 
-			//retrieve all the activities
-			 ActivityDAOSql activityDao=new ActivityDAOSql();
-			 List<Activity> ac=activityDao.getActivityByHouse(idh);
-			 h.setActivities(ac);
-			 
-			//retrieve all the residents
-			 ResidentDAOSql residentDao=new ResidentDAOSql();
-			 List<Resident> r=residentDao.getResidentByHouse(idh);
-			 h.setResidents(r);
-			
-			//retrieve all the sensors
-			 SensorDAOSql sensorDao=new SensorDAOSql();
-			 List<Sensor> s=sensorDao.getSensorByHouse(idh);
-			 h.setSensors(s);
-			 
-			//retrieve all the location
-			 LocationDAOSql locationDao=new LocationDAOSql();
-			 List<Location> l=locationDao.getLocationByHouse(idh);
-			 h.setLocations(l);
-			 
-			//retrieve all the days
-			 DayDAOSql dayDao=new DayDAOSql();
-			 List<Day> d=dayDao.getDayByHouse(idh);
-			 h.setDays(d);
-			
+			h=getFullHouse(h);	
 			houses.add(h);
 		}
 		return houses;
 	}
 	
 	@Override
-	public House getHouseById(Integer id){
-		//TODO
-		return null;
+	public House getHouseById(Integer id) throws SQLException{
+		House house=null;
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "SELECT name FROM House WHERE id = ?";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
+		preparedStatement.setInt(1, id);
+		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		String nameh=""; 
+		while (rs.next()) {
+			nameh = rs.getString("name");
+			House h=new House(id,nameh);
+			house=getFullHouse(h);
+		}
+		return house;
 	}
 	
-	@Override
-	public House getHouseByName(String name){
-		//TODO
-		return null;
+	private House getFullHouse(House h) throws SQLException{
+		Integer id=h.getId();
+		//retrieve all the sensorType
+		 SensorTypeDAOSql sensorTypeDao=new SensorTypeDAOSql();
+		 List<SensorType> st=sensorTypeDao.getSensorTypeByHouse(id);
+		 h.setSensorTypes(st);
+		 
+		//retrieve all the activities
+		 ActivityDAOSql activityDao=new ActivityDAOSql();
+		 List<Activity> ac=activityDao.getActivityByHouse(id);
+		 h.setActivities(ac);
+		 
+		//retrieve all the residents
+		 ResidentDAOSql residentDao=new ResidentDAOSql();
+		 List<Resident> r=residentDao.getResidentByHouse(id);
+		 h.setResidents(r);
+		
+		//retrieve all the sensors
+		 SensorDAOSql sensorDao=new SensorDAOSql();
+		 List<Sensor> s=sensorDao.getSensorByHouse(id);
+		 h.setSensors(s);
+		 
+		//retrieve all the location
+		 LocationDAOSql locationDao=new LocationDAOSql();
+		 List<Location> l=locationDao.getLocationByHouse(id);
+		 h.setLocations(l);
+		 
+		//retrieve all the days
+		 DayDAOSql dayDao=new DayDAOSql();
+		 List<Day> d=dayDao.getDayByHouse(id);
+		 h.setDays(d);
+		 return h;
 	}
 	
+	private Integer insertHouse(String name, Integer idDs) throws SQLException{
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String insertTableSQL = "INSERT INTO House (name,Dataset_id) VALUES (?,?)";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
+		preparedStatement.setString(1, name);
+		preparedStatement.setInt(2, idDs);
+		int affectedRows = preparedStatement.executeUpdate();
+
+        if (affectedRows == 0) {
+            throw new SQLException("Creating user failed, no rows affected.");
+        }
+
+        try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                return (int) generatedKeys.getLong(1);
+            }
+            else {
+                throw new SQLException("Creating user failed, no ID obtained.");
+            }
+        }
+	}
+
 	@Override
-	public void updateHouse(House ds){
-		//TODO
+	public House updateHouse(House h,Integer idDs) throws SQLException{
+		Integer idH=h.getId();
+		
+		// check if House exist -> if the house exists remove it
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "SELECT name FROM House WHERE id = ?";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
+		preparedStatement.setInt(1, idH);
+		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		while (rs.next()) {
+			deleteHouse(idH);
+		}
+		
+		//insert in the database
+		Integer newIdHouse=0;
+		newIdHouse= insertHouse(h.getName(),idDs);
+		
+		//upload the id
+		h.setId(newIdHouse);
+		
+		//insert contained Objects
+		
+		//retrieve all the residents
+		 ResidentDAOSql residentDao=new ResidentDAOSql();
+		 for(Resident rss: h.getResidents()){
+			rss=residentDao.updateResident(rss,newIdHouse);
+		 }
+		 
+		//retrieve all the activities
+		 ActivityDAOSql activityDao=new ActivityDAOSql();
+		 for(Activity ac: h.getActivities()){
+			ac=activityDao.updateActivity(ac,newIdHouse);
+		 }
+		 
+		//retrieve all the location
+		 LocationDAOSql locationDao=new LocationDAOSql();
+		 for(Location l: h.getLocations()){
+			l=locationDao.updateLocation(l,newIdHouse);
+		 }
+		 
+		//retrieve all the sensorType
+		 SensorTypeDAOSql sensorTypeDao=new SensorTypeDAOSql();
+		 for(SensorType st: h.getSensorTypes()){
+			st=sensorTypeDao.updateSensorType(st,newIdHouse);
+		 }
+		 
+		//retrieve all the days
+		  DayDAOSql dayDao=new DayDAOSql();
+		  for(Day d: h.getDays()){
+			d=dayDao.updateDay(d,newIdHouse);
+		  }
+		
+		//retrieve all the sensors
+		 SensorDAOSql sensorDao=new SensorDAOSql();
+		 for(Sensor s: h.getSensors()){
+			s=sensorDao.updateSensor(s,newIdHouse);
+		 }
+		
+		return h;
 	}
 	
 	@Override
@@ -101,7 +190,6 @@ public class HouseDAOSql implements HouseDAO {
 			 ActivityDAOSql activityDao=new ActivityDAOSql();
 			 List<Activity> acs=activityDao.getActivityByHouse(id);
 			 for(Activity ac: acs){
-				 //TODO
 				activityDao.deleteActivity(ac.getId());
 			}
 			 
@@ -109,7 +197,6 @@ public class HouseDAOSql implements HouseDAO {
 			 ResidentDAOSql residentDao=new ResidentDAOSql();
 			 List<Resident> rss=residentDao.getResidentByHouse(id);
 			 for(Resident rs: rss){
-				//TODO
 				residentDao.deleteResident(rs.getId());
 			}
 			
@@ -117,7 +204,6 @@ public class HouseDAOSql implements HouseDAO {
 			 SensorDAOSql sensorDao=new SensorDAOSql();
 			 List<Sensor> ss=sensorDao.getSensorByHouse(id);
 			 for(Sensor s: ss){
-				//TODO
 				sensorDao.deleteSensor(s.getId());
 			 }
 			 
@@ -125,7 +211,6 @@ public class HouseDAOSql implements HouseDAO {
 			 LocationDAOSql locationDao=new LocationDAOSql();
 			 List<Location> ls=locationDao.getLocationByHouse(id);
 			 for(Location l: ls){
-				//TODO
 				locationDao.deleteLocation(l.getId());
 			 }
 			
@@ -133,7 +218,6 @@ public class HouseDAOSql implements HouseDAO {
 			 SensorTypeDAOSql sensorTypeDao=new SensorTypeDAOSql();
 			 List<SensorType> sts=sensorTypeDao.getSensorTypeByHouse(id);
 			 for(SensorType st: sts){
-				//TODO
 				sensorTypeDao.deleteSensorType(st.getId());
 			}
 			 

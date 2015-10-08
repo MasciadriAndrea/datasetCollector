@@ -7,6 +7,7 @@ import dataModel.Day;
 
 public interface DayDAO {
 	public List<Day> getDayByHouse(Integer id) throws SQLException;
-	public void updateDay(Day st);
+	public Day getDayById(Integer id) throws SQLException;
+	public Day updateDay(Day st,Integer houseId) throws SQLException;
 	public void deleteDay(Integer id);
 }

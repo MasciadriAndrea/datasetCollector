@@ -64,18 +64,19 @@ public class DatasetDAOSql implements DatasetDAO {
 			deleteDataset(idDs);
 		}
 		
-		//insert in the dataset
+		//insert in the database
 		Integer newIdDs=0;
 		newIdDs= insertDataset(ds.getName());
+		
+		//upload the id
+		ds.setId(newIdDs);
 		
 		//insert contained Objects
 		HouseDAOSql houseDao=new HouseDAOSql();
 		for(House h:ds.getHouses()){
-			houseDao.updateHouse(h);
+			h=houseDao.updateHouse(h,newIdDs);
 		}
 		
-		//upload the id
-		ds.setId(newIdDs);
 		return ds;
 	}
 	

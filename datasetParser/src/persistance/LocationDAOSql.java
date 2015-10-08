@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,13 +46,64 @@ public class LocationDAOSql implements LocationDAO {
 		return st;
 	}
 	
+	private Integer insertLocation(String name,Integer idHouse) throws SQLException{
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String insertTableSQL = "INSERT INTO Locaion (name,House_id) VALUES (?,?)";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
+		preparedStatement.setString(1, name);
+		preparedStatement.setInt(2, idHouse);
+		int affectedRows = preparedStatement.executeUpdate();
+
+        if (affectedRows == 0) {
+            throw new SQLException("Creating user failed, no rows affected.");
+        }
+
+        try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                return (int) generatedKeys.getLong(1);
+            }
+            else {
+                throw new SQLException("Creating user failed, no ID obtained.");
+            }
+        }
+	}
+	
 	@Override
-	public void updateLocation(Location st){
-		//TODO
+	public Location updateLocation(Location loc, Integer idHouse) throws SQLException{
+		Integer idL=loc.getId();
+		
+		// check if exist -> if exists remove it
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "SELECT * FROM Location WHERE id = ?";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
+		preparedStatement.setInt(1, idL);
+		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		while (rs.next()) {
+			deleteLocation(idL);
+		}
+		
+		//insert in the database
+		Integer newIdLoc=0;
+		newIdLoc= insertLocation(loc.getName(),idHouse);
+				
+		//upload the id
+		loc.setId(newIdLoc);
+		
+		return loc;
 	}
 	
 	@Override
 	public void deleteLocation(Integer id){
-		//TODO
+		//delete actual
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "DELETE FROM Location WHERE id = ?";
+		PreparedStatement preparedStatement;
+		try {
+			preparedStatement = dbConnection.prepareStatement(selectSQL);
+			preparedStatement.setInt(1, id);
+			preparedStatement.executeQuery(selectSQL );
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

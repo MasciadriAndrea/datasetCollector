@@ -4,12 +4,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import common.DbManager;
+import dataModel.Activity;
 import dataModel.Day;
 import dataModel.DayHasActivity;
+import dataModel.Location;
+import dataModel.Resident;
+import dataModel.Sensor;
+import dataModel.SensorType;
 import dataModel.Sensorset;
 
 public class DayDAOSql implements DayDAO {
@@ -47,9 +53,96 @@ public class DayDAOSql implements DayDAO {
 		return st;
 	}
 	
+	public Day getDayById(Integer id) throws SQLException{
+		Day d=null;
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "SELECT day,month,year FROM Day WHERE id = ?";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
+		preparedStatement.setInt(1, id);
+		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		Integer idd=0; 
+		String dayd= "";
+		String monthd= "";
+		String yeard= "";
+		while (rs.next()) {
+			dayd = rs.getString("day");
+			monthd = rs.getString("month");
+			yeard = rs.getString("year");
+			d=new Day(id,dayd,monthd,yeard);
+			
+			//retrieve all dailyActivities	
+			 DayHasActivityDAOSql dayHasActivityDAO=new DayHasActivityDAOSql();
+			 List<DayHasActivity> da=dayHasActivityDAO.getDayHasActivityByDay(idd);
+			 d.setDailyActivities(da);
+			
+			//retrieve all sensorsets
+			 SensorsetDAOSql sensorsetDAO=new SensorsetDAOSql();
+			 List<Sensorset> ss=sensorsetDAO.getSensorsetByDay(idd);
+			 d.setSensorsets(ss);
+		}
+		return d;
+	}
+	
+	public Integer insertDay(String day,String month,String year, Integer idHouse) throws SQLException{
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String insertTableSQL = "INSERT INTO Day (day,month,year,House_id) VALUES (?,?,?,?)";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
+		preparedStatement.setString(1, day);
+		preparedStatement.setString(2, month);
+		preparedStatement.setString(3, year);
+		preparedStatement.setInt(4, idHouse);
+		int affectedRows = preparedStatement.executeUpdate();
+
+        if (affectedRows == 0) {
+            throw new SQLException("Creating user failed, no rows affected.");
+        }
+
+        try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                return (int) generatedKeys.getLong(1);
+            }
+            else {
+                throw new SQLException("Creating user failed, no ID obtained.");
+            }
+        }
+	}
+	
 	@Override
-	public void updateDay(Day st){
-		//TODO
+	public Day updateDay(Day d,Integer idHouse) throws SQLException{
+		Integer idD=d.getId();
+		
+		// check if exist -> if exists remove it
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "SELECT * FROM Day WHERE id = ?";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
+		preparedStatement.setInt(1, idD);
+		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		while (rs.next()) {
+			deleteDay(idD);
+		}
+		
+		//insert in the database
+		Integer newIdDay=0;
+		newIdDay= insertDay(d.getDay(),d.getMonth(),d.getYear(), idHouse);
+				
+		//upload the id
+		d.setId(newIdDay);
+		
+		//insert contained Objects
+		
+				//retrieve all the DailyActivities
+				 DayHasActivityDAOSql dhaDao=new DayHasActivityDAOSql();
+				 for(DayHasActivity dha: d.getDailyActivities()){
+					dha=dhaDao.updateDayHasActivity(dha,newIdDay);
+				 }
+				 
+				//retrieve all the sensorsets
+				 SensorsetDAOSql ssDao=new SensorsetDAOSql();
+				 for(Sensorset ss: d.getSensorsets()){
+					ss=ssDao.updateSensorset(ss,newIdDay);
+				 }
+				 
+		return d;
 	}
 	
 	@Override
@@ -60,7 +153,6 @@ public class DayDAOSql implements DayDAO {
 				 DayHasActivityDAOSql dayHasActivityDAO=new DayHasActivityDAOSql();
 				 List<DayHasActivity> das=dayHasActivityDAO.getDayHasActivityByDay(id);
 				 for(DayHasActivity da: das){
-					 //TODO
 					 dayHasActivityDAO.deleteDayHasActivity(da.getId());
 				}
 				
@@ -68,7 +160,6 @@ public class DayDAOSql implements DayDAO {
 				 SensorsetDAOSql sensorsetDAO=new SensorsetDAOSql();
 				 List<Sensorset> ss=sensorsetDAO.getSensorsetByDay(id);
 				 for(Sensorset s: ss){
-					 //TODO
 					 sensorsetDAO.deleteSensorset(s.getId());
 				}
 				 

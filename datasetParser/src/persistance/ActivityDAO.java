@@ -7,6 +7,6 @@ import dataModel.Activity;
 public interface ActivityDAO {
 	public List<Activity> getActivityByHouse(Integer id) throws SQLException;
 	public Activity getActivityById(Integer aid) throws SQLException;
-	public void updateActivity(Activity st);
+	public Activity updateActivity(Activity st, Integer idHouse) throws SQLException;
 	public void deleteActivity(Integer id);
 }
