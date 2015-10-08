@@ -16,6 +16,7 @@ import dataModel.Resident;
 import dataModel.Sensor;
 import dataModel.SensorType;
 import dataModel.Location;
+import dataModel.Sensorset;
 
 public class HouseDAOSql implements HouseDAO {
 	
@@ -78,11 +79,16 @@ public class HouseDAOSql implements HouseDAO {
 		 List<Sensor> s=sensorDao.getSensorByHouse(id);
 		 h.setSensors(s);
 		 
+		//retrieve all the sensorsets
+		 SensorsetDAOSql sensorsetDao=new SensorsetDAOSql();
+		 List<Sensorset> ssa=sensorsetDao.getSensorsetByHouse(id);
+		 h.setSensorsets(ssa);
+		 
 		//retrieve all the location
 		 LocationDAOSql locationDao=new LocationDAOSql();
 		 List<Location> l=locationDao.getLocationByHouse(id);
 		 h.setLocations(l);
-		 
+		  
 		//retrieve all the days
 		 DayDAOSql dayDao=new DayDAOSql();
 		 List<Day> d=dayDao.getDayByHouse(id);
@@ -166,6 +172,12 @@ public class HouseDAOSql implements HouseDAO {
 		  }
 		
 		//retrieve all the sensors
+			 SensorsetDAOSql sensorsetDao=new SensorsetDAOSql();
+			 for(Sensorset s: h.getSensorsets()){
+				s=sensorsetDao.updateSensorset(s,newIdHouse);
+			 }
+		  
+		//retrieve all the sensors
 		 SensorDAOSql sensorDao=new SensorDAOSql();
 		 for(Sensor s: h.getSensors()){
 			s=sensorDao.updateSensor(s,newIdHouse);
@@ -199,6 +211,13 @@ public class HouseDAOSql implements HouseDAO {
 			 for(Resident rs: rss){
 				residentDao.deleteResident(rs.getId());
 			}
+			 
+			//retrieve all the sensorsets
+			 SensorsetDAOSql sensorsetDao=new SensorsetDAOSql();
+			 List<Sensorset> sss=sensorsetDao.getSensorsetByHouse(id);
+			 for(Sensorset ss: sss){
+				sensorsetDao.deleteSensorset(ss.getId());
+			 }
 			
 			//retrieve all the sensors
 			 SensorDAOSql sensorDao=new SensorDAOSql();

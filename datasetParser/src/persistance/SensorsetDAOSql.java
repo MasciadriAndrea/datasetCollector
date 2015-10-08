@@ -14,25 +14,24 @@ import dataModel.SensorTime;
 import dataModel.Sensorset;
 
 public class SensorsetDAOSql implements SensorsetDAO {
+	
 	@Override
-	public List<Sensorset> getSensorsetByDay(Integer id) throws SQLException{
+	public List<Sensorset> getSensorsetByHouse(Integer id) throws SQLException{
 		List<Sensorset> st=new ArrayList<Sensorset>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT id,second FROM Sensorset WHERE Day_id = ?";
+		String selectSQL = "SELECT id FROM Sensorset WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
 		Integer ids=0; 
-		Integer seconds= 0;
 		while (rs.next()) {
-			seconds= Integer.parseInt(rs.getString("second"));
 			ids = Integer.parseInt(rs.getString("id"));
 			
 			//retrieve all the sensortime
 			 SensorTimeDAOSql sensorTimeDao=new SensorTimeDAOSql();
 			 List<SensorTime> s=sensorTimeDao.getSensorTimeBySensorsetId(ids);
 			
-			st.add(new Sensorset(ids, s, seconds));
+			st.add(new Sensorset(ids, s));
 		}
 		return st;
 	}
@@ -41,30 +40,27 @@ public class SensorsetDAOSql implements SensorsetDAO {
 	public Sensorset getSensorsetById(Integer id) throws SQLException{
 		Sensorset ss=null;
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT second FROM Sensorset WHERE id = ?";
+		String selectSQL = "SELECT * FROM Sensorset WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
 		Integer ids=0; 
-		Integer seconds= 0;
 		while (rs.next()) {
-			seconds= Integer.parseInt(rs.getString("second"));
 			
 			//retrieve all the sensortime
 			 SensorTimeDAOSql sensorTimeDao=new SensorTimeDAOSql();
 			 List<SensorTime> s=sensorTimeDao.getSensorTimeBySensorsetId(ids);
 			
-			ss= new Sensorset(id, s, seconds);
+			ss= new Sensorset(id, s);
 		}
 		return ss;
 	}
 	
-	private Integer insertSensorset(String sec,Integer idDay) throws SQLException{
+	private Integer insertSensorset(Integer idHouse) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String insertTableSQL = "INSERT INTO Sensorset (second,Day_id) VALUES (?,?)";
+		String insertTableSQL = "INSERT INTO Sensorset (House_id) VALUES (?)";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
-		preparedStatement.setString(1, sec);
-		preparedStatement.setInt(2, idDay);
+		preparedStatement.setInt(1, idHouse);
 		int affectedRows = preparedStatement.executeUpdate();
 
         if (affectedRows == 0) {
@@ -82,7 +78,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 	}
 	
 	@Override
-	public Sensorset updateSensorset(Sensorset ss,Integer idDay) throws SQLException{
+	public Sensorset updateSensorset(Sensorset ss,Integer idHouse) throws SQLException{
 		Integer idSS=ss.getId();
 		
 		// check if SS exist -> if the SS exists remove it
@@ -97,7 +93,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 		
 		//insert in the database
 		Integer newIdSS=0;
-		newIdSS= insertSensorset(ss.getSecond().toString(),idDay);
+		newIdSS= insertSensorset(idHouse);
 				
 		//upload the id
 		ss.setId(newIdSS);

@@ -14,6 +14,7 @@ import dataModel.Day;
 import dataModel.DayHasActivity;
 import dataModel.Location;
 import dataModel.Resident;
+import dataModel.SecondHasSensorset;
 import dataModel.Sensor;
 import dataModel.SensorType;
 import dataModel.Sensorset;
@@ -43,10 +44,10 @@ public class DayDAOSql implements DayDAO {
 			 List<DayHasActivity> da=dayHasActivityDAO.getDayHasActivityByDay(idd);
 			 d.setDailyActivities(da);
 			
-			//retrieve all sensorsets
-			 SensorsetDAOSql sensorsetDAO=new SensorsetDAOSql();
-			 List<Sensorset> ss=sensorsetDAO.getSensorsetByDay(idd);
-			 d.setSensorsets(ss);
+			//retrieve all secondHasSensorset
+			 SecondHasSensorsetDAOSql secondHasSensorsetDAO=new SecondHasSensorsetDAOSql();
+			 List<SecondHasSensorset> ss=secondHasSensorsetDAO.getSecondHasSensorsetByDay(idd);
+			 d.setSecondHasSensorsets(ss);
 			
 			st.add(d);
 		}
@@ -74,11 +75,12 @@ public class DayDAOSql implements DayDAO {
 			 DayHasActivityDAOSql dayHasActivityDAO=new DayHasActivityDAOSql();
 			 List<DayHasActivity> da=dayHasActivityDAO.getDayHasActivityByDay(idd);
 			 d.setDailyActivities(da);
+			 
+			//retrieve all secondHasSensorset
+			 SecondHasSensorsetDAOSql secondHasSensorsetDAO=new SecondHasSensorsetDAOSql();
+			 List<SecondHasSensorset> ss=secondHasSensorsetDAO.getSecondHasSensorsetByDay(idd);
+			 d.setSecondHasSensorsets(ss);
 			
-			//retrieve all sensorsets
-			 SensorsetDAOSql sensorsetDAO=new SensorsetDAOSql();
-			 List<Sensorset> ss=sensorsetDAO.getSensorsetByDay(idd);
-			 d.setSensorsets(ss);
 		}
 		return d;
 	}
@@ -136,12 +138,11 @@ public class DayDAOSql implements DayDAO {
 					dha=dhaDao.updateDayHasActivity(dha,newIdDay);
 				 }
 				 
-				//retrieve all the sensorsets
-				 SensorsetDAOSql ssDao=new SensorsetDAOSql();
-				 for(Sensorset ss: d.getSensorsets()){
-					ss=ssDao.updateSensorset(ss,newIdDay);
-				 }
-				 
+				//retrieve all secondHasSensorset
+				 SecondHasSensorsetDAOSql secondHasSensorsetDAO=new SecondHasSensorsetDAOSql();
+				 for(SecondHasSensorset ss: d.getSecondHasSensorsets()){
+						ss=secondHasSensorsetDAO.updateSecondHasSensorset(ss,newIdDay);
+					 }
 		return d;
 	}
 	
@@ -155,13 +156,13 @@ public class DayDAOSql implements DayDAO {
 				 for(DayHasActivity da: das){
 					 dayHasActivityDAO.deleteDayHasActivity(da.getId());
 				}
-				
-				//retrieve all sensorsets
-				 SensorsetDAOSql sensorsetDAO=new SensorsetDAOSql();
-				 List<Sensorset> ss=sensorsetDAO.getSensorsetByDay(id);
-				 for(Sensorset s: ss){
-					 sensorsetDAO.deleteSensorset(s.getId());
-				}
+				 
+					//retrieve all secondHasSensorset
+				 SecondHasSensorsetDAOSql secondHasSensorsetDAO=new SecondHasSensorsetDAOSql();
+				 List<SecondHasSensorset> sechss=secondHasSensorsetDAO.getSecondHasSensorsetByDay(id);
+				 for(SecondHasSensorset ssa: sechss){
+					 secondHasSensorsetDAO.deleteSecondHasSensorset(ssa.getId());
+				 }
 				 
 		} catch (SQLException e1) {
 			e1.printStackTrace();

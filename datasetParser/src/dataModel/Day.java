@@ -9,7 +9,7 @@ public class Day {
 	private String month;
 	private String year;
 	private List<DayHasActivity> dailyActivities;
-	private List<Sensorset> sensorsets;
+	private List<SecondHasSensorset> secondHasSensorsets;
 	
 	public Day(Integer id, String day, String month, String year) {
 		super();
@@ -18,7 +18,7 @@ public class Day {
 		this.month = month;
 		this.year = year;
 		this.dailyActivities = new ArrayList<DayHasActivity>();
-		this.sensorsets = new ArrayList<Sensorset>();
+		this.secondHasSensorsets = new ArrayList<SecondHasSensorset>();
 	}
 	public Integer getId() {
 		return id;
@@ -50,11 +50,12 @@ public class Day {
 	public void setDailyActivities(List<DayHasActivity> dailyActivities) {
 		this.dailyActivities = dailyActivities;
 	}
-	public List<Sensorset> getSensorsets() {
-		return sensorsets;
+	public List<SecondHasSensorset> getSecondHasSensorsets() {
+		return secondHasSensorsets;
 	}
-	public void setSensorsets(List<Sensorset> sensorsets) {
-		this.sensorsets = sensorsets;
+	public void setSecondHasSensorsets(List<SecondHasSensorset> secondHasSensorsets) {
+		this.secondHasSensorsets = secondHasSensorsets;
 	}
+	
 	
 }

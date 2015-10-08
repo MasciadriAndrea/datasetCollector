@@ -12,6 +12,7 @@ public class House {
 	private List<Day> days;
 	private List<SensorType> sensorTypes;
 	private List<Activity> activities;
+	private List<Sensorset> sensorsets;
 	
 	public House(Integer id, String name) {
 		super();
@@ -23,6 +24,7 @@ public class House {
 		this.days = new ArrayList<Day>();
 		this.sensorTypes = new ArrayList<SensorType>();
 		this.activities = new ArrayList<Activity>();
+		this.sensorsets=new ArrayList<Sensorset>();
 	}
 	public Integer getId() {
 		return id;
@@ -91,4 +93,12 @@ public class House {
 	public void addDays(Day d){
 		days.add(d);
 	}
+	public List<Sensorset> getSensorsets() {
+		return sensorsets;
+	}
+	public void setSensorsets(List<Sensorset> sensorsets) {
+		this.sensorsets = sensorsets;
+	}
+	
+	
 }
