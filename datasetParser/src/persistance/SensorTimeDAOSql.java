@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import common.DbManager;
-import dataModel.Sensor;
+import dataModel.HSensor;
 import dataModel.SensorTime;
 
 public class SensorTimeDAOSql implements SensorTimeDAO {
@@ -31,7 +31,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 			
 			//get sensor
 			 SensorDAOSql sensorDao=new SensorDAOSql();
-			 Sensor s=sensorDao.getSensorById(ids);
+			 HSensor s=sensorDao.getSensorById(ids);
 			 
 			st.add(new SensorTime(idst,s,status));
 		}
@@ -54,7 +54,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 			
 			//get sensor
 			 SensorDAOSql sensorDao=new SensorDAOSql();
-			 Sensor s=sensorDao.getSensorById(ids);
+			 HSensor s=sensorDao.getSensorById(ids);
 			 
 			st=new SensorTime(id,s,status);
 		}

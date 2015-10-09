@@ -11,10 +11,10 @@ import dataModel.House;
 import dataModel.Location;
 import dataModel.Resident;
 import dataModel.SecondHasSensorset;
-import dataModel.Sensor;
+import dataModel.HSensor;
 import dataModel.SensorTime;
 import dataModel.SensorType;
-import dataModel.Sensorset;
+import dataModel.HSensorset;
 
 public class DSParser {
 
@@ -40,9 +40,9 @@ public class DSParser {
 		ArrayList<SensorType> listSensorTypes=new ArrayList<SensorType>();
 		listSensorTypes.add(sensType);
 		
-		Sensor sens1=new Sensor(null,"s1","100","200",sensType,location);
-		Sensor sens2=new Sensor(null,"s2","50","50",sensType,location);
-		ArrayList<Sensor> listSensors=new ArrayList<Sensor>();
+		HSensor sens1=new HSensor(null,"s1","100","200",sensType,location);
+		HSensor sens2=new HSensor(null,"s2","50","50",sensType,location);
+		ArrayList<HSensor> listSensors=new ArrayList<HSensor>();
 		listSensors.add(sens1);
 		listSensors.add(sens2);
 		
@@ -63,9 +63,9 @@ public class DSParser {
 		lst2.add(s1ss2);
 		lst2.add(s2ss2);
 		
-		Sensorset ss1= new Sensorset(null,lst1);
-		Sensorset ss2= new Sensorset(null,lst2);
-		ArrayList<Sensorset> listSS=new ArrayList<Sensorset>();
+		HSensorset ss1= new HSensorset(null,lst1);
+		HSensorset ss2= new HSensorset(null,lst2);
+		ArrayList<HSensorset> listSS=new ArrayList<HSensorset>();
 		listSS.add(ss1);
 		listSS.add(ss2);
 		

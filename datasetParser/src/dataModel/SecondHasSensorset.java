@@ -3,9 +3,9 @@ package dataModel;
 public class SecondHasSensorset {
 	private Integer id;
 	private Integer second;
-	private Sensorset sensorset;
+	private HSensorset sensorset;
 	
-	public SecondHasSensorset(Integer id, Integer second, Sensorset sensorset) {
+	public SecondHasSensorset(Integer id, Integer second, HSensorset sensorset) {
 		super();
 		this.id = id;
 		this.second = second;
@@ -23,10 +23,10 @@ public class SecondHasSensorset {
 	public void setSecond(Integer second) {
 		this.second = second;
 	}
-	public Sensorset getSensorset() {
+	public HSensorset getSensorset() {
 		return sensorset;
 	}
-	public void setSensorset(Sensorset sensorset) {
+	public void setSensorset(HSensorset sensorset) {
 		this.sensorset = sensorset;
 	}
 	

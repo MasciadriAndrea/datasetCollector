@@ -12,7 +12,7 @@ import common.DbManager;
 import dataModel.Activity;
 import dataModel.DayHasActivity;
 import dataModel.SecondHasSensorset;
-import dataModel.Sensorset;
+import dataModel.HSensorset;
 
 public class SecondHasSensorsetDAOSql implements SecondHasSensorsetDAO {
 	@Override
@@ -33,7 +33,7 @@ public class SecondHasSensorsetDAOSql implements SecondHasSensorsetDAO {
 			
 			//retrieve the associated activity	
 			 SensorsetDAOSql ssDao=new SensorsetDAOSql();
-			 Sensorset sa=ssDao.getSensorsetById(idss);
+			 HSensorset sa=ssDao.getSensorsetById(idss);
 			
 			st.add(new SecondHasSensorset(idd,second,sa));
 		}
@@ -59,7 +59,7 @@ public class SecondHasSensorsetDAOSql implements SecondHasSensorsetDAO {
 			
 			//retrieve the associated activity	
 			 SensorsetDAOSql ssDao=new SensorsetDAOSql();
-			 Sensorset sa=ssDao.getSensorsetById(idss);
+			 HSensorset sa=ssDao.getSensorsetById(idss);
 			
 			 shs=new SecondHasSensorset(id,second,sa);
 		}

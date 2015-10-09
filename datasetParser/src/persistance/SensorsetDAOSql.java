@@ -11,13 +11,13 @@ import java.util.List;
 import common.DbManager;
 import dataModel.DayHasActivity;
 import dataModel.SensorTime;
-import dataModel.Sensorset;
+import dataModel.HSensorset;
 
 public class SensorsetDAOSql implements SensorsetDAO {
 	
 	@Override
-	public List<Sensorset> getSensorsetByHouse(Integer id) throws SQLException{
-		List<Sensorset> st=new ArrayList<Sensorset>();
+	public List<HSensorset> getSensorsetByHouse(Integer id) throws SQLException{
+		List<HSensorset> st=new ArrayList<HSensorset>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
 		String selectSQL = "SELECT id FROM Sensorset WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
@@ -31,14 +31,14 @@ public class SensorsetDAOSql implements SensorsetDAO {
 			 SensorTimeDAOSql sensorTimeDao=new SensorTimeDAOSql();
 			 List<SensorTime> s=sensorTimeDao.getSensorTimeBySensorsetId(ids);
 			
-			st.add(new Sensorset(ids, s));
+			st.add(new HSensorset(ids, s));
 		}
 		return st;
 	}
 	
 	@Override
-	public Sensorset getSensorsetById(Integer id) throws SQLException{
-		Sensorset ss=null;
+	public HSensorset getSensorsetById(Integer id) throws SQLException{
+		HSensorset ss=null;
 		Connection dbConnection=DbManager.getInstance().getConnection();
 		String selectSQL = "SELECT * FROM Sensorset WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
@@ -51,7 +51,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 			 SensorTimeDAOSql sensorTimeDao=new SensorTimeDAOSql();
 			 List<SensorTime> s=sensorTimeDao.getSensorTimeBySensorsetId(ids);
 			
-			ss= new Sensorset(id, s);
+			ss= new HSensorset(id, s);
 		}
 		return ss;
 	}
@@ -78,7 +78,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 	}
 	
 	@Override
-	public Sensorset updateSensorset(Sensorset ss,Integer idHouse) throws SQLException{
+	public HSensorset updateSensorset(HSensorset ss,Integer idHouse) throws SQLException{
 		Integer idSS=ss.getId();
 		
 		// check if SS exist -> if the SS exists remove it

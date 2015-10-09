@@ -8,11 +8,11 @@ public class House {
 	private String name;
 	private List<Resident> residents;
 	private List<Location> locations;
-	private List<Sensor> sensors;
+	private List<HSensor> sensors;
 	private List<Day> days;
 	private List<SensorType> sensorTypes;
 	private List<Activity> activities;
-	private List<Sensorset> sensorsets;
+	private List<HSensorset> sensorsets;
 	
 	public House(Integer id, String name) {
 		super();
@@ -20,11 +20,11 @@ public class House {
 		name = name;
 		this.residents = new ArrayList<Resident>();
 		this.locations = new ArrayList<Location>();
-		this.sensors = new ArrayList<Sensor>();
+		this.sensors = new ArrayList<HSensor>();
 		this.days = new ArrayList<Day>();
 		this.sensorTypes = new ArrayList<SensorType>();
 		this.activities = new ArrayList<Activity>();
-		this.sensorsets=new ArrayList<Sensorset>();
+		this.sensorsets=new ArrayList<HSensorset>();
 	}
 	public Integer getId() {
 		return id;
@@ -50,10 +50,10 @@ public class House {
 	public void setLocations(List<Location> locations) {
 		this.locations = locations;
 	}
-	public List<Sensor> getSensors() {
+	public List<HSensor> getSensors() {
 		return sensors;
 	}
-	public void setSensors(List<Sensor> sensors) {
+	public void setSensors(List<HSensor> sensors) {
 		this.sensors = sensors;
 	}
 	public List<Day> getDays() {
@@ -84,7 +84,7 @@ public class House {
 	public void addResidents(Resident r){
 		residents.add(r);
 	}
-	public void addSensors(Sensor s){
+	public void addSensors(HSensor s){
 		sensors.add(s);
 	}
 	public void addLocations(Location l){
@@ -93,10 +93,10 @@ public class House {
 	public void addDays(Day d){
 		days.add(d);
 	}
-	public List<Sensorset> getSensorsets() {
+	public List<HSensorset> getSensorsets() {
 		return sensorsets;
 	}
-	public void setSensorsets(List<Sensorset> sensorsets) {
+	public void setSensorsets(List<HSensorset> sensorsets) {
 		this.sensorsets = sensorsets;
 	}
 	

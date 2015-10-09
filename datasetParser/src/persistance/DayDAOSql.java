@@ -15,9 +15,9 @@ import dataModel.DayHasActivity;
 import dataModel.Location;
 import dataModel.Resident;
 import dataModel.SecondHasSensorset;
-import dataModel.Sensor;
+import dataModel.HSensor;
 import dataModel.SensorType;
-import dataModel.Sensorset;
+import dataModel.HSensorset;
 
 public class DayDAOSql implements DayDAO {
 	@Override

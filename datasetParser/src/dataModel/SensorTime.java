@@ -2,10 +2,10 @@ package dataModel;
 
 public class SensorTime {
 	private Integer id;
-	private Sensor sensor;
+	private HSensor sensor;
 	private String value;
 	
-	public SensorTime(Integer id, Sensor sensor, String value) {
+	public SensorTime(Integer id, HSensor sensor, String value) {
 		super();
 		this.id = id;
 		this.sensor = sensor;
@@ -17,10 +17,10 @@ public class SensorTime {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	public Sensor getSensor() {
+	public HSensor getSensor() {
 		return sensor;
 	}
-	public void setSensor(Sensor sensor) {
+	public void setSensor(HSensor sensor) {
 		this.sensor = sensor;
 	}
 	public String getValue() {

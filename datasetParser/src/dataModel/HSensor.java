@@ -1,6 +1,6 @@
 package dataModel;
 
-public class Sensor {
+public class HSensor {
 	private Integer id;
 	private String name;
 	private String x;
@@ -8,7 +8,7 @@ public class Sensor {
 	private SensorType type;//add this everywhere
 	private Location location;//add this everywhere
 	
-	public Sensor(Integer id, String name, String x, String y, SensorType type, Location location) {
+	public HSensor(Integer id, String name, String x, String y, SensorType type, Location location) {
 		super();
 		this.id = id;
 		this.name = name;

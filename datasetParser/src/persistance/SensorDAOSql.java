@@ -10,13 +10,13 @@ import java.util.List;
 
 import common.DbManager;
 import dataModel.Location;
-import dataModel.Sensor;
+import dataModel.HSensor;
 import dataModel.SensorType;
 
 public class SensorDAOSql implements SensorDAO {
 	@Override
-	public List<Sensor> getSensorByHouse(Integer id) throws SQLException{
-		List<Sensor> st=new ArrayList<Sensor>();
+	public List<HSensor> getSensorByHouse(Integer id) throws SQLException{
+		List<HSensor> st=new ArrayList<HSensor>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
 		String selectSQL = "SELECT id,name,x,y,Location_id,SensorType_id FROM Sensor WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
@@ -41,14 +41,14 @@ public class SensorDAOSql implements SensorDAO {
 			SensorTypeDAOSql stDao=new SensorTypeDAOSql();
 			SensorType stype=stDao.getSensorTypeById(idType);
 			
-			st.add(new Sensor(ids, names, xs, ys, stype,loc));
+			st.add(new HSensor(ids, names, xs, ys, stype,loc));
 		}
 		return st;
 	}
 	
 	@Override
-	public Sensor getSensorById(Integer sid) throws SQLException{
-		Sensor s=null;
+	public HSensor getSensorById(Integer sid) throws SQLException{
+		HSensor s=null;
 		Connection dbConnection=DbManager.getInstance().getConnection();
 		String selectSQL = "SELECT id,name,x,y,Location_id,SensorType_id FROM Sensor WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
@@ -69,7 +69,7 @@ public class SensorDAOSql implements SensorDAO {
 			Location loc=locationDao.getLocationById(idLoc);
 			SensorTypeDAOSql stDao=new SensorTypeDAOSql();
 			SensorType stype=stDao.getSensorTypeById(idType);
-			s=new Sensor(sid, names, xs, ys, stype, loc);
+			s=new HSensor(sid, names, xs, ys, stype, loc);
 		}
 		return s;
 	}
@@ -101,7 +101,7 @@ public class SensorDAOSql implements SensorDAO {
 	}
 	
 	@Override
-	public Sensor updateSensor(Sensor s, Integer idHouse) throws SQLException{
+	public HSensor updateSensor(HSensor s, Integer idHouse) throws SQLException{
 		Integer idS=s.getId();
 		
 		// check if exist -> if the exists remove it

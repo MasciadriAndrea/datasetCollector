@@ -2,11 +2,11 @@ package dataModel;
 
 import java.util.List;
 
-public class Sensorset {
+public class HSensorset {
 	private Integer id;
 	private List<SensorTime> sensors;
 	
-	public Sensorset(Integer id, List<SensorTime> sensors) {
+	public HSensorset(Integer id, List<SensorTime> sensors) {
 		super();
 		this.id = id;
 		this.sensors = sensors;

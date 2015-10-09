@@ -13,10 +13,10 @@ import dataModel.Activity;
 import dataModel.Day;
 import dataModel.House;
 import dataModel.Resident;
-import dataModel.Sensor;
+import dataModel.HSensor;
 import dataModel.SensorType;
 import dataModel.Location;
-import dataModel.Sensorset;
+import dataModel.HSensorset;
 
 public class HouseDAOSql implements HouseDAO {
 	
@@ -76,12 +76,12 @@ public class HouseDAOSql implements HouseDAO {
 		
 		//retrieve all the sensors
 		 SensorDAOSql sensorDao=new SensorDAOSql();
-		 List<Sensor> s=sensorDao.getSensorByHouse(id);
+		 List<HSensor> s=sensorDao.getSensorByHouse(id);
 		 h.setSensors(s);
 		 
 		//retrieve all the sensorsets
 		 SensorsetDAOSql sensorsetDao=new SensorsetDAOSql();
-		 List<Sensorset> ssa=sensorsetDao.getSensorsetByHouse(id);
+		 List<HSensorset> ssa=sensorsetDao.getSensorsetByHouse(id);
 		 h.setSensorsets(ssa);
 		 
 		//retrieve all the location
@@ -173,13 +173,13 @@ public class HouseDAOSql implements HouseDAO {
 		
 		//retrieve all the sensors
 			 SensorsetDAOSql sensorsetDao=new SensorsetDAOSql();
-			 for(Sensorset s: h.getSensorsets()){
+			 for(HSensorset s: h.getSensorsets()){
 				s=sensorsetDao.updateSensorset(s,newIdHouse);
 			 }
 		  
 		//retrieve all the sensors
 		 SensorDAOSql sensorDao=new SensorDAOSql();
-		 for(Sensor s: h.getSensors()){
+		 for(HSensor s: h.getSensors()){
 			s=sensorDao.updateSensor(s,newIdHouse);
 		 }
 		
@@ -214,15 +214,15 @@ public class HouseDAOSql implements HouseDAO {
 			 
 			//retrieve all the sensorsets
 			 SensorsetDAOSql sensorsetDao=new SensorsetDAOSql();
-			 List<Sensorset> sss=sensorsetDao.getSensorsetByHouse(id);
-			 for(Sensorset ss: sss){
+			 List<HSensorset> sss=sensorsetDao.getSensorsetByHouse(id);
+			 for(HSensorset ss: sss){
 				sensorsetDao.deleteSensorset(ss.getId());
 			 }
 			
 			//retrieve all the sensors
 			 SensorDAOSql sensorDao=new SensorDAOSql();
-			 List<Sensor> ss=sensorDao.getSensorByHouse(id);
-			 for(Sensor s: ss){
+			 List<HSensor> ss=sensorDao.getSensorByHouse(id);
+			 for(HSensor s: ss){
 				sensorDao.deleteSensor(s.getId());
 			 }
 			 
