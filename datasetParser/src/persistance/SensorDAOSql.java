@@ -18,7 +18,7 @@ public class SensorDAOSql implements SensorDAO {
 	public List<HSensor> getSensorByHouse(Integer id) throws SQLException{
 		List<HSensor> st=new ArrayList<HSensor>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT id,name,x,y,Location_id,SensorType_id FROM Sensor WHERE House_id = ?";
+		String selectSQL = "SELECT id,name,x,y,Location_id,SensorType_id,uniqueSensorId FROM Sensor WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
@@ -28,11 +28,13 @@ public class SensorDAOSql implements SensorDAO {
 		String names= "";
 		String xs= "";
 		String ys= "";
+		Integer usi=0;
 		while (rs.next()) {
 			names = rs.getString("name");
 			xs = rs.getString("x");
 			ys = rs.getString("y");
 			ids = Integer.parseInt(rs.getString("id"));
+			usi = Integer.parseInt(rs.getString("uniqueSensorId"));
 			idLoc = Integer.parseInt(rs.getString("Location_id"));
 			idType = Integer.parseInt(rs.getString("SensorType_id"));
 			
@@ -41,7 +43,7 @@ public class SensorDAOSql implements SensorDAO {
 			SensorTypeDAOSql stDao=new SensorTypeDAOSql();
 			SensorType stype=stDao.getSensorTypeById(idType);
 			
-			st.add(new HSensor(ids, names, xs, ys, stype,loc));
+			st.add(new HSensor(ids, usi, names, xs, ys, stype,loc));
 		}
 		return st;
 	}
@@ -50,33 +52,35 @@ public class SensorDAOSql implements SensorDAO {
 	public HSensor getSensorById(Integer sid) throws SQLException{
 		HSensor s=null;
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT id,name,x,y,Location_id,SensorType_id FROM Sensor WHERE id = ?";
+		String selectSQL = "SELECT id,name,x,y,Location_id,SensorType_id,uniqueSensorId FROM Sensor WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, sid);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
 		String names= "";
 		String xs= "";
 		String ys= "";
+		Integer usi=0;
 		while (rs.next()) {
 			names = rs.getString("name");
 			xs = rs.getString("x");
 			ys = rs.getString("y");
 			
 			Integer idLoc = Integer.parseInt(rs.getString("Location_id"));
+			usi = Integer.parseInt(rs.getString("uniqueSensorId"));
 			Integer idType = Integer.parseInt(rs.getString("SensorType_id"));
 			
 			LocationDAOSql locationDao=new LocationDAOSql();
 			Location loc=locationDao.getLocationById(idLoc);
 			SensorTypeDAOSql stDao=new SensorTypeDAOSql();
 			SensorType stype=stDao.getSensorTypeById(idType);
-			s=new HSensor(sid, names, xs, ys, stype, loc);
+			s=new HSensor(sid,usi, names, xs, ys, stype, loc);
 		}
 		return s;
 	}
 	
-	private Integer insertSensor(String name,String x,String y,Integer type,Integer location,Integer idHouse) throws SQLException{
+	private Integer insertSensor(String name,String x,String y,Integer type,Integer location,Integer idHouse,Integer usi) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String insertTableSQL = "INSERT INTO Sensor (name,x,y,House_id,SensorType_id,Location_id) VALUES (?,?,?,?,?,?)";
+		String insertTableSQL = "INSERT INTO Sensor (name,x,y,House_id,SensorType_id,Location_id,uniqueSensorId) VALUES (?,?,?,?,?,?,?)";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
 		preparedStatement.setString(1, name);
 		preparedStatement.setString(2, x);
@@ -84,6 +88,7 @@ public class SensorDAOSql implements SensorDAO {
 		preparedStatement.setInt(4, idHouse);
 		preparedStatement.setInt(5, type);
 		preparedStatement.setInt(6, location);
+		preparedStatement.setInt(7, usi);
 		int affectedRows = preparedStatement.executeUpdate();
 
         if (affectedRows == 0) {
@@ -116,7 +121,7 @@ public class SensorDAOSql implements SensorDAO {
 		
 		//insert in the database
 		Integer newIdSensor=0;
-		newIdSensor= insertSensor(s.getName(),s.getX(),s.getY(),s.getType().getId(),s.getLocation().getId(),idHouse);
+		newIdSensor= insertSensor(s.getName(),s.getX(),s.getY(),s.getType().getId(),s.getLocation().getId(),idHouse,s.getUniqueSensorId());
 				
 		//upload the id
 		s.setId(newIdSensor);

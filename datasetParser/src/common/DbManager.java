@@ -13,7 +13,7 @@ public class DbManager {
 	
 	private DbManager() {
 		super();
-		url = "jdbc:mysql://localhost:3306/activityRecog";
+		url = "jdbc:mysql://localhost:8889/activityRecog";
 		username = "user";
 		password = "user";
 		System.out.println("-------- MySQL JDBC Connection Testing ------------");

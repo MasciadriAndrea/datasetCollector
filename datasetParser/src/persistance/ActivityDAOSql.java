@@ -16,16 +16,18 @@ public class ActivityDAOSql implements ActivityDAO {
 	public List<Activity> getActivityByHouse(Integer id) throws SQLException{
 		List<Activity> st=new ArrayList<Activity>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT Activity.name as name, Activity.id as id FROM Activity,House_has_Activity WHERE House_has_Activity.idActivity=Activity.id and House_has_Activity.idHouse = ?";
+		String selectSQL = "SELECT id, name, uniqueActivityId FROM Activity WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
 		String namest=""; 
 		Integer idst = 0;
+		Integer uid = 0;
 		while (rs.next()) {
 			namest = rs.getString("name");
 			idst = Integer.parseInt(rs.getString("id"));
-			st.add(new Activity(idst,namest));
+			uid = Integer.parseInt(rs.getString("uniqueActivityId"));
+			st.add(new Activity(idst,uid,namest));
 		}
 		return st;
 	}
@@ -34,24 +36,27 @@ public class ActivityDAOSql implements ActivityDAO {
 	public Activity getActivityById(Integer aid) throws SQLException{
 		Activity a=null;
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT name FROM Activity WHERE id = ?";
+		String selectSQL = "SELECT name,uniqueActivityId FROM Activity WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, aid);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
-		String namest=""; 
+		String namest="";
+		Integer uid = 0;
 		while (rs.next()) {
 			namest = rs.getString("name");
-			a= new Activity(aid,namest);
+			uid = Integer.parseInt(rs.getString("uniqueActivityId"));
+			a= new Activity(aid,uid,namest);
 		}
 		return a;
 	}
 	
-	private Integer insertActivity(String name,Integer idHouse) throws SQLException{
+	private Integer insertActivity(String name,Integer idHouse,Integer uid) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String insertTableSQL = "INSERT INTO Activity (name,House_id) VALUES (?,?)";
+		String insertTableSQL = "INSERT INTO Activity (name,House_id,uniqueActivityId) VALUES (?,?,?)";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
 		preparedStatement.setString(1, name);
 		preparedStatement.setInt(2, idHouse);
+		preparedStatement.setInt(3, uid);
 		int affectedRows = preparedStatement.executeUpdate();
 
         if (affectedRows == 0) {
@@ -84,7 +89,7 @@ public class ActivityDAOSql implements ActivityDAO {
 		
 		//insert in the database
 		Integer newIdActivity=0;
-		newIdActivity= insertActivity(att.getName(),idHouse);
+		newIdActivity= insertActivity(att.getName(),idHouse,att.getUniqueActivityId());
 				
 		//upload the id
 		att.setId(newIdActivity);

@@ -16,26 +16,29 @@ public class ResidentDAOSql implements ResidentDAO {
 	public List<Resident> getResidentByHouse(Integer id) throws SQLException{
 		List<Resident> st=new ArrayList<Resident>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT id,age FROM Resident WHERE House_id = ?";
+		String selectSQL = "SELECT id,age,uniqueResidentId FROM Resident WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
 		Integer ager=0; 
+		Integer uri=0;
 		Integer idr = 0;
 		while (rs.next()) {
 			ager = Integer.parseInt(rs.getString("age"));
 			idr = Integer.parseInt(rs.getString("id"));
-			st.add(new Resident(idr,ager));
+			uri=Integer.parseInt(rs.getString("uniqueResidentId"));
+			st.add(new Resident(idr,ager,uri));
 		}
 		return st;
 	}
 	
-	private Integer insertResident(String age,Integer idHouse) throws SQLException{
+	private Integer insertResident(String age,Integer idHouse,Integer uri) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String insertTableSQL = "INSERT INTO Resident (age,House_id) VALUES (?,?)";
+		String insertTableSQL = "INSERT INTO Resident (age,House_id,uniqueResidentId) VALUES (?,?,?)";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
 		preparedStatement.setString(1, age);
 		preparedStatement.setInt(2, idHouse);
+		preparedStatement.setInt(3, uri);
 		int affectedRows = preparedStatement.executeUpdate();
 
         if (affectedRows == 0) {
@@ -68,7 +71,7 @@ public class ResidentDAOSql implements ResidentDAO {
 		
 		//insert in the database
 		Integer newIdResident=0;
-		newIdResident= insertResident(r.getAge().toString(),idHouse);
+		newIdResident= insertResident(r.getAge().toString(),idHouse,r.getUniqueResidentId());
 				
 		//upload the id
 		r.setId(newIdResident);

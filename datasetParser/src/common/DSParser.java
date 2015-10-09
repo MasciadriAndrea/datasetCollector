@@ -22,26 +22,26 @@ public class DSParser {
 		//DbManager db=DbManager.getInstance();
 		
 		//instantiate simple
-		Resident resident=new Resident(null,23);
+		Resident resident=new Resident(null,1,23);
 		ArrayList<Resident> listResidents=new ArrayList<Resident>();
 		listResidents.add(resident);
 		
-		Activity activity1=new Activity(null,"Sleep");
-		Activity activity2=new Activity(null,"Eat");
+		Activity activity1=new Activity(null,1,"Sleep");
+		Activity activity2=new Activity(null,2,"Eat");
 		ArrayList<Activity> listActivities=new ArrayList<Activity>();
 		listActivities.add(activity1);
 		listActivities.add(activity2);
 		
-		Location location=new Location(null,"Kitchen");
+		Location location=new Location(null,1,"Kitchen");
 		ArrayList<Location> listLocations=new ArrayList<Location>();
 		listLocations.add(location);
 		
-		SensorType sensType=new SensorType(null,"Temperature");
+		SensorType sensType=new SensorType(null,1,"Temperature");
 		ArrayList<SensorType> listSensorTypes=new ArrayList<SensorType>();
 		listSensorTypes.add(sensType);
 		
-		HSensor sens1=new HSensor(null,"s1","100","200",sensType,location);
-		HSensor sens2=new HSensor(null,"s2","50","50",sensType,location);
+		HSensor sens1=new HSensor(null,1,"s1","100","200",sensType,location);
+		HSensor sens2=new HSensor(null,2,"s2","50","50",sensType,location);
 		ArrayList<HSensor> listSensors=new ArrayList<HSensor>();
 		listSensors.add(sens1);
 		listSensors.add(sens2);
@@ -63,8 +63,8 @@ public class DSParser {
 		lst2.add(s1ss2);
 		lst2.add(s2ss2);
 		
-		HSensorset ss1= new HSensorset(null,lst1);
-		HSensorset ss2= new HSensorset(null,lst2);
+		HSensorset ss1= new HSensorset(null,1,lst1);
+		HSensorset ss2= new HSensorset(null,2,lst2);
 		ArrayList<HSensorset> listSS=new ArrayList<HSensorset>();
 		listSS.add(ss1);
 		listSS.add(ss2);
@@ -75,7 +75,7 @@ public class DSParser {
 		listShS.add(shs1);
 		listShS.add(shs2);
 		
-		Day day1=new Day(null,"1","1","2015");
+		Day day1=new Day(null,0,"1","1","2015");
 		day1.setDailyActivities(listDha);
 		day1.setSecondHasSensorsets(listShS);
 		ArrayList<Day> listDays=new ArrayList<Day>();

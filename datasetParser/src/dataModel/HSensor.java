@@ -2,15 +2,17 @@ package dataModel;
 
 public class HSensor {
 	private Integer id;
+	private Integer uniqueSensorId;
 	private String name;
 	private String x;
 	private String y;
 	private SensorType type;//add this everywhere
 	private Location location;//add this everywhere
 	
-	public HSensor(Integer id, String name, String x, String y, SensorType type, Location location) {
+	public HSensor(Integer id, Integer uniqueSensorId, String name, String x, String y, SensorType type, Location location) {
 		super();
 		this.id = id;
+		this.uniqueSensorId = uniqueSensorId;
 		this.name = name;
 		this.x = x;
 		this.y = y;
@@ -58,6 +60,12 @@ public class HSensor {
 	public void setLocation(Location location) {
 		this.location = location;
 	}
-	
+	public Integer getUniqueSensorId() {
+		return uniqueSensorId;
+	}
+
+	public void setUniqueSensorId(Integer uniqueSensorId) {
+		this.uniqueSensorId = uniqueSensorId;
+	}
 	
 }

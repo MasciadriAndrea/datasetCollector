@@ -8,12 +8,14 @@ public class Day {
 	private String day;
 	private String month;
 	private String year;
+	private Integer incrementalDay;
 	private List<DayHasActivity> dailyActivities;
 	private List<SecondHasSensorset> secondHasSensorsets;
 	
-	public Day(Integer id, String day, String month, String year) {
+	public Day(Integer id, Integer incrementalDay, String day, String month, String year) {
 		super();
 		this.id = id;
+		this.incrementalDay=incrementalDay;
 		this.day = day;
 		this.month = month;
 		this.year = year;
@@ -55,6 +57,12 @@ public class Day {
 	}
 	public void setSecondHasSensorsets(List<SecondHasSensorset> secondHasSensorsets) {
 		this.secondHasSensorsets = secondHasSensorsets;
+	}
+	public Integer getIncrementalDay() {
+		return incrementalDay;
+	}
+	public void setIncrementalDay(Integer incrementalDay) {
+		this.incrementalDay = incrementalDay;
 	}
 	
 	

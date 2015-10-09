@@ -1,12 +1,20 @@
 package dataModel;
 
 public class Activity {
+	public Integer getUniqueActivityId() {
+		return uniqueActivityId;
+	}
+	public void setUniqueActivityId(Integer uniqueActivityId) {
+		this.uniqueActivityId = uniqueActivityId;
+	}
 	private Integer id;
+	private Integer uniqueActivityId;
 	private String name;
 	
-	public Activity(Integer id, String name) {
+	public Activity(Integer id, Integer uid, String name) {
 		super();
 		this.id = id;
+		this.uniqueActivityId = uid;
 		this.name = name;
 	}
 	public Integer getId() {

@@ -16,16 +16,18 @@ public class SensorTypeDAOSql implements SensorTypeDAO {
 	public List<SensorType> getSensorTypeByHouse(Integer id) throws SQLException{
 		List<SensorType> st=new ArrayList<SensorType>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT SensorType.name as name, SensorType.id as id FROM SensorType,House_has_SensorType WHERE House_has_SensorType.idSensorType=SensorType.id and House_has_SensorType.idHouse = ?";
+		String selectSQL = "SELECT id,name,uniqueSensorTypeId FROM SensorType WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
 		String namest=""; 
 		Integer idst = 0;
+		Integer usi=0;
 		while (rs.next()) {
 			namest = rs.getString("name");
 			idst = Integer.parseInt(rs.getString("id"));
-			st.add(new SensorType(idst,namest));
+			usi = Integer.parseInt(rs.getString("uniqueSensorTypeId"));
+			st.add(new SensorType(idst,usi,namest));
 		}
 		return st;
 	}
@@ -34,24 +36,27 @@ public class SensorTypeDAOSql implements SensorTypeDAO {
 	public SensorType getSensorTypeById(Integer id) throws SQLException{
 		SensorType st=null;
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT name FROM SensorType WHERE id = ?";
+		String selectSQL = "SELECT name,uniqueSensorTypeId FROM SensorType WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
 		String namest=""; 
+		Integer usi=0;
 		while (rs.next()) {
 			namest = rs.getString("name");
-			st=new SensorType(id,namest);
+			usi = Integer.parseInt(rs.getString("uniqueSensorTypeId"));
+			st=new SensorType(id,usi,namest);
 		}
 		return st;
 	}
 	
-	private Integer insertSensorType(String name,Integer idHouse) throws SQLException{
+	private Integer insertSensorType(String name,Integer idHouse,Integer usi) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String insertTableSQL = "INSERT INTO SensorType (name,House_id) VALUES (?,?)";
+		String insertTableSQL = "INSERT INTO SensorType (name,House_id,uniqueSensorTypeId) VALUES (?,?,?)";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
 		preparedStatement.setString(1, name);
 		preparedStatement.setInt(2, idHouse);
+		preparedStatement.setInt(3, usi);
 		int affectedRows = preparedStatement.executeUpdate();
 
         if (affectedRows == 0) {
@@ -84,7 +89,7 @@ public class SensorTypeDAOSql implements SensorTypeDAO {
 		
 		//insert in the database
 		Integer newIdActivity=0;
-		newIdActivity= insertSensorType(st.getName(),idHouse);
+		newIdActivity= insertSensorType(st.getName(),idHouse,st.getUniqueSensorTypeId());
 				
 		//upload the id
 		st.setId(newIdActivity);

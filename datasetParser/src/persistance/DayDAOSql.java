@@ -24,7 +24,7 @@ public class DayDAOSql implements DayDAO {
 	public List<Day> getDayByHouse(Integer id) throws SQLException{
 		List<Day> st=new ArrayList<Day>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT id,day,month,year FROM Day WHERE House_id = ?";
+		String selectSQL = "SELECT id,day,month,year,incrementalDay FROM Day WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
@@ -32,12 +32,14 @@ public class DayDAOSql implements DayDAO {
 		String dayd= "";
 		String monthd= "";
 		String yeard= "";
+		Integer incDay=0;
 		while (rs.next()) {
 			dayd = rs.getString("day");
 			monthd = rs.getString("month");
 			yeard = rs.getString("year");
 			idd = Integer.parseInt(rs.getString("id"));
-			Day d=new Day(idd,dayd,monthd,yeard);
+			incDay = Integer.parseInt(rs.getString("incrementalDay"));
+			Day d=new Day(idd,incDay,dayd,monthd,yeard);
 			
 			//retrieve all dailyActivities	
 			 DayHasActivityDAOSql dayHasActivityDAO=new DayHasActivityDAOSql();
@@ -57,7 +59,7 @@ public class DayDAOSql implements DayDAO {
 	public Day getDayById(Integer id) throws SQLException{
 		Day d=null;
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT day,month,year FROM Day WHERE id = ?";
+		String selectSQL = "SELECT day,month,year,incrementalDay FROM Day WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
@@ -65,11 +67,13 @@ public class DayDAOSql implements DayDAO {
 		String dayd= "";
 		String monthd= "";
 		String yeard= "";
+		Integer incDay=0;
 		while (rs.next()) {
 			dayd = rs.getString("day");
 			monthd = rs.getString("month");
 			yeard = rs.getString("year");
-			d=new Day(id,dayd,monthd,yeard);
+			incDay=rs.getInt("incrementalDay");
+			d=new Day(id,incDay,dayd,monthd,yeard);
 			
 			//retrieve all dailyActivities	
 			 DayHasActivityDAOSql dayHasActivityDAO=new DayHasActivityDAOSql();
@@ -85,14 +89,15 @@ public class DayDAOSql implements DayDAO {
 		return d;
 	}
 	
-	public Integer insertDay(String day,String month,String year, Integer idHouse) throws SQLException{
+	public Integer insertDay(Integer incDay,String day,String month,String year, Integer idHouse) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String insertTableSQL = "INSERT INTO Day (day,month,year,House_id) VALUES (?,?,?,?)";
+		String insertTableSQL = "INSERT INTO Day (day,month,year,House_id,incrementalDay) VALUES (?,?,?,?,?)";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
 		preparedStatement.setString(1, day);
 		preparedStatement.setString(2, month);
 		preparedStatement.setString(3, year);
 		preparedStatement.setInt(4, idHouse);
+		preparedStatement.setInt(5, incDay);
 		int affectedRows = preparedStatement.executeUpdate();
 
         if (affectedRows == 0) {
@@ -125,7 +130,7 @@ public class DayDAOSql implements DayDAO {
 		
 		//insert in the database
 		Integer newIdDay=0;
-		newIdDay= insertDay(d.getDay(),d.getMonth(),d.getYear(), idHouse);
+		newIdDay= insertDay(d.getIncrementalDay(),d.getDay(),d.getMonth(),d.getYear(), idHouse);
 				
 		//upload the id
 		d.setId(newIdDay);

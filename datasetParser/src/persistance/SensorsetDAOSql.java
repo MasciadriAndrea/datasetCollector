@@ -19,19 +19,20 @@ public class SensorsetDAOSql implements SensorsetDAO {
 	public List<HSensorset> getSensorsetByHouse(Integer id) throws SQLException{
 		List<HSensorset> st=new ArrayList<HSensorset>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT id FROM Sensorset WHERE House_id = ?";
+		String selectSQL = "SELECT id,uniqueSensorsetId FROM Sensorset WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
-		Integer ids=0; 
+		Integer ids=0;
+		Integer uniqueId=0; 
 		while (rs.next()) {
 			ids = Integer.parseInt(rs.getString("id"));
-			
+			uniqueId=Integer.parseInt(rs.getString("uniqueSensorsetId"));
 			//retrieve all the sensortime
 			 SensorTimeDAOSql sensorTimeDao=new SensorTimeDAOSql();
 			 List<SensorTime> s=sensorTimeDao.getSensorTimeBySensorsetId(ids);
 			
-			st.add(new HSensorset(ids, s));
+			st.add(new HSensorset(ids,uniqueId, s));
 		}
 		return st;
 	}
@@ -45,22 +46,25 @@ public class SensorsetDAOSql implements SensorsetDAO {
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery(selectSQL );
 		Integer ids=0; 
+		Integer uniqueId=0;
 		while (rs.next()) {
+			uniqueId=Integer.parseInt(rs.getString("uniqueSensorsetId"));
 			
 			//retrieve all the sensortime
 			 SensorTimeDAOSql sensorTimeDao=new SensorTimeDAOSql();
 			 List<SensorTime> s=sensorTimeDao.getSensorTimeBySensorsetId(ids);
 			
-			ss= new HSensorset(id, s);
+			ss= new HSensorset(id,uniqueId, s);
 		}
 		return ss;
 	}
 	
-	private Integer insertSensorset(Integer idHouse) throws SQLException{
+	private Integer insertSensorset(Integer idHouse,Integer uniqueSsId) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String insertTableSQL = "INSERT INTO Sensorset (House_id) VALUES (?)";
+		String insertTableSQL = "INSERT INTO Sensorset (House_id,uniqueSensorsetId) VALUES (?,?)";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
 		preparedStatement.setInt(1, idHouse);
+		preparedStatement.setInt(2, uniqueSsId);
 		int affectedRows = preparedStatement.executeUpdate();
 
         if (affectedRows == 0) {
@@ -93,7 +97,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 		
 		//insert in the database
 		Integer newIdSS=0;
-		newIdSS= insertSensorset(idHouse);
+		newIdSS= insertSensorset(idHouse,ss.getUniqueSensorsetId());
 				
 		//upload the id
 		ss.setId(newIdSS);
