@@ -22,7 +22,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 		String selectSQL = "SELECT id,uniqueSensorsetId FROM Sensorset WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer ids=0;
 		Integer uniqueId=0; 
 		while (rs.next()) {
@@ -44,7 +44,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 		String selectSQL = "SELECT * FROM Sensorset WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer ids=0; 
 		Integer uniqueId=0;
 		while (rs.next()) {
@@ -90,7 +90,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 		String selectSQL = "SELECT * FROM Sensorset WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idSS);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteSensorset(idSS);
 		}
@@ -136,7 +136,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 				try {
 					preparedStatement = dbConnection.prepareStatement(selectSQL);
 					preparedStatement.setInt(1, id);
-					preparedStatement.executeQuery(selectSQL );
+					preparedStatement.executeQuery();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

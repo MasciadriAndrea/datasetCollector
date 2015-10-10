@@ -21,7 +21,7 @@ public class SensorDAOSql implements SensorDAO {
 		String selectSQL = "SELECT id,name,x,y,Location_id,SensorType_id,uniqueSensorId FROM Sensor WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer ids=0;
 		Integer idLoc=0;
 		Integer idType=0;
@@ -55,7 +55,7 @@ public class SensorDAOSql implements SensorDAO {
 		String selectSQL = "SELECT id,name,x,y,Location_id,SensorType_id,uniqueSensorId FROM Sensor WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, sid);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		String names= "";
 		String xs= "";
 		String ys= "";
@@ -114,7 +114,7 @@ public class SensorDAOSql implements SensorDAO {
 		String selectSQL = "SELECT * FROM Sensor WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idS);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteSensor(idS);
 		}
@@ -137,7 +137,7 @@ public class SensorDAOSql implements SensorDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery(selectSQL );
+			preparedStatement.executeQuery();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

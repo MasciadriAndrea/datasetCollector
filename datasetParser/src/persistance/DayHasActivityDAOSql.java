@@ -20,7 +20,7 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 		String selectSQL = "SELECT id,startSec,endSec,Activity_id FROM Day_has_Activity WHERE Day_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer idd=0; 
 		Integer startd= 0;
 		Integer endd= 0;
@@ -47,7 +47,7 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 		String selectSQL = "SELECT startSec,endSec,Activity_id FROM Day_has_Activity WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer startd= 0;
 		Integer endd= 0;
 		Integer aid=0;
@@ -71,7 +71,7 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 		preparedStatement.setString(1, startSec);
 		preparedStatement.setString(2, endSec);
 		preparedStatement.setInt(3, idDay);
-		preparedStatement.setInt(2, idAct);
+		preparedStatement.setInt(4, idAct);
 		int affectedRows = preparedStatement.executeUpdate();
 
         if (affectedRows == 0) {
@@ -97,7 +97,7 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 		String selectSQL = "SELECT * FROM Day_has_Activity WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idDha);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteDayHasActivity(idDha);
 		}
@@ -121,7 +121,7 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 				try {
 					preparedStatement = dbConnection.prepareStatement(selectSQL);
 					preparedStatement.setInt(1, id);
-					preparedStatement.executeQuery(selectSQL );
+					preparedStatement.executeQuery();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

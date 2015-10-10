@@ -19,7 +19,7 @@ public class ActivityDAOSql implements ActivityDAO {
 		String selectSQL = "SELECT id, name, uniqueActivityId FROM Activity WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		String namest=""; 
 		Integer idst = 0;
 		Integer uid = 0;
@@ -39,7 +39,7 @@ public class ActivityDAOSql implements ActivityDAO {
 		String selectSQL = "SELECT name,uniqueActivityId FROM Activity WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, aid);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		String namest="";
 		Integer uid = 0;
 		while (rs.next()) {
@@ -82,7 +82,7 @@ public class ActivityDAOSql implements ActivityDAO {
 		String selectSQL = "SELECT * FROM Activity WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idA);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteActivity(idA);
 		}
@@ -105,7 +105,7 @@ public class ActivityDAOSql implements ActivityDAO {
 				try {
 					preparedStatement = dbConnection.prepareStatement(selectSQL);
 					preparedStatement.setInt(1, id);
-					preparedStatement.executeQuery(selectSQL );
+					preparedStatement.executeQuery();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

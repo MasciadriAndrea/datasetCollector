@@ -19,7 +19,7 @@ public class ResidentDAOSql implements ResidentDAO {
 		String selectSQL = "SELECT id,age,uniqueResidentId FROM Resident WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer ager=0; 
 		Integer uri=0;
 		Integer idr = 0;
@@ -64,7 +64,7 @@ public class ResidentDAOSql implements ResidentDAO {
 		String selectSQL = "SELECT * FROM Resident WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idR);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteResident(idR);
 		}
@@ -87,7 +87,7 @@ public class ResidentDAOSql implements ResidentDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery(selectSQL );
+			preparedStatement.executeQuery();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

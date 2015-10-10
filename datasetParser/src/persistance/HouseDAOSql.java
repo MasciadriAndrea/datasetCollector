@@ -27,7 +27,7 @@ public class HouseDAOSql implements HouseDAO {
 		String selectSQL = "SELECT name,id FROM House WHERE Dataset_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		String nameh=""; 
 		Integer idh;
 		while (rs.next()) {
@@ -47,7 +47,7 @@ public class HouseDAOSql implements HouseDAO {
 		String selectSQL = "SELECT name FROM House WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		String nameh=""; 
 		while (rs.next()) {
 			nameh = rs.getString("name");
@@ -121,13 +121,12 @@ public class HouseDAOSql implements HouseDAO {
 	@Override
 	public House updateHouse(House h,Integer idDs) throws SQLException{
 		Integer idH=h.getId();
-		
 		// check if House exist -> if the house exists remove it
 		Connection dbConnection=DbManager.getInstance().getConnection();
 		String selectSQL = "SELECT name FROM House WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idH);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteHouse(idH);
 		}
@@ -254,7 +253,7 @@ public class HouseDAOSql implements HouseDAO {
 				try {
 					preparedStatement = dbConnection.prepareStatement(selectSQL);
 					preparedStatement.setInt(1, id);
-					preparedStatement.executeQuery(selectSQL );
+					preparedStatement.executeQuery();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

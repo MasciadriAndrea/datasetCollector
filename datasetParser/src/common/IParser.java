@@ -1,4 +1,4 @@
-package specificParser;
+package common;
 
 
 import java.util.List;
@@ -17,10 +17,12 @@ import dataModel.SensorTime;
 import dataModel.SensorType;
 
 public interface IParser {
+	public void updateHouseData(String nameDs,String nameHouse);
+	public void saveDataset();
+	
 	public Dataset getDataset();
 	public void createDataset(Integer id, String name);
-	public void createHouse(String name);
-	
+	public House createHouse(String name);
 	public List<Activity> getActivityList();
 	public List<Resident> getResidentList();
 	public List<Location> getLocationList();

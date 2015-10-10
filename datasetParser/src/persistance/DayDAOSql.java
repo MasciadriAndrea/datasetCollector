@@ -27,7 +27,7 @@ public class DayDAOSql implements DayDAO {
 		String selectSQL = "SELECT id,day,month,year,incrementalDay FROM Day WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer idd=0; 
 		String dayd= "";
 		String monthd= "";
@@ -62,7 +62,7 @@ public class DayDAOSql implements DayDAO {
 		String selectSQL = "SELECT day,month,year,incrementalDay FROM Day WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer idd=0; 
 		String dayd= "";
 		String monthd= "";
@@ -123,7 +123,7 @@ public class DayDAOSql implements DayDAO {
 		String selectSQL = "SELECT * FROM Day WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idD);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteDay(idD);
 		}
@@ -181,7 +181,7 @@ public class DayDAOSql implements DayDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery(selectSQL );
+			preparedStatement.executeQuery();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

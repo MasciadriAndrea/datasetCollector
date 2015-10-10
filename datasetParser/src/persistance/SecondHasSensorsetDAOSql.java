@@ -22,7 +22,7 @@ public class SecondHasSensorsetDAOSql implements SecondHasSensorsetDAO {
 		String selectSQL = "SELECT id,Sensorset_id,second FROM Second_has_Sensorset WHERE Day_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer idd=0; 
 		Integer second= 0;
 		Integer idss= 0;
@@ -47,7 +47,7 @@ public class SecondHasSensorsetDAOSql implements SecondHasSensorsetDAO {
 		String selectSQL = "SELECT Day_id,Sensorset_id,second FROM Second_has_Sensorset WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer idd=0; 
 		Integer second= 0;
 		Integer idss= 0;
@@ -98,7 +98,7 @@ public class SecondHasSensorsetDAOSql implements SecondHasSensorsetDAO {
 		String selectSQL = "SELECT * FROM Second_has_Sensorset WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idShs);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteSecondHasSensorset(idShs);
 		}
@@ -122,7 +122,7 @@ public class SecondHasSensorsetDAOSql implements SecondHasSensorsetDAO {
 				try {
 					preparedStatement = dbConnection.prepareStatement(selectSQL);
 					preparedStatement.setInt(1, id);
-					preparedStatement.executeQuery(selectSQL );
+					preparedStatement.executeQuery();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

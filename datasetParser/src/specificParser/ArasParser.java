@@ -11,7 +11,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import persistance.DatasetDAOSql;
+import common.DbManager;
+import common.GenericParser;
 import dataModel.Activity;
+import dataModel.Dataset;
 import dataModel.Day;
 import dataModel.DayHasActivity;
 import dataModel.HSensor;
@@ -43,6 +47,29 @@ public class ArasParser extends GenericParser {
 		}
 		return instance;
 	}
+	
+	@Override
+	public void saveDataset(){
+		try{
+			DbManager db=DbManager.getInstance();
+			DatasetDAOSql dsDAO=new DatasetDAOSql();
+			this.ds=dsDAO.updateDataset(this.ds);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void updateHouseData(String nameDs,String nameHouse){
+		createDataset(0,nameDs);
+		House h=createHouse(nameHouse);
+		h.setActivities(getActivityList());
+		h.setResidents(getResidentList());
+		h.setLocations(getLocationList());
+		h.setSensorTypes(getSensorTypeList());
+		h.setSensors(getSensorList());
+		h.setDays(getDayList());
+	}
 
 	@Override
 	public List<Activity> getActivityList()  {
@@ -72,7 +99,7 @@ public class ArasParser extends GenericParser {
 			for (String pattern : configLines) {
 				String[] chunks = pattern.split(",");
 				if(chunks.length>1){
-					al.add(new Activity(null,Integer.valueOf(chunks[0]),chunks[1]));
+					al.add(new Activity(0,Integer.valueOf(chunks[0]),chunks[1]));
 					c++;
 				}
 			}
@@ -113,7 +140,7 @@ public class ArasParser extends GenericParser {
 				if(chunks.length>1){
 					Integer uid=Integer.valueOf(chunks[0]);
 					Integer age=Integer.valueOf(chunks[1]);
-					rl.add(new Resident(null,age,uid));
+					rl.add(new Resident(0,age,uid));
 					c++;
 				}
 			}
@@ -126,7 +153,7 @@ public class ArasParser extends GenericParser {
 
 	@Override
 	public List<Location> getLocationList() {
-		Location l=new Location(null,1,"default");
+		Location l=new Location(0,1,"default");
 		List<Location> ll=new ArrayList<Location>();
 		ll.add(l);
 		return ll;
@@ -134,7 +161,7 @@ public class ArasParser extends GenericParser {
 	
 	@Override
 	public List<SensorType> getSensorTypeList() {
-		SensorType st=new SensorType(null, 1, "default");
+		SensorType st=new SensorType(0, 1, "default");
 		List<SensorType> lst=new ArrayList<SensorType>();
 		lst.add(st);
 		return lst;
@@ -172,7 +199,7 @@ public class ArasParser extends GenericParser {
 					House h=super.getDataset().getHouses().get(0);
 					Location loc=h.getLocationByUniqueId(1);
 					SensorType st=h.getSensorTypeByUniqueId(1);
-					sl.add(new HSensor(null, c+1, chunks[0], chunks[1], chunks[1], st, loc));
+					sl.add(new HSensor(0, c+1, chunks[0], chunks[1], chunks[1], st, loc));
 					c++;
 				}
 			}
@@ -242,7 +269,7 @@ public class ArasParser extends GenericParser {
                 }
             }
             
-            Day currentDay=new Day(null,nFile,null,null,null);
+            Day currentDay=new Day(0,nFile,"","","");
             List<SecondHasSensorset> lshs=new ArrayList<SecondHasSensorset>();
             List<DayHasActivity> ldha=new ArrayList<DayHasActivity>();
             
@@ -273,18 +300,18 @@ public class ArasParser extends GenericParser {
 	                	uniqueIdSensor=i+1;
 	                	sens=h.getSensorByUniqueId(uniqueIdSensor);
 	                	value=chunks[i];
-	                	st=new SensorTime(null,sens,value);
+	                	st=new SensorTime(0,sens,value);
 	                	listST.add(st);
 	                }
 	                //list of SensorTime ready... if any sensorset has the same list -> add to Sensorsets list
 	                HSensorset ss=getUniqueSS(h.getSensorsets(),listST);
-	                lshs.add(new SecondHasSensorset(null,secondtime,ss));
+	                lshs.add(new SecondHasSensorset(0,secondtime,ss));
 	                
 	                currentActivity=Integer.parseInt(chunks[20]);
 	                if(!previousActivity.equals(currentActivity)){
 	                	//if changed activity
 	                	Activity currAct=h.getActivityByUniqueId(previousActivity);
-		                ldha.add(new DayHasActivity(null,startSec,endSec,currAct));
+		                ldha.add(new DayHasActivity(0,startSec,endSec,currAct));
 	                	startSec=secondtime;
 	                	endSec=secondtime;
 	                	previousActivity=currentActivity;
@@ -337,7 +364,7 @@ public class ArasParser extends GenericParser {
 			}
 		}
 		if(!foundSS){
-			HSensorset hss=new HSensorset(null,numSS+1,listST);
+			HSensorset hss=new HSensorset(0,numSS+1,listST);
 			lss.add(hss);
 			SSfound=hss;
 		}

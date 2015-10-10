@@ -16,8 +16,8 @@ public class House {
 	
 	public House(Integer id, String name) {
 		super();
-		id = id;
-		name = name;
+		this.id = id;
+		this.name = name;
 		this.residents = new ArrayList<Resident>();
 		this.locations = new ArrayList<Location>();
 		this.sensors = new ArrayList<HSensor>();
@@ -30,13 +30,13 @@ public class House {
 		return id;
 	}
 	public void setId(Integer id) {
-		id = id;
+		this.id = id;
 	}
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
-		name = name;
+		this.name = name;
 	}
 	public List<Resident> getResidents() {
 		return residents;

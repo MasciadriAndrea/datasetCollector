@@ -1,4 +1,4 @@
-package specificParser;
+package common;
 
 import dataModel.Dataset;
 import dataModel.House;
@@ -23,7 +23,9 @@ public abstract class GenericParser implements IParser {
 		this.ds=new Dataset(id,name);
 	}
 	
-	public void createHouse(String name){
-		ds.getHouses().add(new House(null,name));
+	public House createHouse(String name){
+		House h=new House(0,name);
+		ds.getHouses().add(h);
+		return h;
 	}
 }

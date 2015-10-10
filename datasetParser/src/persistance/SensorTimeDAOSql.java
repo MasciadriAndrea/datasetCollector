@@ -20,7 +20,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 		String selectSQL = "SELECT id,Sensor_id,value FROM Sensorset_has_Sensor WHERE Sensorset_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer ids = 0; 
 		Integer idst = 0;
 		String status="";
@@ -45,7 +45,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 		String selectSQL = "SELECT Sensor_id,value FROM Sensorset_has_Sensor WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer ids = 0; 
 		String status="";
 		while (rs.next()) {
@@ -93,14 +93,14 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 		String selectSQL = "SELECT * FROM Sensorset_has_Sensor WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idST);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteSensorTime(idST);
 		}
 		
 		//insert in the database
 		Integer newIdST=0;
-		newIdST= insertSensorTime(st.getValue(),st.getSensor().getId(),idSS);
+		newIdST= insertSensorTime(st.getValue(),st.getSensor().getUniqueSensorId(),idSS);
 				
 		//upload the id
 		st.setId(newIdST);
@@ -118,7 +118,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery(selectSQL );
+			preparedStatement.executeQuery();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

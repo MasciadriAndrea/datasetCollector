@@ -19,7 +19,7 @@ public class LocationDAOSql implements LocationDAO {
 		String selectSQL = "SELECT id,name,uniqueLocationId FROM Location WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer idl=0; 
 		Integer uli=0;
 		String namel= "";
@@ -39,7 +39,7 @@ public class LocationDAOSql implements LocationDAO {
 		String selectSQL = "SELECT name,uniqueLocationId FROM Location WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL ); 
+		ResultSet rs = preparedStatement.executeQuery(); 
 		String namel= "";
 		Integer uli=0;
 		while (rs.next()) {
@@ -52,7 +52,7 @@ public class LocationDAOSql implements LocationDAO {
 	
 	private Integer insertLocation(String name,Integer idHouse,Integer uli) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String insertTableSQL = "INSERT INTO Locaion (name,House_id,uniqueLocationId) VALUES (?,?,?)";
+		String insertTableSQL = "INSERT INTO Location (name,House_id,uniqueLocationId) VALUES (?,?,?)";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
 		preparedStatement.setString(1, name);
 		preparedStatement.setInt(2, idHouse);
@@ -82,7 +82,7 @@ public class LocationDAOSql implements LocationDAO {
 		String selectSQL = "SELECT * FROM Location WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idL);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteLocation(idL);
 		}
@@ -106,7 +106,7 @@ public class LocationDAOSql implements LocationDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery(selectSQL );
+			preparedStatement.executeQuery();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

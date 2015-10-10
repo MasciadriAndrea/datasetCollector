@@ -56,10 +56,10 @@ public class DatasetDAOSql implements DatasetDAO {
 		
 		// check if Dataset exist -> if the dataset exists remove it
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT name FROM Dataset WHERE id = ?";
+		String selectSQL = "SELECT `name` FROM `Dataset` WHERE `id` = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idDs);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteDataset(idDs);
 		}
@@ -74,6 +74,7 @@ public class DatasetDAOSql implements DatasetDAO {
 		//insert contained Objects
 		HouseDAOSql houseDao=new HouseDAOSql();
 		for(House h:ds.getHouses()){
+			//System.out.println(h.getName());
 			h=houseDao.updateHouse(h,newIdDs);
 		}
 		
@@ -125,7 +126,7 @@ public class DatasetDAOSql implements DatasetDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery(selectSQL );
+			preparedStatement.executeQuery();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

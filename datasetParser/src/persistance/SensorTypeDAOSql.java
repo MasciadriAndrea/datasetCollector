@@ -19,7 +19,7 @@ public class SensorTypeDAOSql implements SensorTypeDAO {
 		String selectSQL = "SELECT id,name,uniqueSensorTypeId FROM SensorType WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		String namest=""; 
 		Integer idst = 0;
 		Integer usi=0;
@@ -39,7 +39,7 @@ public class SensorTypeDAOSql implements SensorTypeDAO {
 		String selectSQL = "SELECT name,uniqueSensorTypeId FROM SensorType WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		String namest=""; 
 		Integer usi=0;
 		while (rs.next()) {
@@ -82,7 +82,7 @@ public class SensorTypeDAOSql implements SensorTypeDAO {
 		String selectSQL = "SELECT * FROM SensorType WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idSt);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			deleteSensorType(idSt);
 		}
@@ -105,7 +105,7 @@ public class SensorTypeDAOSql implements SensorTypeDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery(selectSQL );
+			preparedStatement.executeQuery();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
