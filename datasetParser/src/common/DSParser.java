@@ -3,6 +3,7 @@ package common;
 import java.util.ArrayList;
 import java.util.List;
 
+import specificParser.ArasParser;
 import dataModel.Activity;
 import dataModel.Dataset;
 import dataModel.Day;
@@ -22,7 +23,7 @@ public class DSParser {
 		//DbManager db=DbManager.getInstance();
 		
 		//instantiate simple
-		Resident resident=new Resident(null,1,23);
+		/*Resident resident=new Resident(null,1,23);
 		ArrayList<Resident> listResidents=new ArrayList<Resident>();
 		listResidents.add(resident);
 		
@@ -93,7 +94,17 @@ public class DSParser {
 		listHouses.add(house1);
 		
 		Dataset dataset1=new Dataset(null,"FooDataset");
-		dataset1.setHouses(listHouses);
+		dataset1.setHouses(listHouses);*/
+		ArasParser ap=ArasParser.getInstance();
+		ap.createDataset(null,"ARAS");
+		ap.createHouse("HouseA");
+		House houseA=ap.getDataset().getHouses().get(0);
+		houseA.setActivities(ap.getActivityList());
+		houseA.setResidents(ap.getResidentList());
+		houseA.setLocations(ap.getLocationList());
+		houseA.setSensorTypes(ap.getSensorTypeList());
+		houseA.setSensors(ap.getSensorList());
+		houseA.setDays(ap.getDayList());
 	}
 
 }

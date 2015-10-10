@@ -1,12 +1,6 @@
 package dataModel;
 
 public class Activity {
-	public Integer getUniqueActivityId() {
-		return uniqueActivityId;
-	}
-	public void setUniqueActivityId(Integer uniqueActivityId) {
-		this.uniqueActivityId = uniqueActivityId;
-	}
 	private Integer id;
 	private Integer uniqueActivityId;
 	private String name;
@@ -29,5 +23,10 @@ public class Activity {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+	public Integer getUniqueActivityId() {
+		return uniqueActivityId;
+	}
+	public void setUniqueActivityId(Integer uniqueActivityId) {
+		this.uniqueActivityId = uniqueActivityId;
+	}
 }

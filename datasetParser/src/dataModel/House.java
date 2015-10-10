@@ -100,5 +100,52 @@ public class House {
 		this.sensorsets = sensorsets;
 	}
 	
-	
+	public Activity getActivityByUniqueId(Integer id){
+		for(Activity e:this.activities){
+			if(e.getUniqueActivityId().equals(id)){
+				return e;
+			}		
+		}
+		return null;
+	}
+	public Resident getResidentByUniqueId(Integer id){
+		for(Resident e:this.residents){
+			if(e.getUniqueResidentId().equals(id)){
+				return e;
+			}		
+		}
+		return null;
+	}
+	public Location getLocationByUniqueId(Integer id){
+		for(Location e:this.locations){
+			if(e.getUniqueLocationId().equals(id)){
+				return e;
+			}		
+		}
+		return null;
+	}
+	public HSensor getSensorByUniqueId(Integer id){
+		for(HSensor e:this.sensors){
+			if(e.getUniqueSensorId().equals(id)){
+				return e;
+			}		
+		}
+		return null;
+	}
+	public HSensorset getSensorsetByUniqueId(Integer id){
+		for(HSensorset e:this.sensorsets){
+			if(e.getUniqueSensorsetId().equals(id)){
+				return e;
+			}		
+		}
+		return null;
+	}
+	public SensorType getSensorTypeByUniqueId(Integer id){
+		for(SensorType e:this.sensorTypes){
+			if(e.getUniqueSensorTypeId().equals(id)){
+				return e;
+			}		
+		}
+		return null;
+	}
 }
