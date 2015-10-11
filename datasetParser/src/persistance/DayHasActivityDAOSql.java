@@ -11,13 +11,26 @@ import java.util.List;
 import common.DbManager;
 import dataModel.Activity;
 import dataModel.DayHasActivity;
+import dataModel.Resident;
 
 public class DayHasActivityDAOSql implements DayHasActivityDAO {
+private static DayHasActivityDAOSql instance;
+	
+	private DayHasActivityDAOSql(){
+		super();
+	}
+	
+	public static DayHasActivityDAOSql getInstance(){
+		if(instance==null){
+			instance=new DayHasActivityDAOSql();
+		}
+		return instance;
+	}
 	@Override
 	public List<DayHasActivity> getDayHasActivityByDay(Integer id) throws SQLException{
 		List<DayHasActivity> st=new ArrayList<DayHasActivity>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT id,startSec,endSec,Activity_id FROM Day_has_Activity WHERE Day_id = ?";
+		String selectSQL = "SELECT id,startSec,endSec,Activity_id,Resident_id FROM Day_has_Activity WHERE Day_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery();
@@ -25,17 +38,23 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 		Integer startd= 0;
 		Integer endd= 0;
 		Integer aid=0;
+		Integer rid=0;
 		while (rs.next()) {
 			startd = Integer.parseInt(rs.getString("startSec"));
 			endd = Integer.parseInt(rs.getString("endSec"));
 			idd = Integer.parseInt(rs.getString("id"));
 			aid = Integer.parseInt(rs.getString("Activity_id"));
+			rid = Integer.parseInt(rs.getString("Resident_id"));
 			
 			//retrieve the associated activity	
-			 ActivityDAOSql activityDao=new ActivityDAOSql();
+			 ActivityDAOSql activityDao=ActivityDAOSql.getInstance();
 			 Activity a=activityDao.getActivityById(aid);
+			 
+			//retrieve the associated resident	
+			 ResidentDAOSql residentDao=ResidentDAOSql.getInstance();
+			 Resident r=residentDao.getResidentById(rid);
 			
-			st.add(new DayHasActivity(idd, startd, endd, a));
+			st.add(new DayHasActivity(idd, startd, endd, a, r));
 		}
 		return st;
 	}
@@ -44,34 +63,40 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 	public DayHasActivity getDayHasActivityById(Integer id) throws SQLException{
 		DayHasActivity dha=null;
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT startSec,endSec,Activity_id FROM Day_has_Activity WHERE id = ?";
+		String selectSQL = "SELECT startSec,endSec,Activity_id,Resident_id FROM Day_has_Activity WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery();
 		Integer startd= 0;
 		Integer endd= 0;
 		Integer aid=0;
+		Integer rid=0;
 		while (rs.next()) {
 			startd = Integer.parseInt(rs.getString("startSec"));
 			endd = Integer.parseInt(rs.getString("endSec"));
 			aid = Integer.parseInt(rs.getString("Activity_id"));
-			
+			rid = Integer.parseInt(rs.getString("Resident_id"));
 			//retrieve the associated activity	
-			 ActivityDAOSql activityDao=new ActivityDAOSql();
+			 ActivityDAOSql activityDao=ActivityDAOSql.getInstance();
 			 Activity a=activityDao.getActivityById(aid);
-			 dha=new DayHasActivity(id, startd, endd, a);
+			//retrieve the associated resident	
+			 ResidentDAOSql residentDao=ResidentDAOSql.getInstance();
+			 Resident r=residentDao.getResidentById(rid);
+			
+			 dha=new DayHasActivity(id, startd, endd, a,r);
 		}
 		return dha;
 	}
 	
-	public Integer insertDayHasActivity(String startSec,String endSec,Integer idAct,Integer idDay) throws SQLException{
+	public Integer insertDayHasActivity(String startSec,String endSec,Integer idAct,Integer idDay,Integer resId) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String insertTableSQL = "INSERT INTO Day_has_Activity (startSec,endSec,Day_id,Activity_id) VALUES (?,?,?,?)";
+		String insertTableSQL = "INSERT INTO Day_has_Activity (startSec,endSec,Day_id,Activity_id,Resident_id) VALUES (?,?,?,?,?)";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
 		preparedStatement.setString(1, startSec);
 		preparedStatement.setString(2, endSec);
 		preparedStatement.setInt(3, idDay);
 		preparedStatement.setInt(4, idAct);
+		preparedStatement.setInt(5, resId);
 		int affectedRows = preparedStatement.executeUpdate();
 
         if (affectedRows == 0) {
@@ -90,6 +115,7 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 	
 	@Override
 	public DayHasActivity updateDayHasActivity(DayHasActivity dha,Integer idDay) throws SQLException{
+		//System.out.println("inserting activity "+dha.getActivity().getName());
 		Integer idDha=dha.getId();
 		
 		// check if exist -> if exists remove it
@@ -104,12 +130,13 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 		
 		//insert in the database
 		Integer newIdDha=0;
-		newIdDha= insertDayHasActivity(dha.getStartSec().toString(),dha.getEndSec().toString(),dha.getActivity().getId(),idDay);
+		newIdDha= insertDayHasActivity(dha.getStartSec().toString(),dha.getEndSec().toString(),dha.getActivity().getId(),idDay,dha.getResident().getId());
 				
 		//upload the id
 		dha.setId(newIdDha);
 		
-		return dha;
+		//TODO return dha;
+		return null;
 	}
 	
 	@Override
@@ -121,7 +148,7 @@ public class DayHasActivityDAOSql implements DayHasActivityDAO {
 				try {
 					preparedStatement = dbConnection.prepareStatement(selectSQL);
 					preparedStatement.setInt(1, id);
-					preparedStatement.executeQuery();
+					preparedStatement.executeUpdate();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

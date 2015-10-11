@@ -12,6 +12,20 @@ import common.DbManager;
 import dataModel.Activity;
 
 public class ActivityDAOSql implements ActivityDAO {
+	private static ActivityDAOSql instance;
+	
+	private ActivityDAOSql(){
+		super();
+	}
+	
+	public static ActivityDAOSql getInstance(){
+		if(instance==null){
+			instance=new ActivityDAOSql();
+		}
+		return instance;
+	}
+	
+	
 	@Override
 	public List<Activity> getActivityByHouse(Integer id) throws SQLException{
 		List<Activity> st=new ArrayList<Activity>();
@@ -105,7 +119,7 @@ public class ActivityDAOSql implements ActivityDAO {
 				try {
 					preparedStatement = dbConnection.prepareStatement(selectSQL);
 					preparedStatement.setInt(1, id);
-					preparedStatement.executeQuery();
+					preparedStatement.executeUpdate();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

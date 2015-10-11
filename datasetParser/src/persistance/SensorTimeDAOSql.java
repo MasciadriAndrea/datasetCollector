@@ -13,6 +13,18 @@ import dataModel.HSensor;
 import dataModel.SensorTime;
 
 public class SensorTimeDAOSql implements SensorTimeDAO {
+	private static SensorTimeDAOSql instance;
+	
+	private SensorTimeDAOSql(){
+		super();
+	}
+	
+	public static SensorTimeDAOSql getInstance(){
+		if(instance==null){
+			instance=new SensorTimeDAOSql();
+		}
+		return instance;
+	}
 	@Override
 	public List<SensorTime> getSensorTimeBySensorsetId(Integer id) throws SQLException{
 		List<SensorTime> st=new ArrayList<SensorTime>();
@@ -30,7 +42,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 			status= rs.getString("value");
 			
 			//get sensor
-			 SensorDAOSql sensorDao=new SensorDAOSql();
+			 SensorDAOSql sensorDao=SensorDAOSql.getInstance();
 			 HSensor s=sensorDao.getSensorById(ids);
 			 
 			st.add(new SensorTime(idst,s,status));
@@ -53,7 +65,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 			status= rs.getString("value");
 			
 			//get sensor
-			 SensorDAOSql sensorDao=new SensorDAOSql();
+			 SensorDAOSql sensorDao=SensorDAOSql.getInstance();
 			 HSensor s=sensorDao.getSensorById(ids);
 			 
 			st=new SensorTime(id,s,status);
@@ -118,7 +130,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery();
+			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

@@ -12,6 +12,18 @@ import common.DbManager;
 import dataModel.SensorType;
 
 public class SensorTypeDAOSql implements SensorTypeDAO {
+		private static SensorTypeDAOSql instance;
+		
+		private SensorTypeDAOSql(){
+			super();
+		}
+		
+		public static SensorTypeDAOSql getInstance(){
+			if(instance==null){
+				instance=new SensorTypeDAOSql();
+			}
+			return instance;
+		}
 	@Override
 	public List<SensorType> getSensorTypeByHouse(Integer id) throws SQLException{
 		List<SensorType> st=new ArrayList<SensorType>();
@@ -105,7 +117,7 @@ public class SensorTypeDAOSql implements SensorTypeDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery();
+			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

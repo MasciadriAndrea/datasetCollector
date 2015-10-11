@@ -14,17 +14,28 @@ import dataModel.Day;
 import dataModel.DayHasActivity;
 import dataModel.Location;
 import dataModel.Resident;
-import dataModel.SecondHasSensorset;
 import dataModel.HSensor;
 import dataModel.SensorType;
 import dataModel.HSensorset;
 
 public class DayDAOSql implements DayDAO {
+private static DayDAOSql instance;
+	
+	private DayDAOSql(){
+		super();
+	}
+	
+	public static DayDAOSql getInstance(){
+		if(instance==null){
+			instance=new DayDAOSql();
+		}
+		return instance;
+	}
 	@Override
 	public List<Day> getDayByHouse(Integer id) throws SQLException{
 		List<Day> st=new ArrayList<Day>();
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT id,day,month,year,incrementalDay FROM Day WHERE House_id = ?";
+		String selectSQL = "SELECT id,day,month,year,incrementalDay,secondIdSS FROM Day WHERE House_id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery();
@@ -32,24 +43,21 @@ public class DayDAOSql implements DayDAO {
 		String dayd= "";
 		String monthd= "";
 		String yeard= "";
+		String sidss= "";
 		Integer incDay=0;
 		while (rs.next()) {
 			dayd = rs.getString("day");
 			monthd = rs.getString("month");
 			yeard = rs.getString("year");
+			sidss = rs.getString("secondIdSS");
 			idd = Integer.parseInt(rs.getString("id"));
 			incDay = Integer.parseInt(rs.getString("incrementalDay"));
-			Day d=new Day(idd,incDay,dayd,monthd,yeard);
+			Day d=new Day(idd,incDay,dayd,monthd,yeard,sidss);
 			
 			//retrieve all dailyActivities	
-			 DayHasActivityDAOSql dayHasActivityDAO=new DayHasActivityDAOSql();
+			 DayHasActivityDAOSql dayHasActivityDAO=DayHasActivityDAOSql.getInstance();
 			 List<DayHasActivity> da=dayHasActivityDAO.getDayHasActivityByDay(idd);
 			 d.setDailyActivities(da);
-			
-			//retrieve all secondHasSensorset
-			 SecondHasSensorsetDAOSql secondHasSensorsetDAO=new SecondHasSensorsetDAOSql();
-			 List<SecondHasSensorset> ss=secondHasSensorsetDAO.getSecondHasSensorsetByDay(idd);
-			 d.setSecondHasSensorsets(ss);
 			
 			st.add(d);
 		}
@@ -59,7 +67,7 @@ public class DayDAOSql implements DayDAO {
 	public Day getDayById(Integer id) throws SQLException{
 		Day d=null;
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT day,month,year,incrementalDay FROM Day WHERE id = ?";
+		String selectSQL = "SELECT day,month,year,incrementalDay,secondIdSS FROM Day WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, id);
 		ResultSet rs = preparedStatement.executeQuery();
@@ -67,37 +75,35 @@ public class DayDAOSql implements DayDAO {
 		String dayd= "";
 		String monthd= "";
 		String yeard= "";
+		String sidss= "";
 		Integer incDay=0;
 		while (rs.next()) {
 			dayd = rs.getString("day");
 			monthd = rs.getString("month");
 			yeard = rs.getString("year");
 			incDay=rs.getInt("incrementalDay");
-			d=new Day(id,incDay,dayd,monthd,yeard);
+			sidss=rs.getString("secondIdSS");
+			d=new Day(id,incDay,dayd,monthd,yeard,sidss);
 			
 			//retrieve all dailyActivities	
-			 DayHasActivityDAOSql dayHasActivityDAO=new DayHasActivityDAOSql();
+			 DayHasActivityDAOSql dayHasActivityDAO=DayHasActivityDAOSql.getInstance();
 			 List<DayHasActivity> da=dayHasActivityDAO.getDayHasActivityByDay(idd);
 			 d.setDailyActivities(da);
-			 
-			//retrieve all secondHasSensorset
-			 SecondHasSensorsetDAOSql secondHasSensorsetDAO=new SecondHasSensorsetDAOSql();
-			 List<SecondHasSensorset> ss=secondHasSensorsetDAO.getSecondHasSensorsetByDay(idd);
-			 d.setSecondHasSensorsets(ss);
 			
 		}
 		return d;
 	}
 	
-	public Integer insertDay(Integer incDay,String day,String month,String year, Integer idHouse) throws SQLException{
+	public Integer insertDay(Integer incDay,String day,String month,String year, Integer idHouse, String sidss) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String insertTableSQL = "INSERT INTO Day (day,month,year,House_id,incrementalDay) VALUES (?,?,?,?,?)";
+		String insertTableSQL = "INSERT INTO Day (day,month,year,House_id,incrementalDay,secondIdSS) VALUES (?,?,?,?,?,?)";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL,Statement.RETURN_GENERATED_KEYS);
 		preparedStatement.setString(1, day);
 		preparedStatement.setString(2, month);
 		preparedStatement.setString(3, year);
 		preparedStatement.setInt(4, idHouse);
 		preparedStatement.setInt(5, incDay);
+		preparedStatement.setString(6, sidss);
 		int affectedRows = preparedStatement.executeUpdate();
 
         if (affectedRows == 0) {
@@ -116,6 +122,7 @@ public class DayDAOSql implements DayDAO {
 	
 	@Override
 	public Day updateDay(Day d,Integer idHouse) throws SQLException{
+		System.out.println("inserting day: "+d.getIncrementalDay());
 		Integer idD=d.getId();
 		
 		// check if exist -> if exists remove it
@@ -130,7 +137,7 @@ public class DayDAOSql implements DayDAO {
 		
 		//insert in the database
 		Integer newIdDay=0;
-		newIdDay= insertDay(d.getIncrementalDay(),d.getDay(),d.getMonth(),d.getYear(), idHouse);
+		newIdDay= insertDay(d.getIncrementalDay(),d.getDay(),d.getMonth(),d.getYear(), idHouse,d.getSecondIdSS());
 				
 		//upload the id
 		d.setId(newIdDay);
@@ -138,17 +145,14 @@ public class DayDAOSql implements DayDAO {
 		//insert contained Objects
 		
 				//retrieve all the DailyActivities
-				 DayHasActivityDAOSql dhaDao=new DayHasActivityDAOSql();
+				 DayHasActivityDAOSql dhaDao=DayHasActivityDAOSql.getInstance();
 				 for(DayHasActivity dha: d.getDailyActivities()){
 					dha=dhaDao.updateDayHasActivity(dha,newIdDay);
 				 }
 				 
-				//retrieve all secondHasSensorset
-				 SecondHasSensorsetDAOSql secondHasSensorsetDAO=new SecondHasSensorsetDAOSql();
-				 for(SecondHasSensorset ss: d.getSecondHasSensorsets()){
-						ss=secondHasSensorsetDAO.updateSecondHasSensorset(ss,newIdDay);
-					 }
-		return d;
+
+		//TODO return d;
+		return null;
 	}
 	
 	@Override
@@ -156,19 +160,13 @@ public class DayDAOSql implements DayDAO {
 		//delete everything contained
 		try{  
 			  	//retrieve all dailyActivities	
-				 DayHasActivityDAOSql dayHasActivityDAO=new DayHasActivityDAOSql();
+				 DayHasActivityDAOSql dayHasActivityDAO=DayHasActivityDAOSql.getInstance();
 				 List<DayHasActivity> das=dayHasActivityDAO.getDayHasActivityByDay(id);
 				 for(DayHasActivity da: das){
 					 dayHasActivityDAO.deleteDayHasActivity(da.getId());
 				}
 				 
-					//retrieve all secondHasSensorset
-				 SecondHasSensorsetDAOSql secondHasSensorsetDAO=new SecondHasSensorsetDAOSql();
-				 List<SecondHasSensorset> sechss=secondHasSensorsetDAO.getSecondHasSensorsetByDay(id);
-				 for(SecondHasSensorset ssa: sechss){
-					 secondHasSensorsetDAO.deleteSecondHasSensorset(ssa.getId());
-				 }
-				 
+
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
@@ -181,7 +179,7 @@ public class DayDAOSql implements DayDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery();
+			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

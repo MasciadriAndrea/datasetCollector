@@ -4,15 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Day {
+	public String getSecondIdSS() {
+		return secondIdSS;
+	}
+	public void setSecondIdSS(String secondIdSS) {
+		this.secondIdSS = secondIdSS;
+	}
 	private Integer id;
 	private String day;
 	private String month;
 	private String year;
 	private Integer incrementalDay;
 	private List<DayHasActivity> dailyActivities;
-	private List<SecondHasSensorset> secondHasSensorsets;
+	private String secondIdSS;
 	
-	public Day(Integer id, Integer incrementalDay, String day, String month, String year) {
+	public Day(Integer id, Integer incrementalDay, String day, String month, String year,String idSSs) {
 		super();
 		this.id = id;
 		this.incrementalDay=incrementalDay;
@@ -20,7 +26,7 @@ public class Day {
 		this.month = month;
 		this.year = year;
 		this.dailyActivities = new ArrayList<DayHasActivity>();
-		this.secondHasSensorsets = new ArrayList<SecondHasSensorset>();
+		this.secondIdSS= idSSs;
 	}
 	public Integer getId() {
 		return id;
@@ -52,12 +58,8 @@ public class Day {
 	public void setDailyActivities(List<DayHasActivity> dailyActivities) {
 		this.dailyActivities = dailyActivities;
 	}
-	public List<SecondHasSensorset> getSecondHasSensorsets() {
-		return secondHasSensorsets;
-	}
-	public void setSecondHasSensorsets(List<SecondHasSensorset> secondHasSensorsets) {
-		this.secondHasSensorsets = secondHasSensorsets;
-	}
+
+
 	public Integer getIncrementalDay() {
 		return incrementalDay;
 	}
@@ -65,5 +67,17 @@ public class Day {
 		this.incrementalDay = incrementalDay;
 	}
 	
+	public Integer getSSidBySecond(Integer sec){
+		String[] chunks=secondIdSS.split(",");
+		if(chunks.length!=86400){
+			System.out.println("Not correct number of seconds");
+		}
+		if(sec<=chunks.length){
+			return Integer.valueOf(chunks[sec]);
+		}else{
+			return 0;
+			//Throw exception
+		}
+	}
 	
 }

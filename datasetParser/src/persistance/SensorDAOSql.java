@@ -14,6 +14,18 @@ import dataModel.HSensor;
 import dataModel.SensorType;
 
 public class SensorDAOSql implements SensorDAO {
+	private static SensorDAOSql instance;
+	
+	private SensorDAOSql(){
+		super();
+	}
+	
+	public static SensorDAOSql getInstance(){
+		if(instance==null){
+			instance=new SensorDAOSql();
+		}
+		return instance;
+	}
 	@Override
 	public List<HSensor> getSensorByHouse(Integer id) throws SQLException{
 		List<HSensor> st=new ArrayList<HSensor>();
@@ -38,9 +50,9 @@ public class SensorDAOSql implements SensorDAO {
 			idLoc = Integer.parseInt(rs.getString("Location_id"));
 			idType = Integer.parseInt(rs.getString("SensorType_id"));
 			
-			LocationDAOSql locationDao=new LocationDAOSql();
+			LocationDAOSql locationDao=LocationDAOSql.getInstance();
 			Location loc=locationDao.getLocationById(idLoc);
-			SensorTypeDAOSql stDao=new SensorTypeDAOSql();
+			SensorTypeDAOSql stDao=SensorTypeDAOSql.getInstance();
 			SensorType stype=stDao.getSensorTypeById(idType);
 			
 			st.add(new HSensor(ids, usi, names, xs, ys, stype,loc));
@@ -69,9 +81,9 @@ public class SensorDAOSql implements SensorDAO {
 			usi = Integer.parseInt(rs.getString("uniqueSensorId"));
 			Integer idType = Integer.parseInt(rs.getString("SensorType_id"));
 			
-			LocationDAOSql locationDao=new LocationDAOSql();
+			LocationDAOSql locationDao=LocationDAOSql.getInstance();
 			Location loc=locationDao.getLocationById(idLoc);
-			SensorTypeDAOSql stDao=new SensorTypeDAOSql();
+			SensorTypeDAOSql stDao=SensorTypeDAOSql.getInstance();
 			SensorType stype=stDao.getSensorTypeById(idType);
 			s=new HSensor(sid,usi, names, xs, ys, stype, loc);
 		}
@@ -137,7 +149,7 @@ public class SensorDAOSql implements SensorDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery();
+			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

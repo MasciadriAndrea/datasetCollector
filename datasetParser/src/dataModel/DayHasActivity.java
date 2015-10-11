@@ -5,14 +5,16 @@ public class DayHasActivity {
 	private Integer startSec;
 	private Integer endSec;
 	private Activity activity;
+	private Resident resident;
 	
 	public DayHasActivity(Integer id, Integer startSec, Integer endSec,
-			Activity activity) {
+			Activity activity,Resident resident) {
 		super();
 		this.id = id;
 		this.startSec = startSec;
 		this.endSec = endSec;
 		this.activity = activity;
+		this.resident = resident;
 	}
 	public Integer getId() {
 		return id;
@@ -38,6 +40,10 @@ public class DayHasActivity {
 	public void setActivity(Activity activity) {
 		this.activity = activity;
 	}
-	
-	
+	public Resident getResident() {
+		return resident;
+	}
+	public void setResident(Resident resident) {
+		this.resident = resident;
+	}
 }

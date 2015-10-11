@@ -23,13 +23,14 @@ import dataModel.HSensorset;
 import dataModel.House;
 import dataModel.Location;
 import dataModel.Resident;
-import dataModel.SecondHasSensorset;
 import dataModel.SensorTime;
 import dataModel.SensorType;
 
 public class ArasParser extends GenericParser {
 	
-	private static String urlData="dataIn/aras";
+	//private static String urlData="dataIn/aras";
+	private static String urlData="dataIn/generated";
+
 	private static String folderConf="/confFile";
 	private static String fileSensor="/sensors.txt";
 	private static String fileActivity="/activities.txt";
@@ -51,8 +52,10 @@ public class ArasParser extends GenericParser {
 	@Override
 	public void saveDataset(){
 		try{
+			System.out.println("Try to connect to database for data persistance");
 			DbManager db=DbManager.getInstance();
-			DatasetDAOSql dsDAO=new DatasetDAOSql();
+			DatasetDAOSql dsDAO=DatasetDAOSql.getInstance();
+			System.out.println("Connection ok.. now importing.. (wait please)");
 			this.ds=dsDAO.updateDataset(this.ds);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -247,8 +250,21 @@ public class ArasParser extends GenericParser {
         if(fileList.isEmpty()){
             throw new FileNotFoundException(null);
         }
+        //order the file list
+        ArrayList<File> orderedList=new ArrayList<File>();
+        for(Integer i=0;i<=fileList.size();i++){
+        	for (File CurrentFile : fileList) {
+        		if(CurrentFile.getName().equals(filePRE+"_"+i.toString()+".txt")){
+        			orderedList.add(CurrentFile);
+        		}
+        	}
+        }
+        if(fileList.size()!=(orderedList.size())){
+        	throw new Exception("Dimension of list of files wrong");
+        }
+        fileList=null;
         Integer nFile=0;
-       for (File CurrentFile : fileList) {
+       for (File CurrentFile : orderedList) {
     	   nFile++;
             ArrayList<String> configLines = new ArrayList<String>();
             try {
@@ -269,25 +285,38 @@ public class ArasParser extends GenericParser {
                 }
             }
             
-            Day currentDay=new Day(0,nFile,"","","");
-            List<SecondHasSensorset> lshs=new ArrayList<SecondHasSensorset>();
-            List<DayHasActivity> ldha=new ArrayList<DayHasActivity>();
             
-            Integer previousActivity=0;
-            Integer currentActivity=0;
-            Integer startSec=0;
-            Integer endSec=0;
+            List<DayHasActivity> ldha=new ArrayList<DayHasActivity>();
+            String secondIdSS="";
+            
+            Integer previousActivity1=0;
+            Integer currentActivity1=0;
+            Integer startSec1=0;
+            Integer endSec1=0;
+            Integer previousActivity2=0;
+            Integer currentActivity2=0;
+            Integer startSec2=0;
+            Integer endSec2=0;
             
             Integer secondtime=0;
+            Resident resident1=h.getResidents().get(0);
+            Resident resident2=null;
+            if(h.getResidents().size()>1){
+            	resident2=h.getResidents().get(1);
+            }
+            	
             for(String pattern:configLines){
             	//for every line -> it is a second
                 String[] chunks = pattern.split(" ");
                 if (chunks.length > 21){
                 	if(secondtime.equals(0)){
                 		//initialization
-                		previousActivity=Integer.parseInt(chunks[20]);
-                		startSec=1;
-                		endSec=1;
+                		previousActivity1=Integer.parseInt(chunks[20]);
+                		startSec1=1;
+                		endSec1=1;
+                		previousActivity2=Integer.parseInt(chunks[21]);
+                		startSec2=1;
+                		endSec2=1;
                 	}
                 	secondtime++;
                 	//if the size is ok -> calculate list of sensorTime 
@@ -305,31 +334,53 @@ public class ArasParser extends GenericParser {
 	                }
 	                //list of SensorTime ready... if any sensorset has the same list -> add to Sensorsets list
 	                HSensorset ss=getUniqueSS(h.getSensorsets(),listST);
-	                lshs.add(new SecondHasSensorset(0,secondtime,ss));
+	                secondIdSS+=ss.getUniqueSensorsetId()+",";
+	                currentActivity1=Integer.parseInt(chunks[20]); 
+	                currentActivity2=Integer.parseInt(chunks[21]); 
 	                
-	                currentActivity=Integer.parseInt(chunks[20]);
-	                if(!previousActivity.equals(currentActivity)){
+	                
+	                
+	                if(!previousActivity1.equals(currentActivity1)){
 	                	//if changed activity
-	                	Activity currAct=h.getActivityByUniqueId(previousActivity);
-		                ldha.add(new DayHasActivity(0,startSec,endSec,currAct));
-	                	startSec=secondtime;
-	                	endSec=secondtime;
-	                	previousActivity=currentActivity;
+	                	Activity currAct1=h.getActivityByUniqueId(previousActivity1);
+		                ldha.add(new DayHasActivity(0,startSec1,endSec1,currAct1,resident1));
+	                	startSec1=secondtime;
+	                	endSec1=secondtime;
+	                	previousActivity1=currentActivity1;
 	                }else{
 	                	//performing the same activity
-	                	endSec++;
+	                	endSec1++;
+	                }
+	                
+	                if(resident2!=null){
+	                	if(!previousActivity2.equals(currentActivity2)){
+		                	//if changed activity
+		                	Activity currAct2=h.getActivityByUniqueId(previousActivity2);
+			                ldha.add(new DayHasActivity(0,startSec2,endSec2,currAct2,resident2));
+		                	startSec2=secondtime;
+		                	endSec2=secondtime;
+		                	previousActivity2=currentActivity2;
+		                }else{
+		                	//performing the same activity
+		                	endSec2++;
+		                }
 	                }
 	               
                 }
                 
             }
+            secondIdSS=secondIdSS.substring(0,secondIdSS.length()-1);
+            Day currentDay=new Day(0,nFile,"","","",secondIdSS);
             currentDay.setDailyActivities(ldha);
-            currentDay.setSecondHasSensorsets(lshs);
             ld.add(currentDay);
+            System.out.println("Finished importing day: "+CurrentFile.getName());
         } 
        	System.out.println("Number of unique SS found: "+h.getSensorsets().size());
         System.out.println("Scanned "+nFile+" files"); 
 		}catch(IOException e){
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return ld;
@@ -382,12 +433,6 @@ public class ArasParser extends GenericParser {
 	public List<DayHasActivity> getDayHasActivityList(Integer incrementalDay) {
 		List<DayHasActivity> dha=new ArrayList<DayHasActivity>();
 		return dha;
-	}
-
-	@Override
-	public List<SecondHasSensorset> getSecondHasSensorset(Integer incrementalDay) {
-		List<SecondHasSensorset> lshs=new ArrayList<SecondHasSensorset>();
-		return lshs;
 	}
 	
 }

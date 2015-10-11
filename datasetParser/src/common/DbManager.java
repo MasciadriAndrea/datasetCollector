@@ -2,6 +2,7 @@ package common;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DbManager {
@@ -54,5 +55,16 @@ public class DbManager {
 		return connection;
 	}
 	
+	public void emptyDB(){
+		/*Connection dbConnection=this.getConnection();
+		String selectSQL = "DELETE FROM House WHERE id = ?";
+		PreparedStatement preparedStatement;
+		try {
+			preparedStatement = dbConnection.prepareStatement(selectSQL);
+			preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}*/
+	}
 	
 }

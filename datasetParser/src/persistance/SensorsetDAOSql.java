@@ -14,6 +14,18 @@ import dataModel.SensorTime;
 import dataModel.HSensorset;
 
 public class SensorsetDAOSql implements SensorsetDAO {
+	private static SensorsetDAOSql instance;
+	
+	private SensorsetDAOSql(){
+		super();
+	}
+	
+	public static SensorsetDAOSql getInstance(){
+		if(instance==null){
+			instance=new SensorsetDAOSql();
+		}
+		return instance;
+	}
 	
 	@Override
 	public List<HSensorset> getSensorsetByHouse(Integer id) throws SQLException{
@@ -29,7 +41,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 			ids = Integer.parseInt(rs.getString("id"));
 			uniqueId=Integer.parseInt(rs.getString("uniqueSensorsetId"));
 			//retrieve all the sensortime
-			 SensorTimeDAOSql sensorTimeDao=new SensorTimeDAOSql();
+			 SensorTimeDAOSql sensorTimeDao=SensorTimeDAOSql.getInstance();
 			 List<SensorTime> s=sensorTimeDao.getSensorTimeBySensorsetId(ids);
 			
 			st.add(new HSensorset(ids,uniqueId, s));
@@ -51,7 +63,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 			uniqueId=Integer.parseInt(rs.getString("uniqueSensorsetId"));
 			
 			//retrieve all the sensortime
-			 SensorTimeDAOSql sensorTimeDao=new SensorTimeDAOSql();
+			 SensorTimeDAOSql sensorTimeDao=SensorTimeDAOSql.getInstance();
 			 List<SensorTime> s=sensorTimeDao.getSensorTimeBySensorsetId(ids);
 			
 			ss= new HSensorset(id,uniqueId, s);
@@ -105,7 +117,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 		//insert contained Objects
 		
 				//retrieve all the SensorTime
-				 SensorTimeDAOSql stDao=new SensorTimeDAOSql();
+				 SensorTimeDAOSql stDao=SensorTimeDAOSql.getInstance();
 				 for(SensorTime sta: ss.getSensors()){
 					sta=stDao.updateSensorTime(sta,newIdSS);
 				 }
@@ -118,7 +130,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 		//delete everything contained
 				try{  
 						//retrieve all sensorTime
-						 SensorTimeDAOSql sensortimeDAO=new SensorTimeDAOSql();
+						 SensorTimeDAOSql sensortimeDAO=SensorTimeDAOSql.getInstance();
 						 List<SensorTime> st=sensortimeDAO.getSensorTimeBySensorsetId(id);
 						 for(SensorTime si: st){
 							 sensortimeDAO.deleteSensorTime(si.getId());
@@ -136,7 +148,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 				try {
 					preparedStatement = dbConnection.prepareStatement(selectSQL);
 					preparedStatement.setInt(1, id);
-					preparedStatement.executeQuery();
+					preparedStatement.executeUpdate();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

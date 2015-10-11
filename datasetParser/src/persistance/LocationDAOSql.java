@@ -12,6 +12,18 @@ import common.DbManager;
 import dataModel.Location;
 
 public class LocationDAOSql implements LocationDAO {
+private static LocationDAOSql instance;
+	
+	private LocationDAOSql(){
+		super();
+	}
+	
+	public static LocationDAOSql getInstance(){
+		if(instance==null){
+			instance=new LocationDAOSql();
+		}
+		return instance;
+	}
 	@Override
 	public List<Location> getLocationByHouse(Integer id) throws SQLException{
 		List<Location> st=new ArrayList<Location>();
@@ -106,7 +118,7 @@ public class LocationDAOSql implements LocationDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery();
+			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

@@ -12,6 +12,18 @@ import common.DbManager;
 import dataModel.Resident;
 
 public class ResidentDAOSql implements ResidentDAO {
+	private static ResidentDAOSql instance;
+	
+	private ResidentDAOSql(){
+		super();
+	}
+	
+	public static ResidentDAOSql getInstance(){
+		if(instance==null){
+			instance=new ResidentDAOSql();
+		}
+		return instance;
+	}
 	@Override
 	public List<Resident> getResidentByHouse(Integer id) throws SQLException{
 		List<Resident> st=new ArrayList<Resident>();
@@ -30,6 +42,24 @@ public class ResidentDAOSql implements ResidentDAO {
 			st.add(new Resident(idr,ager,uri));
 		}
 		return st;
+	}
+	
+	@Override
+	public Resident getResidentById(Integer id) throws SQLException{
+		Resident r=null;
+		Connection dbConnection=DbManager.getInstance().getConnection();
+		String selectSQL = "SELECT age,uniqueResidentId FROM Resident WHERE id = ?";
+		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
+		preparedStatement.setInt(1, id);
+		ResultSet rs = preparedStatement.executeQuery();
+		Integer ager=0; 
+		Integer uri=0;
+		while (rs.next()) {
+			ager = Integer.parseInt(rs.getString("age"));
+			uri=Integer.parseInt(rs.getString("uniqueResidentId"));
+			r=new Resident(id,ager,uri);
+		}
+		return r;
 	}
 	
 	private Integer insertResident(String age,Integer idHouse,Integer uri) throws SQLException{
@@ -87,7 +117,7 @@ public class ResidentDAOSql implements ResidentDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery();
+			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

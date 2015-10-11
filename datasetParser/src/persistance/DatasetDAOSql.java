@@ -12,6 +12,19 @@ import dataModel.Dataset;
 import dataModel.House;
 
 public class DatasetDAOSql implements DatasetDAO {
+	private static DatasetDAOSql instance;
+	
+	private DatasetDAOSql(){
+		super();
+	}
+	
+	public static DatasetDAOSql getInstance(){
+		if(instance==null){
+			instance=new DatasetDAOSql();
+		}
+		return instance;
+	}
+	
 	@Override
 	public Dataset getDatasetById(Integer id) throws SQLException{
 		Connection dbConnection=DbManager.getInstance().getConnection();
@@ -24,7 +37,7 @@ public class DatasetDAOSql implements DatasetDAO {
 		while (rs.next()) {
 			name = rs.getString("name");
 			ds=new Dataset(id,name);
-			HouseDAOSql houseDao=new HouseDAOSql();
+			HouseDAOSql houseDao=HouseDAOSql.getInstance();
 			List<House> houses=houseDao.getHouseByDS(id);
 			ds.setHouses(houses);
 		}
@@ -37,13 +50,13 @@ public class DatasetDAOSql implements DatasetDAO {
 		String selectSQL = "SELECT id FROM Dataset WHERE name = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setString(1, name);
-		ResultSet rs = preparedStatement.executeQuery(selectSQL );
+		ResultSet rs = preparedStatement.executeQuery();
 		Integer id=0;
 		Dataset ds=null;
 		while (rs.next()) {
 			id = rs.getInt("id");
 			ds=new Dataset(id,name);
-			HouseDAOSql houseDao=new HouseDAOSql();
+			HouseDAOSql houseDao=HouseDAOSql.getInstance();
 			List<House> houses=houseDao.getHouseByDS(id);
 			ds.setHouses(houses);
 		}
@@ -52,11 +65,12 @@ public class DatasetDAOSql implements DatasetDAO {
 	
 	@Override
 	public Dataset updateDataset(Dataset ds) throws SQLException{
+		System.out.println("inserting Dataset");
 		Integer idDs=ds.getId();
 		
 		// check if Dataset exist -> if the dataset exists remove it
 		Connection dbConnection=DbManager.getInstance().getConnection();
-		String selectSQL = "SELECT `name` FROM `Dataset` WHERE `id` = ?";
+		String selectSQL = "SELECT name FROM Dataset WHERE id = ?";
 		PreparedStatement preparedStatement = dbConnection.prepareStatement(selectSQL);
 		preparedStatement.setInt(1, idDs);
 		ResultSet rs = preparedStatement.executeQuery();
@@ -72,7 +86,7 @@ public class DatasetDAOSql implements DatasetDAO {
 		ds.setId(newIdDs);
 		
 		//insert contained Objects
-		HouseDAOSql houseDao=new HouseDAOSql();
+		HouseDAOSql houseDao=HouseDAOSql.getInstance();
 		for(House h:ds.getHouses()){
 			//System.out.println(h.getName());
 			h=houseDao.updateHouse(h,newIdDs);
@@ -106,7 +120,7 @@ public class DatasetDAOSql implements DatasetDAO {
 	public void deleteDataset(Integer id){
 		//delete everything contained
 		
-		HouseDAOSql houseDao=new HouseDAOSql();
+		HouseDAOSql houseDao=HouseDAOSql.getInstance();
 		List<House> houses;
 		try {
 			houses = houseDao.getHouseByDS(id);
@@ -126,7 +140,7 @@ public class DatasetDAOSql implements DatasetDAO {
 		try {
 			preparedStatement = dbConnection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, id);
-			preparedStatement.executeQuery();
+			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
