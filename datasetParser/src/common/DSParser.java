@@ -27,21 +27,21 @@ public class DSParser {
 		
 		//example load data from file and save in database
 		//
-		//ap.updateHouseData("GeneratedDS", "House1");
+		//ap.updateHouseData("ArasDS", "House1");
 		//ap.saveDataset();
 		
 		
 		//example load data from database and print
 		//
-		//DatasetDAOSql d=DatasetDAOSql.getInstance();
-		//ap.setDs(d.getDatasetByName("GeneratedDs"));
-		//System.out.println(ap.getDataset().getHouses().get(0).getName());
+		DatasetDAOSql d=DatasetDAOSql.getInstance();
+		ap.setDs(d.getDatasetByName("ArasDs"));
+		System.out.println(ap.getDataset().getHouses().get(0).getName());
 		
 		//example load data from database and export to matlab format
 		//
-		DatasetDAOSql d=DatasetDAOSql.getInstance();
-		House h=d.getDatasetByName("GeneratedDs").getHouses().get(0);
-		MatlabOutManager.getInstance().computeSecondDayMatrix(h);
+//		DatasetDAOSql d=DatasetDAOSql.getInstance();
+//		House h=d.getDatasetByName("GeneratedDs").getHouses().get(0);
+//		MatlabOutManager.getInstance().computeSecondDayMatrix(h);
 	}
 
 }
