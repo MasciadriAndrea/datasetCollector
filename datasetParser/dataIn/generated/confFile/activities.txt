@@ -1,0 +1,8 @@
+1,Cooking
+2,Eat
+3,Sleeping
+4,WatchTv
+5,ReadBook
+6,TakeShower
+7,WashUp
+8,Toilet

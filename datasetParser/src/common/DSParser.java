@@ -39,6 +39,9 @@ public class DSParser {
 		
 		//example load data from database and export to matlab format
 		//
+		DatasetDAOSql d=DatasetDAOSql.getInstance();
+		House h=d.getDatasetByName("GeneratedDs").getHouses().get(0);
+		MatlabOutManager.getInstance().computeSecondDayMatrix(h);
 	}
 
 }
