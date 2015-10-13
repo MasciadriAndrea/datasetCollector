@@ -339,8 +339,10 @@ public class ArasParser extends GenericParser {
 	                currentActivity2=Integer.parseInt(chunks[21]); 
 	                
 	                
+                	
 	                
-	                if(!previousActivity1.equals(currentActivity1)){
+	                
+	                if((!previousActivity1.equals(currentActivity1))||(secondtime==86400)){
 	                	//if changed activity
 	                	Activity currAct1=h.getActivityByUniqueId(previousActivity1);
 		                ldha.add(new DayHasActivity(0,startSec1,endSec1,currAct1,resident1));
@@ -353,7 +355,7 @@ public class ArasParser extends GenericParser {
 	                }
 	                
 	                if(resident2!=null){
-	                	if(!previousActivity2.equals(currentActivity2)){
+	                	if((!previousActivity2.equals(currentActivity2))||((secondtime==86400))){
 		                	//if changed activity
 		                	Activity currAct2=h.getActivityByUniqueId(previousActivity2);
 			                ldha.add(new DayHasActivity(0,startSec2,endSec2,currAct2,resident2));
