@@ -202,7 +202,7 @@ public class ArasParser extends GenericParser {
 					House h=super.getDataset().getHouses().get(0);
 					Location loc=h.getLocationByUniqueId(1);
 					SensorType st=h.getSensorTypeByUniqueId(1);
-					sl.add(new HSensor(0, c+1, chunks[0], chunks[1], chunks[1], st, loc));
+					sl.add(new HSensor(0, c+1, chunks[0], chunks[1], chunks[2], st, loc));
 					c++;
 				}
 			}
