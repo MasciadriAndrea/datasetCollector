@@ -61,10 +61,18 @@ public class ParametersHandler {
 
 		//		TODO parser for configuration file
 		// this.confFileName;	
+		
+//		 take use residents
 		List<Integer> residentsId = new ArrayList<Integer>(); residentsId.add(1); residentsId.add(2);	
 		List<Resident> residents = new ArrayList<Resident>();
 		for (Integer id: residentsId){
 			residents.add(this.house.getResidentByUniqueId(id));
+		}
+//		take used sensors
+		List<Integer> sensorsId = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20); 	
+		List<HSensor> sensorsAll = new ArrayList<HSensor>();
+		for (Integer id: sensorsId){
+			sensorsAll.add(this.house.getSensorByUniqueId(id));
 		}
 
 		List<String> activityNames = new ArrayList<String>();
@@ -120,81 +128,71 @@ public class ParametersHandler {
 		}
 		this.parameters.setActivities(activities);
 		this.parameters.setResidents(residents);
+		this.parameters.setSensors(sensorsAll);
 	}
 
 	private void setDay(){
-		List<Resident> residents = parameters.getResidents();
 
 		List<ActivityGP> activities = new ArrayList<ActivityGP>();
 		activities.add(parameters.getActivities().get(1));
 
-		List<HSensorset> uniqueSensorsets = new ArrayList<HSensorset>();
-
 		List<Day> houseDays = house.getDays();
-		
+
 		for (ActivityGP activity:activities){
 			for(Day day : houseDays){
 
 				//		set activity labels according to the configurations
 
 				System.out.println("set activity labels according to the configurations "+ day.getIncrementalDay());
-				
+
 				List<DayHasActivity> dayActivities =new ArrayList<DayHasActivity>();			
 				List<DayHasActivity> houseDaySubactivities = day.getDailyActivities();
 
-				for (DayHasActivity hds : houseDaySubactivities){
-					for (Resident resident: residents){
-						if (hds.getResident().getUniqueResidentId() == resident.getUniqueResidentId()){
+				/*				for (DayHasActivity hds : houseDaySubactivities){
 
-							for (Activity subactivity: activity.getSubactivities()){
-								if (hds.getActivity().getUniqueActivityId() == subactivity.getUniqueActivityId()){
-									System.out.println(hds.getActivity().getName() + " is found for " + activity.getName());
-									Integer startSec = hds.getStartSec();
-									Integer endSec = hds.getEndSec();
-									DayHasActivity da = new DayHasActivity(0, startSec, endSec, activity, resident);
-									dayActivities.add(da);
-								}
+					if (isContainResident(hds.getResident())){
+
+						for (Activity subactivity: activity.getSubactivities()){
+							if (hds.getActivity().getUniqueActivityId() == subactivity.getUniqueActivityId()){
+								System.out.println(hds.getActivity().getName() + " is found for " + activity.getName() + " with  " + hds.getResident().getUniqueResidentId());
+								Integer startSec = hds.getStartSec();
+								Integer endSec = hds.getEndSec();
+								DayHasActivity da = new DayHasActivity(0, startSec, endSec, activity, hds.getResident());
+								dayActivities.add(da);
 							}
 						}
-					}
+					}		
 				}
-
+				 */
 				//		change secondIdSS for every day
 				String secondSSId = "";
+
 				for( String houseSSidString : day.getSecondIdSS().split(",")){
 					Integer houseSSid = Integer.valueOf(houseSSidString);
 					List<HSensor> presentSensors = this.house.getActivatedSensorsByUniqueSSid(houseSSid);
 					List<HSensor> filteredSensors = new ArrayList<HSensor>();
 
-
 					// find which allowed sensors are present
-					for (HSensor allowedSensor : activity.getAllowedSensors()){
-						for(HSensor presentSensor:presentSensors){
-							if (presentSensor == allowedSensor){
-								filteredSensors.add(presentSensor);
-							}
+					for(HSensor presentSensor:presentSensors){
+						if (isSensorIsAllowedInActivity(activity, presentSensor)){
+							filteredSensors.add(presentSensor);
 						}
 					}
-					//					create activated sensors list
-					List<SensorTime> sensorsTime = new ArrayList<SensorTime>();
-					for (HSensor sensor:parameters.getSensors()){
-						SensorTime st = new SensorTime(0, sensor, "");
-						for (HSensor fsensor:filteredSensors){
-							if (sensor == fsensor){
-								st.setValue("1");
-							} else {
-								st.setValue("0");
-							}
-						}
-						sensorsTime.add(st);
-					}				
 
-					HSensorset ss = getSensorsetByActivatedSensors(sensorsTime);
+					//	create activated sensors list
+					List<SensorTime> sensorsTime = sensorsTimeFromActivatedSensors(filteredSensors);
+
+					HSensorsetGP ss = getSensorsetByActivatedSensors(sensorsTime);
 					if (ss == null){
-						ss = new HSensorset(0, parameters.getSensorsets().size(),  sensorsTime);
+						int uid = parameters.getSensorsets().size(); 
+						ss = new HSensorsetGP(0, uid,  sensorsTime);
+						parameters.addSensorset(ss);
+//						System.out.println("Added new ss with id: " + uid + " and number activated sensors:" + filteredSensors.size());
+					} else {
+//						System.out.println("Existing ss with id: " + ss.getUniqueSensorsetId() + " and number activated sensors:" + filteredSensors.size());
 					}
 
-				secondSSId = secondSSId+"," + Integer.toString(ss.getUniqueSensorsetId());
+					secondSSId = secondSSId+"," + Integer.toString(ss.getUniqueSensorsetId());
 				}
 
 				//					SensorTime st = new SensorTime();
@@ -206,20 +204,19 @@ public class ParametersHandler {
 		}
 	}
 
-	public HSensorset getSensorsetByActivatedSensors(List<SensorTime> currentSensorTime){
-		List<HSensor> currentActivatedSensors = getActivatedSensorsBySensorTimeList(currentSensorTime);
-		for (HSensorset ss: parameters.getSensorsets()){
-			List<HSensor> activatedSensors = getActivatedSensorsBySensorTimeList(ss.getSensors());
+	public HSensorsetGP getSensorsetByActivatedSensors(List<SensorTime> currentSensorTime){
+
+		for (HSensorsetGP ss: parameters.getSensorsets()){
 			Integer score = 0;
-			for (HSensor currentActivatedSensor:currentActivatedSensors){
-				for (HSensor activatedSensor: activatedSensors){
-					if (currentActivatedSensor == activatedSensor){
-						score++;
-					}
+			
+			for (int i = 0; i < ss.getSensors().size(); i++){
+				if (ss.getSensors().get(i).getValue() == currentSensorTime.get(i).getValue()){
+					score++;
 				}
-				if (score.equals(currentActivatedSensors.size())){
-					return ss;
-				}
+
+			}
+			if (score.equals(ss.getSensors().size())){
+				return ss;
 			}
 
 		}
@@ -235,6 +232,42 @@ public class ParametersHandler {
 			}
 		}
 		return activatedSensors;
+	}
+
+	public boolean isContainResident(Resident r){
+
+		for (Resident resident: parameters.getResidents()){
+			if (resident.getUniqueResidentId() == r.getUniqueResidentId()){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isSensorIsAllowedInActivity(ActivityGP activity, HSensor s){
+		for (HSensor sensor : activity.getAllowedSensors()){
+			if (sensor.getUniqueSensorId() == s.getUniqueSensorId()){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public List<SensorTime> sensorsTimeFromActivatedSensors(List<HSensor> activatedSensors){
+
+		List<SensorTime> sensorsTime = new ArrayList<SensorTime>();
+		
+		for (HSensor sensor:parameters.getSensors()){
+			SensorTime st = new SensorTime(0, sensor, "0");
+			for (HSensor actSensor:activatedSensors){
+				if (sensor.getUniqueSensorId() == actSensor.getUniqueSensorId()){
+					st.setValue("1");
+				} 
+			}
+			sensorsTime.add(st);
+		}
+
+		return sensorsTime;
 	}
 
 }

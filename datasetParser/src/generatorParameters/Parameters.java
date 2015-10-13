@@ -5,6 +5,7 @@ import java.util.List;
 
 import specificParser.ArasParser;
 import dataModel.HSensor;
+import dataModel.HSensorset;
 import dataModel.House;
 import dataModel.Resident;
 import dataModel.SensorType;
@@ -73,6 +74,10 @@ public class Parameters {
 
 	public void setSensorsets(List<HSensorsetGP> sensorsets) {
 		this.sensorsets = sensorsets;
+	}
+	
+	public void addSensorset(HSensorsetGP ss){
+		this.getSensorsets().add(ss);
 	}
 	
 }
