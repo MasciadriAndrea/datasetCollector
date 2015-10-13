@@ -172,4 +172,75 @@ public class House {
 		}
 		return null;
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((activities == null) ? 0 : activities.hashCode());
+		result = prime * result + ((days == null) ? 0 : days.hashCode());
+		result = prime * result
+				+ ((locations == null) ? 0 : locations.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result
+				+ ((residents == null) ? 0 : residents.hashCode());
+		result = prime * result
+				+ ((sensorTypes == null) ? 0 : sensorTypes.hashCode());
+		result = prime * result + ((sensors == null) ? 0 : sensors.hashCode());
+		result = prime * result
+				+ ((sensorsets == null) ? 0 : sensorsets.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		House other = (House) obj;
+		if (activities == null) {
+			if (other.activities != null)
+				return false;
+		} else if (!activities.equals(other.activities))
+			return false;
+		if (days == null) {
+			if (other.days != null)
+				return false;
+		} else if (!days.equals(other.days))
+			return false;
+		if (locations == null) {
+			if (other.locations != null)
+				return false;
+		} else if (!locations.equals(other.locations))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (residents == null) {
+			if (other.residents != null)
+				return false;
+		} else if (!residents.equals(other.residents))
+			return false;
+		if (sensorTypes == null) {
+			if (other.sensorTypes != null)
+				return false;
+		} else if (!sensorTypes.equals(other.sensorTypes))
+			return false;
+		if (sensors == null) {
+			if (other.sensors != null)
+				return false;
+		} else if (!sensors.equals(other.sensors))
+			return false;
+		if (sensorsets == null) {
+			if (other.sensorsets != null)
+				return false;
+		} else if (!sensorsets.equals(other.sensorsets))
+			return false;
+		return true;
+	}
 }

@@ -202,7 +202,7 @@ public class ArasParser extends GenericParser {
 					House h=super.getDataset().getHouses().get(0);
 					Location loc=h.getLocationByUniqueId(1);
 					SensorType st=h.getSensorTypeByUniqueId(1);
-					sl.add(new HSensor(0, c+1, chunks[0], chunks[1], chunks[1], st, loc));
+					sl.add(new HSensor(0, c+1, chunks[0], chunks[1], chunks[2], st, loc));
 					c++;
 				}
 			}
@@ -339,8 +339,10 @@ public class ArasParser extends GenericParser {
 	                currentActivity2=Integer.parseInt(chunks[21]); 
 	                
 	                
+                	
 	                
-	                if(!previousActivity1.equals(currentActivity1)){
+	                
+	                if((!previousActivity1.equals(currentActivity1))||(secondtime==86400)){
 	                	//if changed activity
 	                	Activity currAct1=h.getActivityByUniqueId(previousActivity1);
 		                ldha.add(new DayHasActivity(0,startSec1,endSec1,currAct1,resident1));
@@ -353,7 +355,7 @@ public class ArasParser extends GenericParser {
 	                }
 	                
 	                if(resident2!=null){
-	                	if(!previousActivity2.equals(currentActivity2)){
+	                	if((!previousActivity2.equals(currentActivity2))||((secondtime==86400))){
 		                	//if changed activity
 		                	Activity currAct2=h.getActivityByUniqueId(previousActivity2);
 			                ldha.add(new DayHasActivity(0,startSec2,endSec2,currAct2,resident2));

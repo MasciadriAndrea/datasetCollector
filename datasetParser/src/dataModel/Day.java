@@ -4,12 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Day {
-	public String getSecondIdSS() {
-		return secondIdSS;
-	}
-	public void setSecondIdSS(String secondIdSS) {
-		this.secondIdSS = secondIdSS;
-	}
 	private Integer id;
 	private String day;
 	private String month;
@@ -80,4 +74,67 @@ public class Day {
 		}
 	}
 	
+	public String getSecondIdSS() {
+		return secondIdSS;
+	}
+	public void setSecondIdSS(String secondIdSS) {
+		this.secondIdSS = secondIdSS;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((dailyActivities == null) ? 0 : dailyActivities.hashCode());
+		result = prime * result + ((day == null) ? 0 : day.hashCode());
+		result = prime * result
+				+ ((incrementalDay == null) ? 0 : incrementalDay.hashCode());
+		result = prime * result + ((month == null) ? 0 : month.hashCode());
+		result = prime * result
+				+ ((secondIdSS == null) ? 0 : secondIdSS.hashCode());
+		result = prime * result + ((year == null) ? 0 : year.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Day other = (Day) obj;
+		if (dailyActivities == null) {
+			if (other.dailyActivities != null)
+				return false;
+		} else if (!dailyActivities.equals(other.dailyActivities))
+			return false;
+		if (day == null) {
+			if (other.day != null)
+				return false;
+		} else if (!day.equals(other.day))
+			return false;
+		if (incrementalDay == null) {
+			if (other.incrementalDay != null)
+				return false;
+		} else if (!incrementalDay.equals(other.incrementalDay))
+			return false;
+		if (month == null) {
+			if (other.month != null)
+				return false;
+		} else if (!month.equals(other.month))
+			return false;
+		if (secondIdSS == null) {
+			if (other.secondIdSS != null)
+				return false;
+		} else if (!secondIdSS.equals(other.secondIdSS))
+			return false;
+		if (year == null) {
+			if (other.year != null)
+				return false;
+		} else if (!year.equals(other.year))
+			return false;
+		return true;
+	}
 }
