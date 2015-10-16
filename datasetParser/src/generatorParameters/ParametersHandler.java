@@ -132,13 +132,9 @@ public class ParametersHandler {
 	}
 
 	private void setDay(){
-
-		List<ActivityGP> activities = new ArrayList<ActivityGP>();
-		activities.add(parameters.getActivities().get(1));
-
 		List<Day> houseDays = house.getDays();
 
-		for (ActivityGP activity:activities){
+		for (ActivityGP activity:parameters.getActivities()){
 			for(Day day : houseDays){
 
 				//		set activity labels according to the configurations
