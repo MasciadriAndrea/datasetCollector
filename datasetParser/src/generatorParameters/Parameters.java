@@ -14,18 +14,14 @@ public class Parameters {
 	
 	private List<Resident> residents;
 	private List<HSensor> sensors;
-	private List<DayActivity> activityDays;
-	private List<SensorType> sensorTypes;
 	private List<ActivityGP> activities;
-	private List<HSensorsetGP> sensorsets;
+	private List<HSensorset> sensorsets;
 	
 	public Parameters(){
 		this.residents = new ArrayList<Resident>();
 		this.sensors = new ArrayList<HSensor>();
-		this.activityDays = new ArrayList<DayActivity>();
-		this.sensorTypes = new ArrayList<SensorType>();
 		this.activities = new ArrayList<ActivityGP>();
-		this.sensorsets = new ArrayList<HSensorsetGP>();
+		this.sensorsets = new ArrayList<HSensorset>();
 	}
 
 	public List<Resident> getResidents() {
@@ -44,22 +40,6 @@ public class Parameters {
 		this.sensors = sensors;
 	}
 
-	public List<DayActivity> getActivityDays() {
-		return activityDays;
-	}
-
-	public void setActivityDays(List<DayActivity> activityDays) {
-		this.activityDays = activityDays;
-	}
-
-	public List<SensorType> getSensorTypes() {
-		return sensorTypes;
-	}
-
-	public void setSensorTypes(List<SensorType> sensorTypes) {
-		this.sensorTypes = sensorTypes;
-	}
-
 	public List<ActivityGP> getActivities() {
 		return activities;
 	}
@@ -68,15 +48,15 @@ public class Parameters {
 		this.activities = activities;
 	}
 
-	public List<HSensorsetGP> getSensorsets() {
+	public List<HSensorset> getSensorsets() {
 		return sensorsets;
 	}
 
-	public void setSensorsets(List<HSensorsetGP> sensorsets) {
+	public void setSensorsets(List<HSensorset> sensorsets) {
 		this.sensorsets = sensorsets;
 	}
 	
-	public void addSensorset(HSensorsetGP ss){
+	public void addSensorset(HSensorset ss){
 		this.getSensorsets().add(ss);
 	}
 	

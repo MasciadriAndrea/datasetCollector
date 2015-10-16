@@ -175,20 +175,8 @@ public class ParametersHandler {
 						}
 					}
 
-					//	create activated sensors list
-					List<SensorTime> sensorsTime = sensorsTimeFromActivatedSensors(filteredSensors);
 
-					HSensorsetGP ss = getSensorsetByActivatedSensors(sensorsTime);
-					if (ss == null){
-						int uid = parameters.getSensorsets().size(); 
-						ss = new HSensorsetGP(0, uid,  sensorsTime);
-						parameters.addSensorset(ss);
-//						System.out.println("Added new ss with id: " + uid + " and number activated sensors:" + filteredSensors.size());
-					} else {
-//						System.out.println("Existing ss with id: " + ss.getUniqueSensorsetId() + " and number activated sensors:" + filteredSensors.size());
-					}
 
-					secondSSId = secondSSId+"," + Integer.toString(ss.getUniqueSensorsetId());
 				}
 
 				//					SensorTime st = new SensorTime();
@@ -198,26 +186,6 @@ public class ParametersHandler {
 
 
 		}
-	}
-
-	public HSensorsetGP getSensorsetByActivatedSensors(List<SensorTime> currentSensorTime){
-
-		for (HSensorsetGP ss: parameters.getSensorsets()){
-			Integer score = 0;
-			
-			for (int i = 0; i < ss.getSensors().size(); i++){
-				if (ss.getSensors().get(i).getValue() == currentSensorTime.get(i).getValue()){
-					score++;
-				}
-
-			}
-			if (score.equals(ss.getSensors().size())){
-				return ss;
-			}
-
-		}
-		return null;
-
 	}
 
 	public List<HSensor> getActivatedSensorsBySensorTimeList(List<SensorTime> sensorsTime){

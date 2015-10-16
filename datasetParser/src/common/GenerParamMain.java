@@ -1,6 +1,5 @@
 package common;
 
-import generatorParameters.HSensorsetGP;
 import generatorParameters.Parameters;
 import generatorParameters.ParametersHandler;
 
