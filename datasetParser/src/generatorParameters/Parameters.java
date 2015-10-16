@@ -12,16 +12,26 @@ import dataModel.SensorType;
 
 public class Parameters {
 	
+	public List<DayGP> getDays() {
+		return days;
+	}
+
+	public void setDays(List<DayGP> days) {
+		this.days = days;
+	}
+
 	private List<Resident> residents;
 	private List<HSensor> sensors;
 	private List<ActivityGP> activities;
 	private List<HSensorset> sensorsets;
+	private List<DayGP> days;
 	
 	public Parameters(){
 		this.residents = new ArrayList<Resident>();
 		this.sensors = new ArrayList<HSensor>();
 		this.activities = new ArrayList<ActivityGP>();
 		this.sensorsets = new ArrayList<HSensorset>();
+		this.days=new ArrayList<DayGP>();
 	}
 
 	public List<Resident> getResidents() {

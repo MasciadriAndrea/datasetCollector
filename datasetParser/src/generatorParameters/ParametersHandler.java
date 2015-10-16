@@ -133,33 +133,23 @@ public class ParametersHandler {
 
 	private void setDay(){
 		List<Day> houseDays = house.getDays();
-
-		for (ActivityGP activity:parameters.getActivities()){
-			for(Day day : houseDays){
-
-				//		set activity labels according to the configurations
-
-				System.out.println("set activity labels according to the configurations "+ day.getIncrementalDay());
-
-				List<DayHasActivity> dayActivities =new ArrayList<DayHasActivity>();			
-				List<DayHasActivity> houseDaySubactivities = day.getDailyActivities();
-
-				/*				for (DayHasActivity hds : houseDaySubactivities){
-
-					if (isContainResident(hds.getResident())){
-
-						for (Activity subactivity: activity.getSubactivities()){
-							if (hds.getActivity().getUniqueActivityId() == subactivity.getUniqueActivityId()){
-								System.out.println(hds.getActivity().getName() + " is found for " + activity.getName() + " with  " + hds.getResident().getUniqueResidentId());
-								Integer startSec = hds.getStartSec();
-								Integer endSec = hds.getEndSec();
-								DayHasActivity da = new DayHasActivity(0, startSec, endSec, activity, hds.getResident());
-								dayActivities.add(da);
-							}
-						}
-					}		
-				}
-				 */
+		List<DayGP> dayGP=new ArrayList<DayGP>();
+		
+		for(Resident res:this.parameters.getResidents()){
+			//for each resident import its days
+			for(Day realDay:houseDays){
+				//I should create a dayGP for this resident
+				DayGP daygp
+			}
+		}
+		
+		//for each Resident create dayGP which estends DAY with the resident... the string there is the filtered string
+		
+		//ones you have the "double" number of filtered second days... parse to retrieve sensorsets
+		
+		
+		
+		/*
 				//		change secondIdSS for every day
 				String secondSSId = "";
 
@@ -178,15 +168,10 @@ public class ParametersHandler {
 
 
 				}
-
-				//					SensorTime st = new SensorTime();
-				//							HSensorset newSS = new HSensorset(houseSSid, houseSSid, null);
-
+*/
+				
 			}
 
-
-		}
-	}
 
 	public List<HSensor> getActivatedSensorsBySensorTimeList(List<SensorTime> sensorsTime){
 		List<HSensor> activatedSensors = new ArrayList<HSensor>();
