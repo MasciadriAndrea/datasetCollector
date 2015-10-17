@@ -138,85 +138,92 @@ public class ParametersHandler {
 		for(Resident res:this.parameters.getResidents()){
 			//for each resident import its days
 			for(Day realDay:houseDays){
+				System.out.println("Uploading day "+realDay.getIncrementalDay()+" resident "+res.getUniqueResidentId());
 				//I should create a dayGP for this resident
-				DayGP daygp
-			}
-		}
-		
-		//for each Resident create dayGP which estends DAY with the resident... the string there is the filtered string
-		
-		//ones you have the "double" number of filtered second days... parse to retrieve sensorsets
-		
-		
-		
-		/*
-				//		change secondIdSS for every day
-				String secondSSId = "";
-
-				for( String houseSSidString : day.getSecondIdSS().split(",")){
-					Integer houseSSid = Integer.valueOf(houseSSidString);
-					List<HSensor> presentSensors = this.house.getActivatedSensorsByUniqueSSid(houseSSid);
-					List<HSensor> filteredSensors = new ArrayList<HSensor>();
-
-					// find which allowed sensors are present
-					for(HSensor presentSensor:presentSensors){
-						if (isSensorIsAllowedInActivity(activity, presentSensor)){
-							filteredSensors.add(presentSensor);
+				DayGP daygp=new DayGP(0,realDay.getIncrementalDay(),realDay.getDay(),realDay.getMonth(),realDay.getYear(),realDay.getSecondIdSS(),res);
+				List<DayHasActivity> dhaRes=new ArrayList<DayHasActivity>();
+				String[] ids=daygp.getSSid();
+				Integer[] idsInt=new Integer[86400];
+				for(DayHasActivity dha:realDay.getDailyActivities()){
+					if(dha.getResident().getUniqueResidentId()==res.getUniqueResidentId()){
+						
+						Integer performedSubActivityId=dha.getActivity().getUniqueActivityId();
+						ActivityGP agp=this.getParameters().getActivityGpBySubActId(performedSubActivityId);
+						if(agp==null){
+							agp=this.parameters.getActivityGpByIdGP(0);
 						}
+						DayHasActivity dhaNew= new DayHasActivity(0,dha.getStartSec(),dha.getEndSec(),agp,dha.getResident());
+						dhaRes.add(dhaNew);			
+						Integer startSec=dha.getStartSec();
+						Integer endSec=dha.getEndSec();
+						Integer okSec=0;
+						Integer koSec=0;
+						for(Integer sec=startSec;sec<=endSec;sec++){
+							//filtering data
+							if(agp.getUniqueActivityId()!=0){
+								Integer previousSSId=Integer.parseInt(ids[sec-1]);
+								HSensorset previousSS=house.getSensorsetByUniqueId(previousSSId);
+								List<Integer> filteredSIds=previousSS.getActivatedSensorsId();
+								filteredSIds.retainAll(agp.getAllowedSensorsId());
+								Integer newSSId=this.manageSS(filteredSIds);
+								idsInt[sec-1]=newSSId;
+								okSec++;
+								//System.out.println("Changing ss "+previousSSId+" in "+newSSId+" for day "+daygp.getIncrementalDay());
+							}else{
+								idsInt[sec-1]=0;koSec++;
+							}
+						}
+						
+						
+						//TODO do this not by activity but by day!!!
+						System.out.println("Total seconds parsed: "+(okSec+koSec)+" -> not accepted seconds: "+koSec);
 					}
-
-
-
 				}
-*/
 				
-			}
-
-
-	public List<HSensor> getActivatedSensorsBySensorTimeList(List<SensorTime> sensorsTime){
-		List<HSensor> activatedSensors = new ArrayList<HSensor>();
-		for(SensorTime sensorTime:sensorsTime){
-			if (sensorTime.getValue().equals("1")){
-				activatedSensors.add(sensorTime.getSensor());
+				//hereeeee
+				
+				
+				daygp.setSSid(idsInt);
+				daygp.setDailyActivities(dhaRes);
+				dayGP.add(daygp);
 			}
 		}
-		return activatedSensors;
+		this.parameters.setDays(dayGP);
+				
 	}
-
-	public boolean isContainResident(Resident r){
-
-		for (Resident resident: parameters.getResidents()){
-			if (resident.getUniqueResidentId() == r.getUniqueResidentId()){
-				return true;
+	
+	public Integer manageSS(List<Integer> incomingList){
+		Integer numberOfSS=0;
+		for(HSensorset ss:this.parameters.getSensorsets()){
+			if(ss.getUniqueSensorsetId()!=0){
+				numberOfSS++;
+				Integer matchingSensor=0;
+				List<Integer> actSensorss=ss.getActivatedSensorsId();
+				for(Integer ids:actSensorss){
+					if(incomingList.contains(ids)){
+						matchingSensor++;
+					}
+				}
+				if((matchingSensor==actSensorss.size())&&(actSensorss.size()==incomingList.size())){
+					//is the same ss
+					return ss.getUniqueSensorsetId();
+				}
 			}
 		}
-		return false;
-	}
-
-	public boolean isSensorIsAllowedInActivity(ActivityGP activity, HSensor s){
-		for (HSensor sensor : activity.getAllowedSensors()){
-			if (sensor.getUniqueSensorId() == s.getUniqueSensorId()){
-				return true;
+		//otherwise create SS
+		List<SensorTime> lst=new ArrayList<SensorTime>();
+		for(Integer sens=1;sens<=this.house.getSensors().size();sens++){
+			HSensor sensor=this.house.getSensorByUniqueId(sens);
+			String value="0";
+			if(incomingList.contains(sens)){
+				value="1";
 			}
+        	SensorTime st=new SensorTime(0,sensor,value);
+        	lst.add(st);
 		}
-		return false;
-	}
-
-	public List<SensorTime> sensorsTimeFromActivatedSensors(List<HSensor> activatedSensors){
-
-		List<SensorTime> sensorsTime = new ArrayList<SensorTime>();
-		
-		for (HSensor sensor:parameters.getSensors()){
-			SensorTime st = new SensorTime(0, sensor, "0");
-			for (HSensor actSensor:activatedSensors){
-				if (sensor.getUniqueSensorId() == actSensor.getUniqueSensorId()){
-					st.setValue("1");
-				} 
-			}
-			sensorsTime.add(st);
-		}
-
-		return sensorsTime;
+		HSensorset newss=new HSensorset(0,numberOfSS+1,lst);
+		this.parameters.getSensorsets().add(newss);
+		return numberOfSS+1;
 	}
 
 }

@@ -52,7 +52,19 @@ public class Day {
 	public void setDailyActivities(List<DayHasActivity> dailyActivities) {
 		this.dailyActivities = dailyActivities;
 	}
-
+	
+	public String[] getSSid(){
+		return secondIdSS.split(",");
+	}
+	
+	public void setSSid(Integer[] ids){
+		String str="";
+		for(Integer i=0;i<ids.length;i++){
+			str+=String.valueOf(ids[i])+",";
+		}
+		str=str.substring(0,str.length()-1);
+		this.secondIdSS=str;
+	}
 
 	public Integer getIncrementalDay() {
 		return incrementalDay;
@@ -67,7 +79,7 @@ public class Day {
 			System.out.println("Not correct number of seconds");
 		}
 		if(sec<=chunks.length){
-			return Integer.valueOf(chunks[sec]);
+			return Integer.valueOf(chunks[sec-1]);
 		}else{
 			return 0;
 			//Throw exception
@@ -136,5 +148,21 @@ public class Day {
 		} else if (!year.equals(other.year))
 			return false;
 		return true;
+	}
+	
+	public void setSSidBySecond(Integer sec, Integer value) {
+		String[] chunks=secondIdSS.split(",");
+		if(chunks.length!=86400){
+			System.out.println("Not correct number of seconds");
+		}
+		if(sec<=chunks.length){
+			chunks[sec-1]=String.valueOf(value);
+		}
+		String str="";
+		for(Integer i=0;i<chunks.length;i++){
+			str+=chunks[i]+",";
+		}
+		str=str.substring(0,str.length()-1);
+		this.secondIdSS=str;
 	}
 }

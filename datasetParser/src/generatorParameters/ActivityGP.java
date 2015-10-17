@@ -17,6 +17,14 @@ public class ActivityGP extends Activity {
 		this.allowedSensors = allowedSensors;
 		
 	}
+	
+	public List<Integer> getAllowedSensorsId() {
+		List<Integer> ids=new ArrayList<Integer>();
+		for(HSensor s:this.allowedSensors){
+			ids.add(s.getUniqueSensorId());
+		}
+		return ids;
+	}
 
 	public List<HSensor> getAllowedSensors() {
 		return allowedSensors;

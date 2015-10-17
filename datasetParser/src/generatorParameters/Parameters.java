@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import specificParser.ArasParser;
+import dataModel.Activity;
 import dataModel.HSensor;
 import dataModel.HSensorset;
 import dataModel.House;
@@ -30,7 +31,11 @@ public class Parameters {
 		this.residents = new ArrayList<Resident>();
 		this.sensors = new ArrayList<HSensor>();
 		this.activities = new ArrayList<ActivityGP>();
+		ActivityGP a=new ActivityGP(0,0,"DO NOT CONSIDER",new ArrayList<Activity>(),new ArrayList<HSensor>());
+		activities.add(a);
 		this.sensorsets = new ArrayList<HSensorset>();
+		HSensorset h1=new HSensorset();
+		sensorsets.add(h1);
 		this.days=new ArrayList<DayGP>();
 	}
 
@@ -68,6 +73,27 @@ public class Parameters {
 	
 	public void addSensorset(HSensorset ss){
 		this.getSensorsets().add(ss);
+	}
+	
+	public ActivityGP getActivityGpByIdGP(Integer id){
+		for(ActivityGP agp:this.getActivities()){
+			if(agp.getUniqueActivityId()==id){
+				return agp;
+			}
+		}
+		return null;
+	}
+	
+	public ActivityGP getActivityGpBySubActId(Integer id){
+		for(ActivityGP agp:this.getActivities()){
+			for(Activity subact:agp.getSubactivities()){
+				if(subact.getUniqueActivityId()==id){
+					return agp;
+				}
+			}
+		}
+		//System.out.println("Error of null activity");
+		return null;
 	}
 	
 }
