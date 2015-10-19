@@ -78,22 +78,6 @@ public class ParametersHandler {
 		this.computeActivitiesRhytm();
 		this.computeTimeDistribution();
 		this.exportAll();
-
-		/*
-		 * PRINT how many pattern for every activtyGP
-		 * 
-		for(ActivityGP agp:this.parameters.getActivities()){
-			System.out.println("--------Patterns of activity: "+agp.getName());
-			Integer countP=0;
-			for(Pattern patt:agp.getPatterns()){
-				countP++;
-				Integer countDha=0;
-				for(DayHasActivity dha:patt.getDhasInCluster()){
-					countDha++;
-				}
-				System.out.println("pattern n: "+countP+" has "+countDha+" dha");	
-			}
-		}*/
 	}
 
 
@@ -338,6 +322,7 @@ public class ParametersHandler {
 			for(int col=0;col<numCol;col++){
 				sumRow+=m[row][col];
 			}
+			sumRow = Math.max(1, sumRow);
 			for(int col=0;col<numCol;col++){
 				m2[row][col]=(float) m[row][col]/sumRow;
 			}
@@ -395,83 +380,6 @@ public class ParametersHandler {
 		this.parameters.setOverallTransitionSS(allTransSS);
 	}
 
-	private void setActivitiesWithConfigurations(){
-		//unusued
-
-		//		 take use residents
-		System.out.println("Loading residents");
-		List<Integer> residentsId = new ArrayList<Integer>(); residentsId.add(1); residentsId.add(2);	
-		List<Resident> residents = new ArrayList<Resident>();
-		for (Integer id: residentsId){
-			residents.add(this.house.getResidentByUniqueId(id));
-		}
-		//		take used sensors
-		System.out.println("Loading sensors");
-		List<Integer> sensorsId = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20); 	
-		List<HSensor> sensorsAll = new ArrayList<HSensor>();
-		for (Integer id: sensorsId){
-			sensorsAll.add(this.house.getSensorByUniqueId(id));
-		}
-
-		System.out.println("Mapping subactivities to activities");
-		List<String> activityNames = new ArrayList<String>();
-		List<List<Integer>> subActInd = new ArrayList<List<Integer>>();
-		List<List<Integer>> allowedSensors = new ArrayList<List<Integer>>();
-
-		activityNames.add("Cook");
-		subActInd.add(Arrays.asList(3, 5, 7));
-		allowedSensors.add(Arrays.asList(8, 9, 15, 16, 19));
-
-		activityNames.add("Eat");
-		subActInd.add(Arrays.asList(4, 6, 8, 10));
-		allowedSensors.add(Arrays.asList(4, 5, 6, 7, 8, 9, 15, 16));
-
-		activityNames.add("Sleep");
-		subActInd.add(Arrays.asList(11, 16));
-		allowedSensors.add(Arrays.asList(2, 4, 5, 20));
-
-		activityNames.add("WatchTV");
-		subActInd.add(Arrays.asList(12));
-		allowedSensors.add(Arrays.asList(3, 4, 5, 6, 7));
-
-		activityNames.add("ReadBook");
-		subActInd.add(Arrays.asList(18));
-		allowedSensors.add(Arrays.asList(4, 5, 6, 7));
-
-		activityNames.add("TakeShower");
-		subActInd.add(Arrays.asList(14));
-		allowedSensors.add(Arrays.asList(11, 13, 14, 17));
-
-		activityNames.add("WashUp");
-		subActInd.add(Arrays.asList(20, 21));
-		allowedSensors.add(Arrays.asList(11, 13, 17));
-
-		activityNames.add("Toilet");
-		subActInd.add(Arrays.asList(15));
-		allowedSensors.add(Arrays.asList(13, 14, 18));
-
-		List<ActivityGP> activities = new ArrayList<ActivityGP>();	
-		ActivityGP a=new ActivityGP(0,0,"DO NOT CONSIDER",new ArrayList<Activity>(),new ArrayList<HSensor>());
-		activities.add(a);
-
-		int uid = 1;
-		for (int i = 0; i < activityNames.size(); i++){
-			List<Activity> subactivities = new ArrayList<Activity>();
-			for (Integer subactivityId: subActInd.get(i)){
-				subactivities.add(this.house.getActivityByUniqueId(subactivityId));
-			}
-			List<HSensor> sensors = new ArrayList<HSensor>();
-			for (Integer sensorId: allowedSensors.get(i)){
-				sensors.add(this.house.getSensorByUniqueId(sensorId));
-			}
-			ActivityGP activity = new ActivityGP(0, uid, activityNames.get(i), subactivities, sensors);
-			activities.add(activity);
-			uid++;
-		}
-		this.parameters.setActivities(activities);
-		this.parameters.setResidents(residents);
-		this.parameters.setSensors(sensorsAll);
-	}
 
 	private void setDay(){
 		System.out.println("Loading days");
