@@ -5,15 +5,8 @@ import dataModel.DayHasActivity;
 import dataModel.Resident;
 
 public class DayHasActivityGP extends DayHasActivity {
-	public Integer getUniqueDayHasActivityId() {
-		return uniqueDayHasActivityId;
-	}
-
-	public void setUniqueDayHasActivityId(Integer uniqueDayHasActivityId) {
-		this.uniqueDayHasActivityId = uniqueDayHasActivityId;
-	}
-
 	private	 Integer uniqueDayHasActivityId;
+	public Integer[] vectorChangeSS;
 	
 	public DayHasActivityGP(Integer id, Integer dhaId,Integer startSec, Integer endSec,
 			Activity activity, Resident resident) {
@@ -47,5 +40,19 @@ public class DayHasActivityGP extends DayHasActivity {
 		return true;
 	}
 
-	
+	public Integer getUniqueDayHasActivityId() {
+		return uniqueDayHasActivityId;
+	}
+
+	public void setUniqueDayHasActivityId(Integer uniqueDayHasActivityId) {
+		this.uniqueDayHasActivityId = uniqueDayHasActivityId;
+	}
+
+	public Integer[] getVectorChangeSS() {
+		return vectorChangeSS;
+	}
+
+	public void setVectorChangeSS(Integer[] vectorChangeSS) {
+		this.vectorChangeSS = vectorChangeSS;
+	}
 }

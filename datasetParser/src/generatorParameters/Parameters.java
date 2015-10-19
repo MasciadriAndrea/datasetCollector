@@ -112,10 +112,19 @@ public class Parameters {
 	public void setOverallProbSS(Float[][] overallProbSS) {
 		this.overallProbSS = overallProbSS;
 	}
+
 	public void addResident(Resident newResident){
 		this.residents.add(newResident);
 	}
 	public void addActivity(ActivityGP newActivity){
 		this.getActivities().add(newActivity);
+	}
+	public HSensorset getSensorsetByUniqueId(Integer id){
+		for(HSensorset ss:this.sensorsets){
+			if(ss.getUniqueSensorsetId()==id){
+				return ss;
+			}
+		}return null;
+
 	}
 }

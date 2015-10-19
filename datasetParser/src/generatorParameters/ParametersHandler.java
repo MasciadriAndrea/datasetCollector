@@ -9,6 +9,7 @@ import java.nio.file.NotDirectoryException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class ParametersHandler {
 	private static ParametersHandler instance;
 	private final static Integer cluster_param_N=5;
 	private final static Integer cluster_param_K=2;
+	private final static Integer DCT_K=10;
 	private Parameters parameters;
 	private House house;
 
@@ -71,8 +73,8 @@ public class ParametersHandler {
 		this.computeProbMatrices();
 		this.computePatternInitialProb();
 		this.computeSSiniProbInPattern();
-		//		this.computeActivitiesRhytm();
-		//TODO computeTimeDistribution();
+		this.computeActivitiesRhytm();
+		this.computeTimeDistribution();
 		//TODO exportAll();
 
 		/*
@@ -92,7 +94,138 @@ public class ParametersHandler {
 		}*/
 	}
 
+
+	private void computeTimeDistribution() {
+		System.out.println("Computing durations");
+		for(DayGP daygp:this.parameters.getDays()){
+			String[] secId=daygp.getSSid();
+			String precValue=secId[0];
+			Integer duration=0;
+			for(int pos=0;pos<secId.length;pos++){
+				if(secId[pos].equals(precValue)){
+					duration++;
+				}else{
+					Integer id=Integer.parseInt(precValue);
+					HSensorset ss=this.parameters.getSensorsetByUniqueId(id);
+					ss.addDuration(duration);
+					duration=0;
+					precValue=secId[pos];
+				}
+			}
+		}
+		//found all of the durations
+		for(HSensorset ss:this.parameters.getSensorsets()){
+			Collections.sort(ss.getDurations());
+			Integer[] time=(Integer[]) ss.getDurations().toArray();
+			ss.setTimeDistr(this.stretchVector(time, 100));
+		}
+	}
+
+	private void computeActivitiesRhytm() {
+		System.out.println("Computing rhythm");
+		for(ActivityGP agp:this.parameters.getActivities()){
+			if(agp.getUniqueActivityId()!=0){
+			Integer longerTimeDha=0;
+			for(Pattern patt:agp.getPatterns()){
+				for(DayHasActivityGP dha:patt.getDhasInCluster()){
+					Integer duration=dha.getVectorChangeSS().length;
+					if(duration>longerTimeDha){
+						longerTimeDha=duration;
+					}
+				}
+			}
+			System.out.println("Activity "+agp.getName()+" has longer duration "+longerTimeDha);
+			//now I have the maximum duration for the current activity
+			for(Pattern patt:agp.getPatterns()){
+				System.out.println("New PATTERN");
+				Float[] sumV=new Float[longerTimeDha];
+				for(int pos=0;pos<longerTimeDha;pos++){
+					sumV[pos]=(float) 0;
+				}
+				for(DayHasActivityGP dha:patt.getDhasInCluster()){
+					System.out.println("dha "+dha.getEndSec());
+					Float[] stretchedVector=stretchVector(dha.getVectorChangeSS(),longerTimeDha);
+					sumV=sumVectors(sumV,stretchedVector);
+				}
+				agp.setRhythm(computeDCT(sumV));
+			}
+		}
+		}
+	}
+	
+	private List<Float> computeDCT(Float[] vector){
+		List<Float> dct=new ArrayList<Float>();
+		Integer vectorL=vector.length;
+		Integer N=Math.round(vectorL/DCT_K);
+		
+		//first iteration: k=1
+		Double insum= 0.0;
+		for(int n=0;n<N;n++){
+			int pos=(int) Math.floor((vectorL*n)/N);
+			insum+=vector[pos];
+		}
+		Double yk=(double) ((1/Math.sqrt(N))*(insum));
+		//other iterations
+		Double wk= (Math.sqrt((double) 2/N));
+		for(int k=2;k<=N;k++){
+			insum= 0.0;
+			for(int n=0;n<N;n++){
+				int pos=(int) Math.floor((vectorL*n)/N);
+				insum+=(vector[pos])*(Math.cos((Math.PI/(2*N))*((2*(n+1))-1)*(k-1)));
+			}
+			yk+=wk*insum;	
+			dct.add(yk.floatValue());
+		}
+		return dct;
+	}
+
+	private Float[] sumVectors(Float[] sumV, Float[] stretchedVector) {
+		int l1=sumV.length;
+		int l2=stretchedVector.length;
+		Float[] list=new Float[l1];
+		if(l1==l2){
+			for(int pos=0;pos<l1;pos++){
+				list[pos]=sumV[pos]+stretchedVector[pos];
+			}
+			return list;
+		}
+		return null;
+	}
+
+	private Float[] stretchVector(Integer[] vectorChangeSS, Integer longerTimeDha) {
+		Integer currentLength=vectorChangeSS.length;
+		if(currentLength==longerTimeDha){
+			Float[] stretched=new Float[longerTimeDha];
+			for(int pos=0;pos<longerTimeDha;pos++){
+				stretched[pos]= vectorChangeSS[pos].floatValue();
+			}
+			return stretched;
+		}
+		if(currentLength<longerTimeDha){
+			//make bigger
+			Float[] stretched=new Float[longerTimeDha];
+			stretched[0]=(float) vectorChangeSS[0];
+			for(int pos=1;pos<longerTimeDha;pos++){
+				stretched[pos]=(float) Math.floor((pos-1)/vectorChangeSS.length);
+			}
+			return stretched;
+		}
+		//otherwise 
+		if(currentLength>longerTimeDha){
+			//make shorter
+			Float[] stretched=new Float[longerTimeDha];
+			for(int pos=0;pos<longerTimeDha;pos++){
+				int POS=(int) Math.floor((pos*currentLength)/longerTimeDha);
+				stretched[pos]=(float) vectorChangeSS[POS];
+			}
+			return stretched;
+		}
+		System.out.println("Impossible stretch condition");
+		return null;
+	}
+	
 	private void computeSSiniProbInPattern() {
+		System.out.println("Computing SS initial probobabilities for patterns");
 		for(ActivityGP agp:this.parameters.getActivities()){
 			for(Pattern pattern:agp.getPatterns()){
 				Integer sumOfDiagonal=0;
@@ -111,6 +244,7 @@ public class ParametersHandler {
 	}
 
 	private void computePatternInitialProb() {
+		System.out.println("Computing initial probability for patterns");
 		for(ActivityGP agp:this.parameters.getActivities()){
 			for(Pattern pattern:agp.getPatterns()){
 				pattern.setInitialProb((float) (pattern.getDhasInCluster().size()/agp.getDhaInActivity()));
@@ -120,6 +254,7 @@ public class ParametersHandler {
 	}
 
 	private void computeProbMatrices() {
+		System.out.println("Computing transitions matrices");
 		//compute the overallProbSS from the overallTransitionSS
 		this.parameters.setOverallProbSS(normalizeByRow(this.parameters.getOverallTransitionSS()));
 		//compute SSProbMatrix of every pattern using its SStransMatrix that is sum of SStransMatrix
@@ -219,6 +354,86 @@ public class ParametersHandler {
 		this.parameters.setOverallTransitionSS(allTransSS);
 	}
 
+	private void setActivitiesWithConfigurations(){
+
+		//		TODO parser for configuration file
+		// this.confFileName;	
+
+		//		 take use residents
+		System.out.println("Loading residents");
+		List<Integer> residentsId = new ArrayList<Integer>(); residentsId.add(1); residentsId.add(2);	
+		List<Resident> residents = new ArrayList<Resident>();
+		for (Integer id: residentsId){
+			residents.add(this.house.getResidentByUniqueId(id));
+		}
+		//		take used sensors
+		System.out.println("Loading sensors");
+		List<Integer> sensorsId = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20); 	
+		List<HSensor> sensorsAll = new ArrayList<HSensor>();
+		for (Integer id: sensorsId){
+			sensorsAll.add(this.house.getSensorByUniqueId(id));
+		}
+
+		System.out.println("Mapping subactivities to activities");
+		List<String> activityNames = new ArrayList<String>();
+		List<List<Integer>> subActInd = new ArrayList<List<Integer>>();
+		List<List<Integer>> allowedSensors = new ArrayList<List<Integer>>();
+
+		activityNames.add("Cook");
+		subActInd.add(Arrays.asList(3, 5, 7));
+		allowedSensors.add(Arrays.asList(8, 9, 15, 16, 19));
+
+		activityNames.add("Eat");
+		subActInd.add(Arrays.asList(4, 6, 8, 10));
+		allowedSensors.add(Arrays.asList(4, 5, 6, 7, 8, 9, 15, 16));
+
+		activityNames.add("Sleep");
+		subActInd.add(Arrays.asList(11, 16));
+		allowedSensors.add(Arrays.asList(2, 4, 5, 20));
+
+		activityNames.add("WatchTV");
+		subActInd.add(Arrays.asList(12));
+		allowedSensors.add(Arrays.asList(3, 4, 5, 6, 7));
+
+		activityNames.add("ReadBook");
+		subActInd.add(Arrays.asList(18));
+		allowedSensors.add(Arrays.asList(4, 5, 6, 7));
+
+		activityNames.add("TakeShower");
+		subActInd.add(Arrays.asList(14));
+		allowedSensors.add(Arrays.asList(11, 13, 14, 17));
+
+		activityNames.add("WashUp");
+		subActInd.add(Arrays.asList(20, 21));
+		allowedSensors.add(Arrays.asList(11, 13, 17));
+
+		activityNames.add("Toilet");
+		subActInd.add(Arrays.asList(15));
+		allowedSensors.add(Arrays.asList(13, 14, 18));
+
+		List<ActivityGP> activities = new ArrayList<ActivityGP>();	
+		ActivityGP a=new ActivityGP(0,0,"DO NOT CONSIDER",new ArrayList<Activity>(),new ArrayList<HSensor>());
+		activities.add(a);
+
+		int uid = 1;
+		for (int i = 0; i < activityNames.size(); i++){
+			List<Activity> subactivities = new ArrayList<Activity>();
+			for (Integer subactivityId: subActInd.get(i)){
+				subactivities.add(this.house.getActivityByUniqueId(subactivityId));
+			}
+			List<HSensor> sensors = new ArrayList<HSensor>();
+			for (Integer sensorId: allowedSensors.get(i)){
+				sensors.add(this.house.getSensorByUniqueId(sensorId));
+			}
+			ActivityGP activity = new ActivityGP(0, uid, activityNames.get(i), subactivities, sensors);
+			activities.add(activity);
+			uid++;
+		}
+		this.parameters.setActivities(activities);
+		this.parameters.setResidents(residents);
+		this.parameters.setSensors(sensorsAll);
+	}
+
 	private void setDay(){
 		System.out.println("Loading days");
 		List<Day> houseDays = house.getDays();
@@ -230,6 +445,18 @@ public class ParametersHandler {
 				System.out.println("Uploading day "+realDay.getIncrementalDay()+" resident "+res.getUniqueResidentId());
 				//I should create a dayGP for this resident
 				DayGP daygp=new DayGP(0,realDay.getIncrementalDay(),realDay.getDay(),realDay.getMonth(),realDay.getYear(),realDay.getSecondIdSS(),res);
+				//for dha create the vector of ss changes
+					String[] daySSid=daygp.getSSid();
+					Integer[] ssChanges=new Integer[86400];
+					String prev="0";
+					for(int pos=0;pos<daySSid.length;pos++){
+						if(daySSid[pos].equals(prev)){
+							ssChanges[pos]=0;
+						}else{
+							ssChanges[pos]=1;
+						}
+						prev=daySSid[pos];
+					}		
 				List<DayHasActivity> dhaRes=new ArrayList<DayHasActivity>();
 				String[] ids=daygp.getSSid();
 				Integer[] idsInt=new Integer[86400];
@@ -245,7 +472,12 @@ public class ParametersHandler {
 						}
 						dhaUniqueId++;
 						DayHasActivityGP dhaNew= new DayHasActivityGP(0,dhaUniqueId,dha.getStartSec(),dha.getEndSec(),agp,dha.getResident());
-						dhaRes.add(dhaNew);			
+						Integer[] vChangeSS=new Integer[(dha.getEndSec()-dha.getStartSec())+1];
+						for(Integer s=dha.getStartSec();s<dha.getEndSec();s++){//TODO or <= ???
+							vChangeSS[s-dha.getStartSec()]=ssChanges[s-1];
+						}
+						dhaNew.setVectorChangeSS(vChangeSS);						
+						dhaRes.add(dhaNew);
 						Integer startSec=dha.getStartSec();
 						Integer endSec=dha.getEndSec();
 						for(Integer sec=startSec;sec<=endSec;sec++){
@@ -349,7 +581,7 @@ public class ParametersHandler {
 		}
 		readerGeneral.close();
 
-		for (int i = 0; i < activityNames.size(); i++){
+		for (int i = 1; i <= activityNames.size(); i++){
 			String activityName = activityNames.get(i);
 
 			List<Activity> subactivities = new ArrayList<Activity>();
@@ -389,6 +621,8 @@ public class ParametersHandler {
 			ActivityGP newActivity = new ActivityGP(0, i, activityName, subactivities, allowedSensors);
 			this.parameters.addActivity(newActivity);
 		}
+		ActivityGP a=new ActivityGP(0,0,"DO NOT CONSIDER",new ArrayList<Activity>(),new ArrayList<HSensor>());
+		this.parameters.addActivity(a);
 	}
 
 }

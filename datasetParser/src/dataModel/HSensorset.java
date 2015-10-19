@@ -4,16 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HSensorset {
-	
 	private Integer id;
 	private Integer uniqueSensorsetId;
 	private List<SensorTime> sensors;
+	private List<Integer> durations;
+	private Float[] timeDistr;
 	
 	public HSensorset(Integer id, Integer uniqueId, List<SensorTime> sensors) {
 		super();
 		this.id = id;
 		this.sensors = sensors;
 		this.uniqueSensorsetId=uniqueId;
+		this.durations=new ArrayList<Integer>();
+		this.timeDistr=null;
 	}
 	
 	public HSensorset(){
@@ -85,4 +88,24 @@ public class HSensorset {
 			return false;
 		return true;
 	}
+	
+	public List<Integer> getDurations() {
+		return durations;
+	}
+
+	public void setDurations(List<Integer> durations) {
+		this.durations = durations;
+	}
+	
+	public void addDuration(Integer num){
+		this.durations.add(num);
+	}
+	public Float[] getTimeDistr() {
+		return timeDistr;
+	}
+
+	public void setTimeDistr(Float[] timeDistr) {
+		this.timeDistr = timeDistr;
+	}
+
 }

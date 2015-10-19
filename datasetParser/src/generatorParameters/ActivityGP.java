@@ -7,18 +7,11 @@ import dataModel.Activity;
 import dataModel.HSensor;
 
 public class ActivityGP extends Activity {
-	public Integer getDhaInActivity() {
-		return dhaInActivity;
-	}
-
-	public void setDhaInActivity(Integer dhaInActivity) {
-		this.dhaInActivity = dhaInActivity;
-	}
-
 	private List<Activity> subactivities;
 	private List<HSensor> allowedSensors;
 	private List<Pattern> patterns;
 	private Integer dhaInActivity;
+	private List<Float> rhythm;
 	
 	public ActivityGP(Integer id, Integer uid, String name, List<Activity> subactivities, List<HSensor> allowedSensors) {
 		super(id, uid, name);
@@ -26,6 +19,7 @@ public class ActivityGP extends Activity {
 		this.allowedSensors = allowedSensors;
 		this.patterns=new ArrayList<Pattern>();
 		this.dhaInActivity=0;
+		this.rhythm=new ArrayList<Float>();
 	}
 	
 	public List<Integer> getAllowedSensorsId() {
@@ -60,5 +54,20 @@ public class ActivityGP extends Activity {
 	public void setPatterns(List<Pattern> patterns) {
 		this.patterns = patterns;
 	}
-	
+	public List<Float> getRhythm() {
+		return rhythm;
+	}
+
+	public void setRhythm(List<Float> rhythm) {
+		this.rhythm = rhythm;
+	}
+
+	public Integer getDhaInActivity() {
+		return dhaInActivity;
+	}
+
+	public void setDhaInActivity(Integer dhaInActivity) {
+		this.dhaInActivity = dhaInActivity;
+	}
+
 }
