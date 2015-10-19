@@ -28,8 +28,8 @@ import dataModel.SensorType;
 
 public class ArasParser extends GenericParser {
 	
-	//private static String urlData="dataIn/aras";
-	private static String urlData="dataIn/generated";
+	private static String urlData="dataIn/aras";
+	//private static String urlData="dataIn/generated";
 
 	private static String folderConf="/confFile";
 	private static String fileSensor="/sensors.txt";

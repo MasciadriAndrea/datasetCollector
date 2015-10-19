@@ -1,5 +1,6 @@
 package dataModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HSensorset {
@@ -14,6 +15,15 @@ public class HSensorset {
 		this.sensors = sensors;
 		this.uniqueSensorsetId=uniqueId;
 	}
+	
+	public HSensorset(){
+		super();
+		this.id=0;
+		this.uniqueSensorsetId=0;
+		List<SensorTime> lst=new ArrayList<SensorTime>();
+		this.sensors=new ArrayList<SensorTime>();
+	}
+	
 	public Integer getId() {
 		return id;
 	}
@@ -32,6 +42,17 @@ public class HSensorset {
 	public void setUniqueSensorsetId(Integer uniqueSensorsetId) {
 		this.uniqueSensorsetId = uniqueSensorsetId;
 	}
+	
+	public List<Integer> getActivatedSensorsId(){
+		List<Integer> activeSensors=new ArrayList<Integer>();
+		for(SensorTime st:this.getSensors()){
+			if(st.getValue().equals("1")){
+				activeSensors.add(st.getSensor().getUniqueSensorId());
+			}
+		}
+		return activeSensors;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

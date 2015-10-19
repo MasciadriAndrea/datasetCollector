@@ -110,7 +110,7 @@ public class House {
 	}
 	public Resident getResidentByUniqueId(Integer id){
 		for(Resident e:this.residents){
-			if(e.getUniqueResidentId().equals(id)){
+			if(e.getUniqueResidentId() == id){
 				return e;
 			}		
 		}
@@ -140,6 +140,30 @@ public class House {
 		}
 		return null;
 	}
+
+	
+	public List<HSensor> getActivatedSensorsByDaySecond(Day day, Integer second){
+		List<HSensor> activatedSensors = new ArrayList<HSensor>();
+		Integer sensorsetId = day.getSSidBySecond(second);
+		for(SensorTime sensorTime:this.getSensorsetByUniqueId(sensorsetId).getSensors()){
+			if (sensorTime.getValue().equals("1")){
+				activatedSensors.add(sensorTime.getSensor());
+			}
+		}
+		return activatedSensors;
+	}
+	
+	public List<HSensor> getActivatedSensorsByUniqueSSid(Integer sensorsetId){
+		List<HSensor> activatedSensors = new ArrayList<HSensor>();
+		for(SensorTime sensorTime:this.getSensorsetByUniqueId(sensorsetId).getSensors()){
+			if (sensorTime.getValue().equals("1")){
+				activatedSensors.add(sensorTime.getSensor());
+			}
+		}
+		return activatedSensors;
+	}
+	
+	
 	public SensorType getSensorTypeByUniqueId(Integer id){
 		for(SensorType e:this.sensorTypes){
 			if(e.getUniqueSensorTypeId().equals(id)){
