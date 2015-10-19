@@ -25,9 +25,8 @@ public class Parameters {
 		this.sensors = new ArrayList<HSensor>();
 		this.activities = new ArrayList<ActivityGP>();
 		this.sensorsets = new ArrayList<HSensorset>();
-		//TODO remove?!
-		//HSensorset h1=new HSensorset();
-		//sensorsets.add(h1);
+		HSensorset h1=new HSensorset();
+		sensorsets.add(h1);
 		this.days=new ArrayList<DayGP>();
 		overallTransitionSS=null;
 		overallProbSS=null;

@@ -120,10 +120,8 @@ public class ParametersHandler {
 					duration++;
 				}else{
 					Integer id=Integer.parseInt(precValue);
-					if(!id.equals(0)){
-						HSensorset ss=this.parameters.getSensorsetByUniqueId(id);
-						ss.addDuration(duration);
-					}
+					HSensorset ss=this.parameters.getSensorsetByUniqueId(id);
+					ss.addDuration(duration);
 					duration=0;
 					precValue=secId[pos];
 				}
@@ -131,16 +129,9 @@ public class ParametersHandler {
 		}
 		//found all of the durations
 		for(HSensorset ss:this.parameters.getSensorsets()){
-			if(!ss.getUniqueSensorsetId().equals(0)){
 			Collections.sort(ss.getDurations());
-			Integer[] time=new Integer[ss.getDurations().size()];
-			int pos=0;
-			for(Integer n:ss.getDurations()){
-				time[pos]=n;
-				pos++;
-			}
+			Integer[] time=(Integer[]) ss.getDurations().toArray();
 			ss.setTimeDistr(this.stretchVector(time, 100));
-			}
 		}
 	}
 
@@ -148,39 +139,39 @@ public class ParametersHandler {
 		System.out.println("Computing rhythm");
 		for(ActivityGP agp:this.parameters.getActivities()){
 			if(agp.getUniqueActivityId()!=0){
-			Integer longerTimeDha=0;
-			for(Pattern patt:agp.getPatterns()){
-				for(DayHasActivityGP dha:patt.getDhasInCluster()){
-					Integer duration=dha.getVectorChangeSS().length;
-					if(duration>longerTimeDha){
-						longerTimeDha=duration;
+				Integer longerTimeDha=0;
+				for(Pattern patt:agp.getPatterns()){
+					for(DayHasActivityGP dha:patt.getDhasInCluster()){
+						Integer duration=dha.getVectorChangeSS().length;
+						if(duration>longerTimeDha){
+							longerTimeDha=duration;
+						}
 					}
 				}
-			}
-			//System.out.println("Activity "+agp.getName()+" has longer duration "+longerTimeDha);
-			//now I have the maximum duration for the current activity
-			for(Pattern patt:agp.getPatterns()){
-				Float[] sumV=new Float[longerTimeDha];
-				for(int pos=0;pos<longerTimeDha;pos++){
-					sumV[pos]=(float) 0;
-				}
-				for(DayHasActivityGP dha:patt.getDhasInCluster()){
-					if(dha.getVectorChangeSS()!=null){
+				System.out.println("Activity "+agp.getName()+" has longer duration "+longerTimeDha);
+				//now I have the maximum duration for the current activity
+				for(Pattern patt:agp.getPatterns()){
+					System.out.println("New PATTERN");
+					Float[] sumV=new Float[longerTimeDha];
+					for(int pos=0;pos<longerTimeDha;pos++){
+						sumV[pos]=(float) 0;
+					}
+					for(DayHasActivityGP dha:patt.getDhasInCluster()){
+						System.out.println("dha "+dha.getEndSec());
 						Float[] stretchedVector=stretchVector(dha.getVectorChangeSS(),longerTimeDha);
 						sumV=sumVectors(sumV,stretchedVector);
 					}
+					agp.setRhythm(computeDCT(sumV));
 				}
-				agp.setRhythm(computeDCT(sumV));
 			}
 		}
-		}
 	}
-	
+
 	private List<Float> computeDCT(Float[] vector){
 		List<Float> dct=new ArrayList<Float>();
 		Integer vectorL=vector.length;
 		Integer N=Math.round(vectorL/DCT_K);
-		
+
 		//first iteration: k=1
 		Double insum= 0.0;
 		for(int n=0;n<N;n++){
@@ -217,7 +208,7 @@ public class ParametersHandler {
 
 	private Float[] stretchVector(Integer[] vectorChangeSS, Integer longerTimeDha) {
 		Integer currentLength=vectorChangeSS.length;
-		if(currentLength.equals(longerTimeDha)){
+		if(currentLength==longerTimeDha){
 			Float[] stretched=new Float[longerTimeDha];
 			for(int pos=0;pos<longerTimeDha;pos++){
 				stretched[pos]= vectorChangeSS[pos].floatValue();
@@ -243,12 +234,10 @@ public class ParametersHandler {
 			}
 			return stretched;
 		}
-		System.out.println("currLength"+currentLength);
-		System.out.println("stretch to"+longerTimeDha);
 		System.out.println("Impossible stretch condition");
 		return null;
 	}
-	
+
 	private void computeSSiniProbInPattern() {
 		System.out.println("Computing SS initial probobabilities for patterns");
 		for(ActivityGP agp:this.parameters.getActivities()){
@@ -380,7 +369,6 @@ public class ParametersHandler {
 		this.parameters.setOverallTransitionSS(allTransSS);
 	}
 
-
 	private void setDay(){
 		System.out.println("Loading days");
 		List<Day> houseDays = house.getDays();
@@ -393,17 +381,17 @@ public class ParametersHandler {
 				//I should create a dayGP for this resident
 				DayGP daygp=new DayGP(0,realDay.getIncrementalDay(),realDay.getDay(),realDay.getMonth(),realDay.getYear(),realDay.getSecondIdSS(),res);
 				//for dha create the vector of ss changes
-					String[] daySSid=daygp.getSSid();
-					Integer[] ssChanges=new Integer[86400];
-					String prev="0";
-					for(int pos=0;pos<daySSid.length;pos++){
-						if(daySSid[pos].equals(prev)){
-							ssChanges[pos]=0;
-						}else{
-							ssChanges[pos]=1;
-						}
-						prev=daySSid[pos];
-					}		
+				String[] daySSid=daygp.getSSid();
+				Integer[] ssChanges=new Integer[86400];
+				String prev="0";
+				for(int pos=0;pos<daySSid.length;pos++){
+					if(daySSid[pos].equals(prev)){
+						ssChanges[pos]=0;
+					}else{
+						ssChanges[pos]=1;
+					}
+					prev=daySSid[pos];
+				}		
 				List<DayHasActivity> dhaRes=new ArrayList<DayHasActivity>();
 				String[] ids=daygp.getSSid();
 				Integer[] idsInt=new Integer[86400];
@@ -420,7 +408,7 @@ public class ParametersHandler {
 						dhaUniqueId++;
 						DayHasActivityGP dhaNew= new DayHasActivityGP(0,dhaUniqueId,dha.getStartSec(),dha.getEndSec(),agp,dha.getResident());
 						Integer[] vChangeSS=new Integer[(dha.getEndSec()-dha.getStartSec())+1];
-						for(Integer s=dha.getStartSec();s<=dha.getEndSec();s++){
+						for(Integer s=dha.getStartSec();s<dha.getEndSec();s++){//TODO or <= ???
 							vChangeSS[s-dha.getStartSec()]=ssChanges[s-1];
 						}
 						dhaNew.setVectorChangeSS(vChangeSS);						
@@ -493,8 +481,6 @@ public class ParametersHandler {
 	}
 	public void parseGeneratorParam() throws IOException{
 
-
-
 		File folder = new File(directoryInput);
 		if (!folder.exists()) {
 			throw new NotDirectoryException(null);
@@ -518,7 +504,7 @@ public class ParametersHandler {
 				for (String id: residentIds){
 					ParametersHandler.getInstance().getParameters().addResident(this.house.getResidentByUniqueId(Integer.decode(id)));
 				}
-				
+
 			}
 			//			second line stands for Activities
 			if (count == 2){
@@ -536,12 +522,12 @@ public class ParametersHandler {
 
 			activityName = activityName.replaceAll("\"", "");
 			activityName = activityName.replaceAll(" ", "");
-			
+
 			File activityConfig = new File(directoryInput+"/"+activityName+".conf");
 			if (!activityConfig.exists()) {
 				throw new FileNotFoundException(null);
 			}
-			
+
 			BufferedReader readerActivities = new BufferedReader(new FileReader(activityConfig));
 			String string = null;
 			count = 0;
