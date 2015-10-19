@@ -3,6 +3,7 @@ package generatorParameters;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +67,7 @@ public class ParametersHandler {
 		this.computePatternInitialProb();
 		this.computeSSiniProbInPattern();
 		this.computeActivitiesRhytm();
-		//TODO computeTimeDistribution();
+		this.computeTimeDistribution();
 		//TODO exportAll();
 
 		/*
@@ -86,8 +87,36 @@ public class ParametersHandler {
 		}*/
 	}
 
+	private void computeTimeDistribution() {
+		System.out.println("Computing durations");
+		for(DayGP daygp:this.parameters.getDays()){
+			String[] secId=daygp.getSSid();
+			String precValue=secId[0];
+			Integer duration=0;
+			for(int pos=0;pos<secId.length;pos++){
+				if(secId[pos].equals(precValue)){
+					duration++;
+				}else{
+					Integer id=Integer.parseInt(precValue);
+					HSensorset ss=this.parameters.getSensorsetByUniqueId(id);
+					ss.addDuration(duration);
+					duration=0;
+					precValue=secId[pos];
+				}
+			}
+		}
+		//found all of the durations
+		for(HSensorset ss:this.parameters.getSensorsets()){
+			Collections.sort(ss.getDurations());
+			Integer[] time=(Integer[]) ss.getDurations().toArray();
+			ss.setTimeDistr(this.stretchVector(time, 100));
+		}
+	}
+
 	private void computeActivitiesRhytm() {
+		System.out.println("Computing rhythm");
 		for(ActivityGP agp:this.parameters.getActivities()){
+			if(agp.getUniqueActivityId()!=0){
 			Integer longerTimeDha=0;
 			for(Pattern patt:agp.getPatterns()){
 				for(DayHasActivityGP dha:patt.getDhasInCluster()){
@@ -97,19 +126,23 @@ public class ParametersHandler {
 					}
 				}
 			}
+			System.out.println("Activity "+agp.getName()+" has longer duration "+longerTimeDha);
 			//now I have the maximum duration for the current activity
 			for(Pattern patt:agp.getPatterns()){
+				System.out.println("New PATTERN");
 				Float[] sumV=new Float[longerTimeDha];
 				for(int pos=0;pos<longerTimeDha;pos++){
 					sumV[pos]=(float) 0;
 				}
 				for(DayHasActivityGP dha:patt.getDhasInCluster()){
+					System.out.println("dha "+dha.getEndSec());
 					Float[] stretchedVector=stretchVector(dha.getVectorChangeSS(),longerTimeDha);
 					sumV=sumVectors(sumV,stretchedVector);
 				}
 				agp.setRhythm(computeDCT(sumV));
 			}
-		}	
+		}
+		}
 	}
 	
 	private List<Float> computeDCT(Float[] vector){
@@ -170,11 +203,21 @@ public class ParametersHandler {
 			return stretched;
 		}
 		//otherwise 
+		if(currentLength>longerTimeDha){
+			//make shorter
+			Float[] stretched=new Float[longerTimeDha];
+			for(int pos=0;pos<longerTimeDha;pos++){
+				int POS=(int) Math.floor((pos*currentLength)/longerTimeDha);
+				stretched[pos]=(float) vectorChangeSS[POS];
+			}
+			return stretched;
+		}
 		System.out.println("Impossible stretch condition");
 		return null;
 	}
-
+	
 	private void computeSSiniProbInPattern() {
+		System.out.println("Computing SS initial probobabilities for patterns");
 		for(ActivityGP agp:this.parameters.getActivities()){
 			for(Pattern pattern:agp.getPatterns()){
 				Integer sumOfDiagonal=0;
@@ -193,6 +236,7 @@ public class ParametersHandler {
 	}
 
 	private void computePatternInitialProb() {
+		System.out.println("Computing initial probability for patterns");
 		for(ActivityGP agp:this.parameters.getActivities()){
 			for(Pattern pattern:agp.getPatterns()){
 				pattern.setInitialProb((float) (pattern.getDhasInCluster().size()/agp.getDhaInActivity()));
@@ -202,6 +246,7 @@ public class ParametersHandler {
 	}
 
 	private void computeProbMatrices() {
+		System.out.println("Computing transitions matrices");
 		//compute the overallProbSS from the overallTransitionSS
 		this.parameters.setOverallProbSS(normalizeByRow(this.parameters.getOverallTransitionSS()));
 		//compute SSProbMatrix of every pattern using its SStransMatrix that is sum of SStransMatrix

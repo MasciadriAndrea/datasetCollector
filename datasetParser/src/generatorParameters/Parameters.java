@@ -112,5 +112,11 @@ public class Parameters {
 	public void setOverallProbSS(Float[][] overallProbSS) {
 		this.overallProbSS = overallProbSS;
 	}
-
+	public HSensorset getSensorsetByUniqueId(Integer id){
+		for(HSensorset ss:this.sensorsets){
+			if(ss.getUniqueSensorsetId()==id){
+				return ss;
+			}
+		}return null;
+	}
 }
