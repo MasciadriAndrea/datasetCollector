@@ -27,8 +27,8 @@ public class DSParser {
 		
 		//example load data from file and save in database
 		//
-		ap.updateHouseData("ArasDSshort", "House1");
-		ap.saveDataset();
+		//ap.updateHouseData("ArasDSshort", "House1");
+		//ap.saveDataset();
 		
 		
 		//example load data from database and print

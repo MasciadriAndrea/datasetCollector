@@ -75,7 +75,7 @@ public class ParametersHandler {
 		this.computeSSiniProbInPattern();
 		this.computeActivitiesRhytm();
 		this.computeTimeDistribution();
-		//TODO exportAll();
+		this.exportAll();
 
 		/*
 		 * PRINT how many pattern for every activtyGP
@@ -95,6 +95,11 @@ public class ParametersHandler {
 	}
 
 
+	private void exportAll() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	private void computeTimeDistribution() {
 		System.out.println("Computing durations");
 		for(DayGP daygp:this.parameters.getDays()){
@@ -106,8 +111,10 @@ public class ParametersHandler {
 					duration++;
 				}else{
 					Integer id=Integer.parseInt(precValue);
-					HSensorset ss=this.parameters.getSensorsetByUniqueId(id);
-					ss.addDuration(duration);
+					if(!id.equals(0)){
+						HSensorset ss=this.parameters.getSensorsetByUniqueId(id);
+						ss.addDuration(duration);
+					}
 					duration=0;
 					precValue=secId[pos];
 				}
@@ -115,9 +122,16 @@ public class ParametersHandler {
 		}
 		//found all of the durations
 		for(HSensorset ss:this.parameters.getSensorsets()){
+			if(!ss.getUniqueSensorsetId().equals(0)){
 			Collections.sort(ss.getDurations());
-			Integer[] time=(Integer[]) ss.getDurations().toArray();
+			Integer[] time=new Integer[ss.getDurations().size()];
+			int pos=0;
+			for(Integer n:ss.getDurations()){
+				time[pos]=n;
+				pos++;
+			}
 			ss.setTimeDistr(this.stretchVector(time, 100));
+			}
 		}
 	}
 
@@ -134,18 +148,18 @@ public class ParametersHandler {
 					}
 				}
 			}
-			System.out.println("Activity "+agp.getName()+" has longer duration "+longerTimeDha);
+			//System.out.println("Activity "+agp.getName()+" has longer duration "+longerTimeDha);
 			//now I have the maximum duration for the current activity
 			for(Pattern patt:agp.getPatterns()){
-				System.out.println("New PATTERN");
 				Float[] sumV=new Float[longerTimeDha];
 				for(int pos=0;pos<longerTimeDha;pos++){
 					sumV[pos]=(float) 0;
 				}
 				for(DayHasActivityGP dha:patt.getDhasInCluster()){
-					System.out.println("dha "+dha.getEndSec());
-					Float[] stretchedVector=stretchVector(dha.getVectorChangeSS(),longerTimeDha);
-					sumV=sumVectors(sumV,stretchedVector);
+					if(dha.getVectorChangeSS()!=null){
+						Float[] stretchedVector=stretchVector(dha.getVectorChangeSS(),longerTimeDha);
+						sumV=sumVectors(sumV,stretchedVector);
+					}
 				}
 				agp.setRhythm(computeDCT(sumV));
 			}
@@ -194,7 +208,7 @@ public class ParametersHandler {
 
 	private Float[] stretchVector(Integer[] vectorChangeSS, Integer longerTimeDha) {
 		Integer currentLength=vectorChangeSS.length;
-		if(currentLength==longerTimeDha){
+		if(currentLength.equals(longerTimeDha)){
 			Float[] stretched=new Float[longerTimeDha];
 			for(int pos=0;pos<longerTimeDha;pos++){
 				stretched[pos]= vectorChangeSS[pos].floatValue();
@@ -220,6 +234,8 @@ public class ParametersHandler {
 			}
 			return stretched;
 		}
+		System.out.println("currLength"+currentLength);
+		System.out.println("stretch to"+longerTimeDha);
 		System.out.println("Impossible stretch condition");
 		return null;
 	}
@@ -355,9 +371,7 @@ public class ParametersHandler {
 	}
 
 	private void setActivitiesWithConfigurations(){
-
-		//		TODO parser for configuration file
-		// this.confFileName;	
+		//unusued
 
 		//		 take use residents
 		System.out.println("Loading residents");
@@ -473,7 +487,7 @@ public class ParametersHandler {
 						dhaUniqueId++;
 						DayHasActivityGP dhaNew= new DayHasActivityGP(0,dhaUniqueId,dha.getStartSec(),dha.getEndSec(),agp,dha.getResident());
 						Integer[] vChangeSS=new Integer[(dha.getEndSec()-dha.getStartSec())+1];
-						for(Integer s=dha.getStartSec();s<dha.getEndSec();s++){//TODO or <= ???
+						for(Integer s=dha.getStartSec();s<=dha.getEndSec();s++){
 							vChangeSS[s-dha.getStartSec()]=ssChanges[s-1];
 						}
 						dhaNew.setVectorChangeSS(vChangeSS);						
@@ -581,7 +595,7 @@ public class ParametersHandler {
 		}
 		readerGeneral.close();
 
-		for (int i = 1; i <= activityNames.size(); i++){
+		for (int i = 0; i < activityNames.size(); i++){
 			String activityName = activityNames.get(i);
 
 			List<Activity> subactivities = new ArrayList<Activity>();
@@ -618,7 +632,7 @@ public class ParametersHandler {
 				}
 			}
 			readerActivities.close();
-			ActivityGP newActivity = new ActivityGP(0, i, activityName, subactivities, allowedSensors);
+			ActivityGP newActivity = new ActivityGP(0, i+1, activityName, subactivities, allowedSensors);
 			this.parameters.addActivity(newActivity);
 		}
 		ActivityGP a=new ActivityGP(0,0,"DO NOT CONSIDER",new ArrayList<Activity>(),new ArrayList<HSensor>());
