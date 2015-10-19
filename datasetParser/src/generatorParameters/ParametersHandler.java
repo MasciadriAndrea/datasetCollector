@@ -1,9 +1,11 @@
 package generatorParameters;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.NotDirectoryException;
 import java.sql.SQLException;
@@ -95,9 +97,32 @@ public class ParametersHandler {
 	}
 
 
-	private void exportAll() {
-		// TODO Auto-generated method stub
-		
+	private void exportAll() throws IOException {
+		File folder = new File(directoryOutput);
+		if (!folder.exists()) {
+			throw new NotDirectoryException(null);
+		}
+
+		//		save Global SS transition probabilities
+		BufferedWriter writerGlobalSStransProb = new BufferedWriter(new FileWriter(directoryOutput+"/SStransitionProbability.conf"));
+		for (Float[] row : this.parameters.getOverallProbSS()){
+			String line = "";
+			for (Float column : row){
+				line = line + ","+column;
+			}
+			writerGlobalSStransProb.write(line);
+		}
+		writerGlobalSStransProb.close();
+
+		//	save Patterns
+		for (Activity activity : parameters.getActivities()){
+			BufferedWriter writerActivity = new BufferedWriter(new FileWriter(directoryOutput+"/pattSS_"+activity.getName()+".conf"));
+			String line = "";
+			//				TODO
+			//			writerActivity.write(line);
+			writerActivity.close();
+		}
+
 	}
 
 	private void computeTimeDistribution() {
