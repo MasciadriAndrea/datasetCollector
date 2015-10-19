@@ -112,5 +112,10 @@ public class Parameters {
 	public void setOverallProbSS(Float[][] overallProbSS) {
 		this.overallProbSS = overallProbSS;
 	}
-
+	public void addResident(Resident newResident){
+		this.residents.add(newResident);
+	}
+	public void addActivity(ActivityGP newActivity){
+		this.getActivities().add(newActivity);
+	}
 }
