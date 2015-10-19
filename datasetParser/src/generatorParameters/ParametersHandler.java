@@ -24,7 +24,9 @@ import persistance.DatasetDAOSql;
 import specificParser.ArasParser;
 
 public class ParametersHandler {
-	private static String confFileName = "fileName";
+	private static String directoryInput = "dataIn/generatorParam";
+	private static String directoryOutput = "dataOut/generatorParam";
+	private static String confFileName = "/fileName";
 	private static ParametersHandler instance;
 	private final static Integer cluster_param_N=5;
 	private final static Integer cluster_param_K=2;
@@ -62,6 +64,9 @@ public class ParametersHandler {
 		this.computeProbMatrices();
 		this.computePatternInitialProb();
 		this.computeSSiniProbInPattern();
+		this.computeActivitiesRhytm();
+		//TODO computeTimeDistribution();
+		//TODO exportAll();
 		
 		/*
 		 * PRINT how many pattern for every activtyGP
@@ -89,6 +94,11 @@ public class ParametersHandler {
 				for(int row=0;row<numOfSS;row++){
 					sumOfDiagonal+=m[row][row];
 				}
+				ArrayList<Float> pl=new ArrayList<Float>();
+				for(int row=0;row<numOfSS;row++){
+					pl.add((float) (m[row][row]/sumOfDiagonal));
+				}
+				pattern.setSsIniProbInPattern(pl);
 			}
 		}
 	}

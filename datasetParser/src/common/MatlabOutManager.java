@@ -17,7 +17,7 @@ import dataModel.Resident;
 
 public class MatlabOutManager {
 	private static MatlabOutManager instance;
-	private static String urlData = "dataOut";
+	private static String urlData = "dataOut/matlab";
 	private static String fileSad = "/sadResident";
 	private static String fileSecDay = "/secondDay";
 
