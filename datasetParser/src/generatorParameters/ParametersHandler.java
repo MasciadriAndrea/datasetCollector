@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import common.ClusteringHandler;
 import common.DbManager;
 import dataModel.Activity;
 import dataModel.Dataset;
@@ -24,8 +25,9 @@ import specificParser.ArasParser;
 
 public class ParametersHandler {
 	private static String confFileName = "fileName";
-
 	private static ParametersHandler instance;
+	private final static Integer cluster_param_N=5;
+	private final static Integer cluster_param_K=2;
 	private Parameters parameters;
 	private House house;
 
@@ -55,26 +57,172 @@ public class ParametersHandler {
 		this.house = house;
 		this.setActivitiesWithConfigurations();
 		this.setDay();
+		this.setTransitionMatrices();
+		ClusteringHandler.getInstance().clusterizeDha(parameters,cluster_param_N,cluster_param_K);
+		this.computeProbMatrices();
+		this.computePatternInitialProb();
+		this.computeSSiniProbInPattern();
+		
+		/*
+		 * PRINT how many pattern for every activtyGP
+		 * 
+		for(ActivityGP agp:this.parameters.getActivities()){
+			System.out.println("--------Patterns of activity: "+agp.getName());
+			Integer countP=0;
+			for(Pattern patt:agp.getPatterns()){
+				countP++;
+				Integer countDha=0;
+				for(DayHasActivity dha:patt.getDhasInCluster()){
+					countDha++;
+				}
+				System.out.println("pattern n: "+countP+" has "+countDha+" dha");	
+			}
+		}*/
+	}
+	
+	private void computeSSiniProbInPattern() {
+		for(ActivityGP agp:this.parameters.getActivities()){
+			for(Pattern pattern:agp.getPatterns()){
+				Integer sumOfDiagonal=0;
+				Integer[][] m=pattern.getSStransMatrix();
+				Integer numOfSS=this.parameters.getSensorsets().size();
+				for(int row=0;row<numOfSS;row++){
+					sumOfDiagonal+=m[row][row];
+				}
+			}
+		}
 	}
 
+	private void computePatternInitialProb() {
+		for(ActivityGP agp:this.parameters.getActivities()){
+			for(Pattern pattern:agp.getPatterns()){
+				pattern.setInitialProb((float) (pattern.getDhasInCluster().size()/agp.getDhaInActivity()));
+			}
+		}
+		
+	}
+
+	private void computeProbMatrices() {
+		//compute the overallProbSS from the overallTransitionSS
+		this.parameters.setOverallProbSS(normalizeByRow(this.parameters.getOverallTransitionSS()));
+		//compute SSProbMatrix of every pattern using its SStransMatrix that is sum of SStransMatrix
+		Integer numOfSS=this.parameters.getSensorsets().size();
+		for(ActivityGP agp:this.parameters.getActivities()){
+			for(Pattern pattern:agp.getPatterns()){				
+				Integer[][] initialZeroMatrix=new Integer[numOfSS][numOfSS];
+				initializeMatrix(initialZeroMatrix,numOfSS);
+				pattern.setSStransMatrix(initialZeroMatrix);
+				for(DayHasActivity dha:pattern.getDhasInCluster()){
+					pattern.setSStransMatrix(sumOfMatrices(pattern.getSStransMatrix(),dha.getSStransMatrix()));
+				}
+				pattern.setSSProbMatrix(normalizeByRow(pattern.getSStransMatrix()));
+			}
+		}
+	}
+	
+	private Integer[][] sumOfMatrices(Integer[][] m1,Integer[][] m2){
+		Integer d11=m1.length;
+		Integer d12=m2.length;
+		Integer d21=m1[0].length;
+		Integer d22=m2[0].length;
+		Integer[][] m3=new Integer[d11][d21];
+		if((d11==d12)&&(d21==d22)){
+			for(int row=0;row<d11;row++){
+				for(int col=0;col<d21;col++){
+					m3[row][col]=m1[row][col]+m2[row][col];
+				}
+			}
+		}
+		return m3;
+	}
+	
+	private Float[][] normalizeByRow(Integer[][] m){
+		int numRow=m.length;
+		int numCol=m[0].length;
+		Float[][] m2=new Float[numRow][numCol];
+		for(int row=0;row<numRow;row++){
+			Integer sumRow=0;
+			for(int col=0;col<numCol;col++){
+				sumRow+=m[row][col];
+			}
+			for(int col=0;col<numCol;col++){
+				m2[row][col]=(float) m[row][col]/sumRow;
+			}
+		}
+		return m2;
+	}
+	
+	private void initializeMatrix(Integer[][] matr, Integer numUniqueSS){
+		for(int row=0;row<numUniqueSS;row++){
+			for(int col=0;col<numUniqueSS;col++){
+				matr[row][col]=0;
+			}
+		}
+	}
+	
+	private void setTransitionMatrices(){
+		System.out.println("Computing all the SS transition matrices");
+		//initialization
+		Integer numUniqueSS=this.parameters.getSensorsets().size();
+		Integer[][] allTransSS=new Integer[numUniqueSS][numUniqueSS];
+		initializeMatrix(allTransSS,numUniqueSS);
+		
+		for(Resident r:this.parameters.getResidents()){
+			Integer previousSSid=0;
+			Integer currentSSid=0;
+			for(DayGP daygp:this.parameters.getDays()){
+				if(daygp.resident.getUniqueResidentId()==r.getUniqueResidentId()){
+					String[] ssidSecond=daygp.getSSid();
+					for(DayHasActivity dha: daygp.getDailyActivities()){
+						Integer[][] dhaTransSS=new Integer[numUniqueSS][numUniqueSS];
+						initializeMatrix(dhaTransSS,numUniqueSS);
+						//transition from previous activity
+						currentSSid=Integer.valueOf(ssidSecond[dha.getStartSec()-1]);
+						if((currentSSid!=0)&&(previousSSid!=0)){
+							Integer prev=allTransSS[previousSSid-1][currentSSid-1];
+							allTransSS[previousSSid-1][currentSSid-1]=prev+1;
+						}
+						previousSSid=currentSSid;
+						//inside dha loop... all the transition inside
+						for(Integer sec=dha.getStartSec()+1;sec<dha.getEndSec();sec++){
+							currentSSid=Integer.valueOf(ssidSecond[sec-1]);
+							if((currentSSid!=0)&&(previousSSid!=0)){
+								Integer prev=allTransSS[previousSSid-1][currentSSid-1];
+								allTransSS[previousSSid-1][currentSSid-1]=prev+1;
+								prev=dhaTransSS[previousSSid-1][currentSSid-1];
+								dhaTransSS[previousSSid-1][currentSSid-1]=prev+1;
+							}
+							previousSSid=currentSSid;
+						}
+						dha.setSStransMatrix(dhaTransSS);
+					}
+				}
+			}
+		}
+		this.parameters.setOverallTransitionSS(allTransSS);
+	}
+	
 	private void setActivitiesWithConfigurations(){
 
 		//		TODO parser for configuration file
 		// this.confFileName;	
 		
 //		 take use residents
+		System.out.println("Loading residents");
 		List<Integer> residentsId = new ArrayList<Integer>(); residentsId.add(1); residentsId.add(2);	
 		List<Resident> residents = new ArrayList<Resident>();
 		for (Integer id: residentsId){
 			residents.add(this.house.getResidentByUniqueId(id));
 		}
 //		take used sensors
+		System.out.println("Loading sensors");
 		List<Integer> sensorsId = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20); 	
 		List<HSensor> sensorsAll = new ArrayList<HSensor>();
 		for (Integer id: sensorsId){
 			sensorsAll.add(this.house.getSensorByUniqueId(id));
 		}
-
+		
+		System.out.println("Mapping subactivities to activities");
 		List<String> activityNames = new ArrayList<String>();
 		List<List<Integer>> subActInd = new ArrayList<List<Integer>>();
 		List<List<Integer>> allowedSensors = new ArrayList<List<Integer>>();
@@ -112,7 +260,10 @@ public class ParametersHandler {
 		allowedSensors.add(Arrays.asList(13, 14, 18));
 
 		List<ActivityGP> activities = new ArrayList<ActivityGP>();	
-		int uid = 0;
+		ActivityGP a=new ActivityGP(0,0,"DO NOT CONSIDER",new ArrayList<Activity>(),new ArrayList<HSensor>());
+		activities.add(a);
+		
+		int uid = 1;
 		for (int i = 0; i < activityNames.size(); i++){
 			List<Activity> subactivities = new ArrayList<Activity>();
 			for (Integer subactivityId: subActInd.get(i)){
@@ -132,9 +283,10 @@ public class ParametersHandler {
 	}
 
 	private void setDay(){
+		System.out.println("Loading days");
 		List<Day> houseDays = house.getDays();
 		List<DayGP> dayGP=new ArrayList<DayGP>();
-		
+		Integer dhaUniqueId=0;
 		for(Resident res:this.parameters.getResidents()){
 			//for each resident import its days
 			for(Day realDay:houseDays){
@@ -144,20 +296,21 @@ public class ParametersHandler {
 				List<DayHasActivity> dhaRes=new ArrayList<DayHasActivity>();
 				String[] ids=daygp.getSSid();
 				Integer[] idsInt=new Integer[86400];
+				Integer okSec=0;
+				Integer koSec=0;
 				for(DayHasActivity dha:realDay.getDailyActivities()){
 					if(dha.getResident().getUniqueResidentId()==res.getUniqueResidentId()){
 						
 						Integer performedSubActivityId=dha.getActivity().getUniqueActivityId();
 						ActivityGP agp=this.getParameters().getActivityGpBySubActId(performedSubActivityId);
-						if(agp==null){
+						if((agp==null)||(agp.getUniqueActivityId()==0)){
 							agp=this.parameters.getActivityGpByIdGP(0);
 						}
-						DayHasActivity dhaNew= new DayHasActivity(0,dha.getStartSec(),dha.getEndSec(),agp,dha.getResident());
+						dhaUniqueId++;
+						DayHasActivityGP dhaNew= new DayHasActivityGP(0,dhaUniqueId,dha.getStartSec(),dha.getEndSec(),agp,dha.getResident());
 						dhaRes.add(dhaNew);			
 						Integer startSec=dha.getStartSec();
 						Integer endSec=dha.getEndSec();
-						Integer okSec=0;
-						Integer koSec=0;
 						for(Integer sec=startSec;sec<=endSec;sec++){
 							//filtering data
 							if(agp.getUniqueActivityId()!=0){
@@ -174,20 +327,17 @@ public class ParametersHandler {
 							}
 						}
 						
-						
-						//TODO do this not by activity but by day!!!
-						System.out.println("Total seconds parsed: "+(okSec+koSec)+" -> not accepted seconds: "+koSec);
+
 					}
 				}
-				
-				//hereeeee
-				
-				
+				System.out.println("Total seconds parsed: "+(okSec+koSec)+" -> not accepted seconds: "+koSec);	
 				daygp.setSSid(idsInt);
 				daygp.setDailyActivities(dhaRes);
 				dayGP.add(daygp);
 			}
 		}
+		System.out.println("Number of unique ss before: "+this.house.getSensorsets().size());
+		System.out.println("Number of unique ss after: "+this.parameters.getSensorsets().size());
 		this.parameters.setDays(dayGP);
 				
 	}

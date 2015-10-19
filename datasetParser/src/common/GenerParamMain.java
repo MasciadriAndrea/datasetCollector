@@ -19,10 +19,12 @@ import dataModel.SensorTime;
 public class GenerParamMain {
 
 	public static void main(String[] args) throws SQLException {
-
+		System.out.println("loading Aras dataset from database");
+		System.out.println("----------------------------------");
 		ArasParser ds =ArasParser.getInstance();
 		DatasetDAOSql d=DatasetDAOSql.getInstance();
-		ds.setDs(d.getDatasetByName("ArasDs"));
+		ds.setDs(d.getDatasetByName("ArasDsshort"));
+		
 		
 		ParametersHandler ph = ParametersHandler.getInstance();
 
