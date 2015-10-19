@@ -3,6 +3,7 @@ package common;
 import generatorParameters.Parameters;
 import generatorParameters.ParametersHandler;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ import dataModel.SensorTime;
 
 public class GenerParamMain {
 
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) throws SQLException, IOException {
 		System.out.println("loading Aras dataset from database");
 		System.out.println("----------------------------------");
 		ArasParser ds =ArasParser.getInstance();

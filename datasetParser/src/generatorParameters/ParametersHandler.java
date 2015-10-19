@@ -1,8 +1,11 @@
 package generatorParameters;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.NotDirectoryException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,16 +61,17 @@ public class ParametersHandler {
 		this.parameters = parameters;
 	}
 
-	public void processChain(House house){
+	public void processChain(House house) throws IOException{
 		this.house = house;
-		this.setActivitiesWithConfigurations();
+		//		this.setActivitiesWithConfigurations();
+		this.parseGeneratorParam();
 		this.setDay();
 		this.setTransitionMatrices();
 		ClusteringHandler.getInstance().clusterizeDha(parameters,cluster_param_N,cluster_param_K);
 		this.computeProbMatrices();
 		this.computePatternInitialProb();
 		this.computeSSiniProbInPattern();
-		this.computeActivitiesRhytm();
+		//		this.computeActivitiesRhytm();
 		//TODO computeTimeDistribution();
 		//TODO exportAll();
 
@@ -215,86 +219,6 @@ public class ParametersHandler {
 		this.parameters.setOverallTransitionSS(allTransSS);
 	}
 
-	private void setActivitiesWithConfigurations(){
-
-		//		TODO parser for configuration file
-		// this.confFileName;	
-
-		//		 take use residents
-		System.out.println("Loading residents");
-		List<Integer> residentsId = new ArrayList<Integer>(); residentsId.add(1); residentsId.add(2);	
-		List<Resident> residents = new ArrayList<Resident>();
-		for (Integer id: residentsId){
-			residents.add(this.house.getResidentByUniqueId(id));
-		}
-		//		take used sensors
-		System.out.println("Loading sensors");
-		List<Integer> sensorsId = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20); 	
-		List<HSensor> sensorsAll = new ArrayList<HSensor>();
-		for (Integer id: sensorsId){
-			sensorsAll.add(this.house.getSensorByUniqueId(id));
-		}
-
-		System.out.println("Mapping subactivities to activities");
-		List<String> activityNames = new ArrayList<String>();
-		List<List<Integer>> subActInd = new ArrayList<List<Integer>>();
-		List<List<Integer>> allowedSensors = new ArrayList<List<Integer>>();
-
-		activityNames.add("Cook");
-		subActInd.add(Arrays.asList(3, 5, 7));
-		allowedSensors.add(Arrays.asList(8, 9, 15, 16, 19));
-
-		activityNames.add("Eat");
-		subActInd.add(Arrays.asList(4, 6, 8, 10));
-		allowedSensors.add(Arrays.asList(4, 5, 6, 7, 8, 9, 15, 16));
-
-		activityNames.add("Sleep");
-		subActInd.add(Arrays.asList(11, 16));
-		allowedSensors.add(Arrays.asList(2, 4, 5, 20));
-
-		activityNames.add("WatchTV");
-		subActInd.add(Arrays.asList(12));
-		allowedSensors.add(Arrays.asList(3, 4, 5, 6, 7));
-
-		activityNames.add("ReadBook");
-		subActInd.add(Arrays.asList(18));
-		allowedSensors.add(Arrays.asList(4, 5, 6, 7));
-
-		activityNames.add("TakeShower");
-		subActInd.add(Arrays.asList(14));
-		allowedSensors.add(Arrays.asList(11, 13, 14, 17));
-
-		activityNames.add("WashUp");
-		subActInd.add(Arrays.asList(20, 21));
-		allowedSensors.add(Arrays.asList(11, 13, 17));
-
-		activityNames.add("Toilet");
-		subActInd.add(Arrays.asList(15));
-		allowedSensors.add(Arrays.asList(13, 14, 18));
-
-		List<ActivityGP> activities = new ArrayList<ActivityGP>();	
-		ActivityGP a=new ActivityGP(0,0,"DO NOT CONSIDER",new ArrayList<Activity>(),new ArrayList<HSensor>());
-		activities.add(a);
-
-		int uid = 1;
-		for (int i = 0; i < activityNames.size(); i++){
-			List<Activity> subactivities = new ArrayList<Activity>();
-			for (Integer subactivityId: subActInd.get(i)){
-				subactivities.add(this.house.getActivityByUniqueId(subactivityId));
-			}
-			List<HSensor> sensors = new ArrayList<HSensor>();
-			for (Integer sensorId: allowedSensors.get(i)){
-				sensors.add(this.house.getSensorByUniqueId(sensorId));
-			}
-			ActivityGP activity = new ActivityGP(0, uid, activityNames.get(i), subactivities, sensors);
-			activities.add(activity);
-			uid++;
-		}
-		this.parameters.setActivities(activities);
-		this.parameters.setResidents(residents);
-		this.parameters.setSensors(sensorsAll);
-	}
-
 	private void setDay(){
 		System.out.println("Loading days");
 		List<Day> houseDays = house.getDays();
@@ -390,80 +314,85 @@ public class ParametersHandler {
 	}
 	public void parseGeneratorParam() throws IOException{
 
+
+
+		File folder = new File(directoryInput);
+		if (!folder.exists()) {
+			throw new NotDirectoryException(null);
+		}
+
+		File generalConfig = new File(directoryInput + "/general.conf");
+		if (!generalConfig.exists()) {
+			throw new FileNotFoundException(null);
+		}
+
 		List<String> activityNames = null;
 
-		BufferedReader br = new BufferedReader(new FileReader(directoryInput+"/general.conf"));
-		try {
-			StringBuilder sb = new StringBuilder();
-			String line = br.readLine();			
-			int count = 0;
-			while (line != null) {
-				sb.append(line);
-				sb.append(System.lineSeparator());
-				line = br.readLine();
-				//			first line stands for the residents
-				if (count == 0){
-					String[] residentIds = line.split(",");
+		BufferedReader readerGeneral = new BufferedReader(new FileReader(generalConfig));
+		String line = null;
+		int count = 0;
+		while ((line = readerGeneral.readLine()) != null) {
+			count++;
+			if (count == 1){
+				String[] residentIds = line.split(",");
 
-					for (String id: residentIds){
-						ParametersHandler.getInstance().getParameters().addResident(this.house.getResidentByUniqueId(Integer.decode(id)));
-					}
-
+				for (String id: residentIds){
+					ParametersHandler.getInstance().getParameters().addResident(this.house.getResidentByUniqueId(Integer.decode(id)));
 				}
-				//			second line stands for Activities
-				if (count == 1){
-					activityNames =  Arrays.asList(line.split(","));
-					break;
-				}
+				
 			}
-		} finally {
-			br.close();
+			//			second line stands for Activities
+			if (count == 2){
+				activityNames =  Arrays.asList(line.split(","));
+				break;
+			}	
 		}
+		readerGeneral.close();
 
 		for (int i = 0; i < activityNames.size(); i++){
 			String activityName = activityNames.get(i);
-			
+
 			List<Activity> subactivities = new ArrayList<Activity>();
 			List<HSensor> allowedSensors = new ArrayList<HSensor>();
+
+			activityName = activityName.replaceAll("\"", "");
+			activityName = activityName.replaceAll(" ", "");
 			
-			activityName.replaceAll("\"", "");
-			String fileName = directoryInput+"/"+activityName+".conf";
-			BufferedReader br = new BufferedReader(new FileReader(directoryInput+"/general.conf"));
-			try {
-				StringBuilder sb = new StringBuilder();
-				String line = br.readLine();			
-				int count = 0;
-				while (line != null) {
-					sb.append(line);
-					sb.append(System.lineSeparator());
-					line = br.readLine();
-					//			first line stands for subactivities
-					if (count == 0){
-						List<String> subactivitiesIds = Arrays.asList(line.split(","));
-						
-						for(String subactivityId: subactivitiesIds){
-							subactivities.add(this.house.getActivityByUniqueId(Integer.decode(subactivityId)));
-						}
-					}
-					//			second line stands for sensors
-					if (count == 1){
-						List<String >allowedSensorIds =  Arrays.asList(line.split(","));
-						for(String allowedSensorId : allowedSensorIds){
-							allowedSensors.add(this.house.getSensorByUniqueId(Integer.decode(allowedSensorId)));
-						}
-						break;
+			File activityConfig = new File(directoryInput+"/"+activityName+".conf");
+			if (!activityConfig.exists()) {
+				throw new FileNotFoundException(null);
+			}
+			
+			BufferedReader readerActivities = new BufferedReader(new FileReader(activityConfig));
+			String string = null;
+			count = 0;
+			while ((string = readerActivities.readLine()) != null) {
+				count++;
+				//				first line stands for subactivities
+				if (count == 1){
+					List<String> subactivitiesIds = Arrays.asList(string.split(","));
+
+					for(String subactivityId: subactivitiesIds){
+						subactivities.add(this.house.getActivityByUniqueId(Integer.decode(subactivityId)));
 					}
 				}
-				ActivityGP newActivity = new ActivityGP(0, i+1, activityName, subactivities, allowedSensors);
-				this.parameters.addActivity(newActivity);
-			} finally {
-				br.close();
+				//			second line stands for sensors
+				if (count == 2){
+					List<String >allowedSensorIds =  Arrays.asList(string.split(","));
+					for(String allowedSensorId : allowedSensorIds){
+						allowedSensors.add(this.house.getSensorByUniqueId(Integer.decode(allowedSensorId)));
+					}
+					break;
+				}
 			}
-		
+			readerActivities.close();
+			ActivityGP newActivity = new ActivityGP(0, i, activityName, subactivities, allowedSensors);
+			this.parameters.addActivity(newActivity);
 		}
-
 	}
+
 }
+
 
 
 
