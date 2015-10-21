@@ -24,7 +24,7 @@ public class GenerParamMain {
 		System.out.println("----------------------------------");
 		ArasParser ds =ArasParser.getInstance();
 		DatasetDAOSql d=DatasetDAOSql.getInstance();
-		ds.setDs(d.getDatasetByName("ArasDsshort"));
+		ds.setDs(d.getDatasetByName("ArasDs"));
 		
 		
 		ParametersHandler ph = ParametersHandler.getInstance();

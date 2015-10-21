@@ -35,10 +35,9 @@ import specificParser.ArasParser;
 public class ParametersHandler {
 	private static String directoryInput = "dataIn/generatorParam";
 	private static String directoryOutput = "dataOut/generatorParam";
-	private static String confFileName = "/fileName";
 	private static ParametersHandler instance;
-	private final static Integer cluster_param_N=5;
-	private final static Integer cluster_param_K=2;
+	private final static Integer cluster_param_N=7;
+	private final static Integer cluster_param_K=3;
 	private final static Integer DCT_K=10;
 	private Parameters parameters;
 	private House house;
@@ -67,7 +66,6 @@ public class ParametersHandler {
 
 	public void processChain(House house) throws IOException{
 		this.house = house;
-		//		this.setActivitiesWithConfigurations();
 		this.parseGeneratorParam();
 		this.setDay();
 		this.setTransitionMatrices();
@@ -82,12 +80,22 @@ public class ParametersHandler {
 
 
 	private void exportAll() throws IOException {
+		System.out.println("Exporting all");
 		File folder = new File(directoryOutput);
 		if (!folder.exists()) {
 			throw new NotDirectoryException(null);
 		}
+		//-----------save Global SS transition probabilities
+		exportOverallTransition();
+		//------------------save Patterns
+		exportPattenrs();
+		//---------------save rhythm
+		exportRhythm();
+		//---------------save sensorsets
+		exportSensorsets();
+	}
 
-		//		save Global SS transition probabilities
+	private void exportOverallTransition() throws IOException{
 		BufferedWriter writerGlobalSStransProb = new BufferedWriter(new FileWriter(directoryOutput+"/SStransitionProbability.conf"));
 		for (Float[] row : this.parameters.getOverallProbSS()){
 			String line = "";
@@ -95,18 +103,107 @@ public class ParametersHandler {
 				line = line + ","+column;
 			}
 			writerGlobalSStransProb.write(line);
+			writerGlobalSStransProb.newLine();
 		}
 		writerGlobalSStransProb.close();
+	}
 
-		//	save Patterns
-		for (Activity activity : parameters.getActivities()){
-			BufferedWriter writerActivity = new BufferedWriter(new FileWriter(directoryOutput+"/pattSS_"+activity.getName()+".conf"));
-			String line = "";
-			//				TODO
-			//			writerActivity.write(line);
+	private void exportPattenrs() throws IOException{
+		// idAct, prob, Name, numberOfSSInPattern, listOfSSID (comma separated), listOfInitialProb, matrix of probability in line
+		for (ActivityGP agp : parameters.getActivities()){
+			if(!agp.getUniqueActivityId().equals(0)){
+			BufferedWriter writerActivity = new BufferedWriter(new FileWriter(directoryOutput+"/pattSS_"+agp.getName()+".conf"));
+			Integer npatt=0;
+			for(Pattern patt:agp.getPatterns()){
+				npatt++;
+				Map<Integer,Integer> ssInPatt=new HashMap<Integer,Integer>();
+				for(DayHasActivityGP dha:patt.getDhasInCluster()){
+					Map<Integer,Integer> ssInDha=dha.getUsedSS();
+					for(Integer ssid:ssInDha.keySet()){
+						ssInPatt.put(ssid, 0);
+					}
+				}
+				Integer numSSinPatt=ssInPatt.size();
+				String line = agp.getUniqueActivityId()+","+patt.getInitialProb()+",Patt_"+npatt+","+numSSinPatt;
+				//add list of SS in Patt
+				List<Float> iniProbSSinPatt=patt.getSsIniProbInPattern();
+				List<Float> shortiniProbSSinPatt=new ArrayList<Float>();
+				List<Integer> allowedSS=new ArrayList<Integer>();
+				for(Integer ssid:ssInPatt.keySet()){
+					line+=","+ssid;
+					allowedSS.add(Integer.valueOf(ssid));
+					shortiniProbSSinPatt.add(iniProbSSinPatt.get(Integer.valueOf(ssid)-1));
+				}
+				for(Float iniss:shortiniProbSSinPatt){
+					line+=","+iniss.toString();
+				}
+				Float[][] ssProbMatrix=patt.getSSProbMatrix();
+				for(Integer row=0;row<allowedSS.size();row++){
+					for(Integer col=0;col<allowedSS.size();col++){
+						Integer indR=allowedSS.get(row);
+						Integer indC=allowedSS.get(col);
+						if((indR<=ssProbMatrix.length)&&(indC<=ssProbMatrix[0].length)){
+							line+=","+ssProbMatrix[indR-1][indC-1].toString();
+						}else{
+							System.out.println("Err indR: "+indR+" indC: "+indC+" matR: "+ssProbMatrix.length+" matC:"+ssProbMatrix[0].length);
+						}
+					}
+				}
+				
+				writerActivity.write(line);
+				writerActivity.newLine();
+			}
 			writerActivity.close();
+		}}
+	}
+	private void exportSensorsets() throws IOException{
+		// idSensorset, 100 element of durationDistribution, list of the ids of the activated sensors
+		File folder = new File(directoryOutput);
+		if (!folder.exists()) {
+			throw new NotDirectoryException(null);
 		}
 
+		//	save Rhythm
+		BufferedWriter writerSS = new BufferedWriter(new FileWriter(directoryOutput+"/sensorsets.conf"));
+		for (HSensorset ss: this.parameters.getSensorsets()){
+			if(!ss.getUniqueSensorsetId().equals(0)){
+				List<Integer> as= ss.getActivatedSensorsId();
+				String line = ss.getUniqueSensorsetId().toString();
+				Float[] td=ss.getTimeDistr();
+				for(int i=0;i<100;i++){
+					line+=","+td[i];
+				}
+				for (Integer column : as){
+					line += ","+column;
+				}
+				writerSS.write(line);
+				writerSS.newLine();
+			}
+		}
+		writerSS.close();
+	}
+
+
+	private void exportRhythm() throws IOException{
+		File folder = new File(directoryOutput);
+		if (!folder.exists()) {
+			throw new NotDirectoryException(null);
+		}
+
+		//	save Rhythm
+		BufferedWriter writerRhythm = new BufferedWriter(new FileWriter(directoryOutput+"/activityRhythm.conf"));
+		for (ActivityGP agp: this.parameters.getActivities()){
+			if(!agp.getUniqueActivityId().equals(0)){
+				List<Float> rhythm= agp.getRhythm();
+				String line = agp.getUniqueActivityId()+","+rhythm.size();
+				for (Float column : rhythm){
+					line += ","+column;
+				}
+				writerRhythm.write(line);
+				writerRhythm.newLine();
+			}
+		}
+		writerRhythm.close();
 	}
 
 	private void computeTimeDistribution() {
@@ -132,14 +229,14 @@ public class ParametersHandler {
 		//found all of the durations
 		for(HSensorset ss:this.parameters.getSensorsets()){
 			if(!ss.getUniqueSensorsetId().equals(0)){
-			Collections.sort(ss.getDurations());
-			Integer[] time=new Integer[ss.getDurations().size()];
-			int pos=0;
-			for(Integer n:ss.getDurations()){
-				time[pos]=n;
-				pos++;
-			}
-			ss.setTimeDistr(this.stretchVector(time, 100));
+				Collections.sort(ss.getDurations());
+				Integer[] time=new Integer[ss.getDurations().size()];
+				int pos=0;
+				for(Integer n:ss.getDurations()){
+					time[pos]=n;
+					pos++;
+				}
+				ss.setTimeDistr(this.stretchVector(time, 100));
 			}
 		}
 	}
@@ -148,39 +245,39 @@ public class ParametersHandler {
 		System.out.println("Computing rhythm");
 		for(ActivityGP agp:this.parameters.getActivities()){
 			if(agp.getUniqueActivityId()!=0){
-			Integer longerTimeDha=0;
-			for(Pattern patt:agp.getPatterns()){
-				for(DayHasActivityGP dha:patt.getDhasInCluster()){
-					Integer duration=dha.getVectorChangeSS().length;
-					if(duration>longerTimeDha){
-						longerTimeDha=duration;
+				Integer longerTimeDha=0;
+				for(Pattern patt:agp.getPatterns()){
+					for(DayHasActivityGP dha:patt.getDhasInCluster()){
+						Integer duration=dha.getVectorChangeSS().length;
+						if(duration>longerTimeDha){
+							longerTimeDha=duration;
+						}
 					}
 				}
-			}
-			//System.out.println("Activity "+agp.getName()+" has longer duration "+longerTimeDha);
-			//now I have the maximum duration for the current activity
-			for(Pattern patt:agp.getPatterns()){
-				Float[] sumV=new Float[longerTimeDha];
-				for(int pos=0;pos<longerTimeDha;pos++){
-					sumV[pos]=(float) 0;
-				}
-				for(DayHasActivityGP dha:patt.getDhasInCluster()){
-					if(dha.getVectorChangeSS()!=null){
-						Float[] stretchedVector=stretchVector(dha.getVectorChangeSS(),longerTimeDha);
-						sumV=sumVectors(sumV,stretchedVector);
+				//System.out.println("Activity "+agp.getName()+" has longer duration "+longerTimeDha);
+				//now I have the maximum duration for the current activity
+				for(Pattern patt:agp.getPatterns()){
+					Float[] sumV=new Float[longerTimeDha];
+					for(int pos=0;pos<longerTimeDha;pos++){
+						sumV[pos]=(float) 0;
 					}
+					for(DayHasActivityGP dha:patt.getDhasInCluster()){
+						if(dha.getVectorChangeSS()!=null){
+							Float[] stretchedVector=stretchVector(dha.getVectorChangeSS(),longerTimeDha);
+							sumV=sumVectors(sumV,stretchedVector);
+						}
+					}
+					agp.setRhythm(computeDCT(sumV));
 				}
-				agp.setRhythm(computeDCT(sumV));
 			}
-		}
 		}
 	}
-	
+
 	private List<Float> computeDCT(Float[] vector){
 		List<Float> dct=new ArrayList<Float>();
 		Integer vectorL=vector.length;
 		Integer N=Math.round(vectorL/DCT_K);
-		
+
 		//first iteration: k=1
 		Double insum= 0.0;
 		for(int n=0;n<N;n++){
@@ -248,10 +345,11 @@ public class ParametersHandler {
 		System.out.println("Impossible stretch condition");
 		return null;
 	}
-	
+
 	private void computeSSiniProbInPattern() {
 		System.out.println("Computing SS initial probobabilities for patterns");
 		for(ActivityGP agp:this.parameters.getActivities()){
+			if(agp.getUniqueActivityId().equals(0))
 			for(Pattern pattern:agp.getPatterns()){
 				Integer sumOfDiagonal=0;
 				Integer[][] m=pattern.getSStransMatrix();
@@ -271,6 +369,7 @@ public class ParametersHandler {
 	private void computePatternInitialProb() {
 		System.out.println("Computing initial probability for patterns");
 		for(ActivityGP agp:this.parameters.getActivities()){
+			if(!agp.getUniqueActivityId().equals(0))
 			for(Pattern pattern:agp.getPatterns()){
 				pattern.setInitialProb((float) (pattern.getDhasInCluster().size()/agp.getDhaInActivity()));
 			}
@@ -285,7 +384,8 @@ public class ParametersHandler {
 		//compute SSProbMatrix of every pattern using its SStransMatrix that is sum of SStransMatrix
 		Integer numOfSS=this.parameters.getSensorsets().size();
 		for(ActivityGP agp:this.parameters.getActivities()){
-			for(Pattern pattern:agp.getPatterns()){				
+			if(!agp.getUniqueActivityId().equals(0))
+			for(Pattern pattern:agp.getPatterns()){	
 				Integer[][] initialZeroMatrix=new Integer[numOfSS][numOfSS];
 				initializeMatrix(initialZeroMatrix,numOfSS);
 				pattern.setSStransMatrix(initialZeroMatrix);
@@ -325,6 +425,9 @@ public class ParametersHandler {
 			sumRow = Math.max(1, sumRow);
 			for(int col=0;col<numCol;col++){
 				m2[row][col]=(float) m[row][col]/sumRow;
+				if(m2[row][col].equals(0.0)){
+					m2[row][col]=(float) 0.0001;
+				}
 			}
 		}
 		return m2;
@@ -352,6 +455,7 @@ public class ParametersHandler {
 				if(daygp.resident.getUniqueResidentId()==r.getUniqueResidentId()){
 					String[] ssidSecond=daygp.getSSid();
 					for(DayHasActivity dha: daygp.getDailyActivities()){
+						if(!dha.getActivity().getUniqueActivityId().equals(0)){
 						Integer[][] dhaTransSS=new Integer[numUniqueSS][numUniqueSS];
 						initializeMatrix(dhaTransSS,numUniqueSS);
 						//transition from previous activity
@@ -373,6 +477,7 @@ public class ParametersHandler {
 							previousSSid=currentSSid;
 						}
 						dha.setSStransMatrix(dhaTransSS);
+						}
 					}
 				}
 			}
@@ -393,17 +498,17 @@ public class ParametersHandler {
 				//I should create a dayGP for this resident
 				DayGP daygp=new DayGP(0,realDay.getIncrementalDay(),realDay.getDay(),realDay.getMonth(),realDay.getYear(),realDay.getSecondIdSS(),res);
 				//for dha create the vector of ss changes
-					String[] daySSid=daygp.getSSid();
-					Integer[] ssChanges=new Integer[86400];
-					String prev="0";
-					for(int pos=0;pos<daySSid.length;pos++){
-						if(daySSid[pos].equals(prev)){
-							ssChanges[pos]=0;
-						}else{
-							ssChanges[pos]=1;
-						}
-						prev=daySSid[pos];
-					}		
+				String[] daySSid=daygp.getSSid();
+				Integer[] ssChanges=new Integer[86400];
+				String prev="0";
+				for(int pos=0;pos<daySSid.length;pos++){
+					if(daySSid[pos].equals(prev)){
+						ssChanges[pos]=0;
+					}else{
+						ssChanges[pos]=1;
+					}
+					prev=daySSid[pos];
+				}		
 				List<DayHasActivity> dhaRes=new ArrayList<DayHasActivity>();
 				String[] ids=daygp.getSSid();
 				Integer[] idsInt=new Integer[86400];
@@ -436,6 +541,7 @@ public class ParametersHandler {
 								filteredSIds.retainAll(agp.getAllowedSensorsId());
 								Integer newSSId=this.manageSS(filteredSIds);
 								idsInt[sec-1]=newSSId;
+								dhaNew.addUsedSSId(newSSId);
 								okSec++;
 								//System.out.println("Changing ss "+previousSSId+" in "+newSSId+" for day "+daygp.getIncrementalDay());
 							}else{
@@ -518,7 +624,7 @@ public class ParametersHandler {
 				for (String id: residentIds){
 					ParametersHandler.getInstance().getParameters().addResident(this.house.getResidentByUniqueId(Integer.decode(id)));
 				}
-				
+
 			}
 			//			second line stands for Activities
 			if (count == 2){
@@ -536,12 +642,12 @@ public class ParametersHandler {
 
 			activityName = activityName.replaceAll("\"", "");
 			activityName = activityName.replaceAll(" ", "");
-			
+
 			File activityConfig = new File(directoryInput+"/"+activityName+".conf");
 			if (!activityConfig.exists()) {
 				throw new FileNotFoundException(null);
 			}
-			
+
 			BufferedReader readerActivities = new BufferedReader(new FileReader(activityConfig));
 			String string = null;
 			count = 0;

@@ -38,10 +38,10 @@ public class ClusteringHandler {
 				List<DayHasActivityGP> dhaOfActivity=new ArrayList<DayHasActivityGP>();
 				for(Resident r:param.getResidents()){
 					for(DayGP daygp:param.getDays()){
-						if(daygp.resident.getUniqueResidentId()==r.getUniqueResidentId()){
+						if(daygp.resident.getUniqueResidentId().equals(r.getUniqueResidentId())){
 							for(DayHasActivity dha:daygp.getDailyActivities()){
 								DayHasActivityGP dha1=(DayHasActivityGP) dha;
-								if(dha.getActivity().getUniqueActivityId()==idActivity){
+								if(dha.getActivity().getUniqueActivityId().equals(idActivity)){
 									dhaOfActivity.add(dha1);
 								}
 							}
@@ -62,7 +62,7 @@ public class ClusteringHandler {
 							if(neighbors.size()>=N){
 								if(distance<maxValueInList){
 									for(Entry<DayHasActivityGP, Float> neighbor : neighbors.entrySet()){
-										if(neighbor.getValue()==maxValueInList){
+										if(neighbor.getValue().equals(maxValueInList)){
 											neighbors.remove(neighbor.getKey());
 											neighbors.put(dha2,distance);
 											break;
@@ -176,7 +176,7 @@ public class ClusteringHandler {
 		Integer common=0;
 		for(DayHasActivityGP dhaN1:neigh1){
 			for(DayHasActivityGP dhaN2:neigh2){
-				if(dhaN1.getUniqueDayHasActivityId()==dhaN2.getUniqueDayHasActivityId()){
+				if(dhaN1.getUniqueDayHasActivityId().equals(dhaN2.getUniqueDayHasActivityId())){
 					common++;
 				}
 			}
@@ -238,7 +238,7 @@ public class ClusteringHandler {
 		Integer d21=m1[0].length;
 		Integer d22=m2[0].length;
 		Integer sumM=0;
-		if((d11==d12)&&(d21==d22)){
+		if((d11.equals(d12))&&(d21.equals(d22))){
 			for(int row=0;row<d11;row++){
 				for(int col=0;col<d21;col++){
 					sumM+=(int) Math.pow((m1[row][col]-m2[row][col]), 2);
@@ -246,6 +246,7 @@ public class ClusteringHandler {
 			}
 			return (float) sumM/(d11*d21);
 		}else{
+			System.out.println("Length error: d11: "+d11+" d12: "+d12+" d21: "+d21+" d22: "+d22);
 			return null;
 		}
 	}

@@ -31,18 +31,19 @@ public class DSParser {
 		//ap.saveDataset();
 		
 		
-		//example load data from database and print
+		//example load data from database
 		//
-	/*	DatasetDAOSql d=DatasetDAOSql.getInstance();
-		ap.setDs(d.getDatasetByName("ArasDs"));
-		System.out.println(ap.getDataset().getHouses().get(0).getName());
+		DatasetDAOSql d=DatasetDAOSql.getInstance();
+		ap.setDs(d.getDatasetByName("ArasDsshort"));
+
+		
 		
 		//example load data from database and export to matlab format
 		//
-
+		MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
+		
 		
 
-*/
 	}
 
 }
