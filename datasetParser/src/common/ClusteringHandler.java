@@ -29,7 +29,7 @@ public class ClusteringHandler {
 		return instance;
 	}
 
-	public void clusterizeDha(Parameters param,Integer N, Integer K){
+	public void clusterizeDha(Parameters param,Integer N, Integer K) throws Exception{
 		List<Pattern> pattList=new ArrayList<Pattern>();
 		System.out.println("Clustering dhas to find patterns");
 		for(ActivityGP agp:param.getActivities()){
@@ -228,17 +228,17 @@ public class ClusteringHandler {
 		}
 	}
 
-	public Float dhaDistance(DayHasActivityGP day1,DayHasActivityGP day2){
+	public float dhaDistance(DayHasActivityGP day1,DayHasActivityGP day2) throws Exception{
 		return matrixdistance(day1.getSStransMatrix(),day2.getSStransMatrix());
 	}
 
-	public Float matrixdistance(Integer[][] m1,Integer[][] m2){
-		Integer d11=m1.length;
-		Integer d12=m2.length;
-		Integer d21=m1[0].length;
-		Integer d22=m2[0].length;
-		Integer sumM=0;
-		if((d11.equals(d12))&&(d21.equals(d22))){
+	public float matrixdistance(int[][] m1,int[][] m2) throws Exception{
+		int d11=m1.length;
+		int d12=m2.length;
+		int d21=m1[0].length;
+		int d22=m2[0].length;
+		int sumM=0;
+		if((d11==(d12))&&(d21==(d22))){
 			for(int row=0;row<d11;row++){
 				for(int col=0;col<d21;col++){
 					sumM+=(int) Math.pow((m1[row][col]-m2[row][col]), 2);
@@ -247,7 +247,7 @@ public class ClusteringHandler {
 			return (float) sumM/(d11*d21);
 		}else{
 			System.out.println("Length error: d11: "+d11+" d12: "+d12+" d21: "+d21+" d22: "+d22);
-			return null;
+			throw new Exception("Error in length");
 		}
 	}
 }

@@ -27,14 +27,14 @@ public class DSParser {
 		
 		//example load data from file and save in database
 		//
-		//ap.updateHouseData("ArasDSshort", "House1");
+		//ap.updateHouseData("GeneratedResident2", "House1");
 		//ap.saveDataset();
 		
 		
 		//example load data from database
 		//
 		DatasetDAOSql d=DatasetDAOSql.getInstance();
-		ap.setDs(d.getDatasetByName("ArasDsshort"));
+		ap.setDs(d.getDatasetByName("ArasDS"));
 
 		
 		

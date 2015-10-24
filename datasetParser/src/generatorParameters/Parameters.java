@@ -17,8 +17,8 @@ public class Parameters {
 	private List<ActivityGP> activities;
 	private List<HSensorset> sensorsets;
 	private List<DayGP> days;
-	private Integer[][] overallTransitionSS;
-	private Float[][] overallProbSS;
+	private int[][] overallTransitionSS;
+	private float[][] overallProbSS;
 	
 	public Parameters(){
 		this.residents = new ArrayList<Resident>();
@@ -79,6 +79,7 @@ public class Parameters {
 	}
 	
 	public ActivityGP getActivityGpBySubActId(Integer id){
+		List<ActivityGP> agpList=new ArrayList<ActivityGP>();
 		for(ActivityGP agp:this.getActivities()){
 			for(Activity subact:agp.getSubactivities()){
 				if(subact.getUniqueActivityId()==id){
@@ -86,15 +87,14 @@ public class Parameters {
 				}
 			}
 		}
-		//System.out.println("Error of null activity");
 		return null;
 	}
 	
-	public Integer[][] getOverallTransitionSS() {
+	public int[][] getOverallTransitionSS() {
 		return overallTransitionSS;
 	}
 
-	public void setOverallTransitionSS(Integer[][] overallTransitionSS) {
+	public void setOverallTransitionSS(int[][] overallTransitionSS) {
 		this.overallTransitionSS = overallTransitionSS;
 	}
 
@@ -106,11 +106,11 @@ public class Parameters {
 		this.days = days;
 	}
 	
-	public Float[][] getOverallProbSS() {
+	public float[][] getOverallProbSS() {
 		return overallProbSS;
 	}
 
-	public void setOverallProbSS(Float[][] overallProbSS) {
+	public void setOverallProbSS(float[][] overallProbSS) {
 		this.overallProbSS = overallProbSS;
 	}
 
@@ -122,7 +122,7 @@ public class Parameters {
 	}
 	public HSensorset getSensorsetByUniqueId(Integer id){
 		for(HSensorset ss:this.sensorsets){
-			if(ss.getUniqueSensorsetId()==id){
+			if(ss.getUniqueSensorsetId().equals(id)){
 				return ss;
 			}
 		}return null;

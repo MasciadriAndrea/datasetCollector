@@ -1,6 +1,7 @@
 package generatorParameters;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dataModel.Activity;
@@ -8,8 +9,10 @@ import dataModel.DayHasActivity;
 import dataModel.Resident;
 
 public class DayHasActivityGP extends DayHasActivity {
+
 	private	 Integer uniqueDayHasActivityId;
-	public Integer[] vectorChangeSS;
+	
+	public int[] vectorChangeSS;
 	public Map<Integer,Integer> usedSS;
 	
 	public DayHasActivityGP(Integer id, Integer dhaId,Integer startSec, Integer endSec,
@@ -53,11 +56,11 @@ public class DayHasActivityGP extends DayHasActivity {
 		this.uniqueDayHasActivityId = uniqueDayHasActivityId;
 	}
 
-	public Integer[] getVectorChangeSS() {
+	public int[] getVectorChangeSS() {
 		return vectorChangeSS;
 	}
 
-	public void setVectorChangeSS(Integer[] vectorChangeSS) {
+	public void setVectorChangeSS(int[] vectorChangeSS) {
 		this.vectorChangeSS = vectorChangeSS;
 	}
 	

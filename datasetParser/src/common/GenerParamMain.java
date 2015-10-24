@@ -28,9 +28,12 @@ public class GenerParamMain {
 		
 		
 		ParametersHandler ph = ParametersHandler.getInstance();
-
-		ph.processChain(ds.getDataset().getHouses().get(0));
-
+		
+		try{
+			ph.processChain(ds.getDataset().getHouses().get(0));
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 
 	}
 

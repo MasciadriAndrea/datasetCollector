@@ -8,7 +8,7 @@ public class HSensorset {
 	private Integer uniqueSensorsetId;
 	private List<SensorTime> sensors;
 	private List<Integer> durations;
-	private Float[] timeDistr;
+	private float[] timeDistr;
 	
 	public HSensorset(Integer id, Integer uniqueId, List<SensorTime> sensors) {
 		super();
@@ -117,11 +117,11 @@ public class HSensorset {
 	public void addDuration(Integer num){
 		this.durations.add(num);
 	}
-	public Float[] getTimeDistr() {
+	public float[] getTimeDistr() {
 		return timeDistr;
 	}
 
-	public void setTimeDistr(Float[] timeDistr) {
+	public void setTimeDistr(float[] timeDistr) {
 		this.timeDistr = timeDistr;
 	}
 

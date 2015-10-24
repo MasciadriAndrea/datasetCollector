@@ -8,10 +8,10 @@ import dataModel.DayHasActivity;
 public class Pattern {
 	private ActivityGP activity;
 	private Integer uniqueIdPattern;
-	private Integer[][] SStransMatrix;
-	private Float[][] SSProbMatrix;
+	private int[][] SStransMatrix;
+	private float[][] SSProbMatrix;
 	private List<DayHasActivityGP> dhasInCluster;
-	private Float initialProb;
+	private float initialProb;
 	private ArrayList<Float> ssIniProbInPattern;
 	
 	public Pattern(Integer uniqueIdPattern,	List<DayHasActivityGP> dhasInCluster,ActivityGP activity) {
@@ -33,11 +33,11 @@ public class Pattern {
 		this.uniqueIdPattern = uniqueIdPattern;
 	}
 
-	public Integer[][] getSStransMatrix() {
+	public int[][] getSStransMatrix() {
 		return SStransMatrix;
 	}
 
-	public void setSStransMatrix(Integer[][] sStransMatrix) {
+	public void setSStransMatrix(int[][] sStransMatrix) {
 		SStransMatrix = sStransMatrix;
 	}
 
@@ -56,11 +56,11 @@ public class Pattern {
 		this.activity = activity;
 	}
 
-	public Float[][] getSSProbMatrix() {
+	public float[][] getSSProbMatrix() {
 		return SSProbMatrix;
 	}
 
-	public void setSSProbMatrix(Float[][] sSProbMatrix) {
+	public void setSSProbMatrix(float[][] sSProbMatrix) {
 		SSProbMatrix = sSProbMatrix;
 	}
 	public Float getInitialProb() {
