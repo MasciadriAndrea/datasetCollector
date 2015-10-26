@@ -119,7 +119,7 @@ public class SensorsetDAOSql implements SensorsetDAO {
 				//retrieve all the SensorTime
 				 SensorTimeDAOSql stDao=SensorTimeDAOSql.getInstance();
 				 for(SensorTime sta: ss.getSensors()){
-					sta=stDao.updateSensorTime(sta,newIdSS);
+					sta=stDao.updateSensorTime(sta,newIdSS,idHouse);
 				 }
 				 
 		return ss;

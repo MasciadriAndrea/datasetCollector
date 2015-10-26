@@ -76,6 +76,7 @@ public class MatlabOutManager {
 				FileOutputStream fos = new FileOutputStream(currentFile);
 				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 				for (Day d : h.getDays()) {
+					int[] actSeconds=new int[86400];
 					String line="";
 					TreeMap<Integer, DayHasActivity> orderedAct = new TreeMap<Integer, DayHasActivity>();
 					for(DayHasActivity a:d.getDailyActivities()){
@@ -87,8 +88,11 @@ public class MatlabOutManager {
 						  DayHasActivity dha=orderedAct.get(key);
 						  Integer idA=dha.getActivity().getUniqueActivityId();
 						  for(Integer sec=dha.getStartSec();sec<=dha.getEndSec();sec++){
-							  line+= idA+ ",";
+							  actSeconds[sec]=idA;
 						  }  
+					}
+					for(int i=0;i<86400;i++){
+						line+= actSeconds[i]+ ",";
 					}
 					line=line.substring(0,line.length()-1);
 					bw.write(line);

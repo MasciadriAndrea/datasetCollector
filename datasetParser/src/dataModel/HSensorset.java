@@ -63,11 +63,12 @@ public class HSensorset {
 		String line="";
 		for(SensorTime st:this.sensors){
 			if(prevSensId>st.getSensor().getUniqueSensorId()){
-				System.out.println("Error in sensor order!");
+				System.out.println("Error in sensor order! prev: "+prevSensId+" next "+st.getSensor().getUniqueSensorId());
 				return null;
 			}
 			line+=st.getValue()+",";
 			prevSensId=st.getSensor().getUniqueSensorId();
+			//line+=st.getSensor().getUniqueSensorId()+",";
 		}
 		line=line.substring(0,line.length()-1);
 		return line;

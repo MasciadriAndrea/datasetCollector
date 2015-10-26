@@ -1,0 +1,20 @@
+1,Wardrobe,420,620
+2,Couch,1100,620
+3,TV receiver,1150,40
+4,Couch,1300,580
+5,Couch,1320,450
+6,Chair,1200,380
+7,Chair,1140,440
+8,Fridge,420,60
+9,Drawer,220,40
+10,Wardrobe,900,520
+11,Bathroom Cabinet,720,320
+12,Main Door,820,280
+13,Bathroom Door,500,280
+14,Shower Door,560,600
+15,Hall,1000,280
+16,Kitchen,240,280
+17,Tap,720,360
+18,WC,720,520
+19,Kitchen Temperature,280,40
+20,Bed,100,560

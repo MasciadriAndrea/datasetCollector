@@ -54,7 +54,6 @@ public class SensorDAOSql implements SensorDAO {
 			Location loc=locationDao.getLocationById(idLoc);
 			SensorTypeDAOSql stDao=SensorTypeDAOSql.getInstance();
 			SensorType stype=stDao.getSensorTypeById(idType);
-			
 			st.add(new HSensor(ids, usi, names, xs, ys, stype,loc));
 		}
 		return st;

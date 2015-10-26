@@ -40,7 +40,6 @@ public class GenerParamMain {
 		KasterenParser kp=KasterenParser.getInstance();
 		kp.setDs(d.getDatasetByName("Kasteren"));
 		ParametersHandlerK ph = ParametersHandlerK.getInstance();
-		
 		try{
 			ph.processChain(kp.getDataset().getHouses().get(0));
 		}catch(Exception e){

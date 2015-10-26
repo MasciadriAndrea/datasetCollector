@@ -34,6 +34,7 @@ public class ClusteringHandler {
 		System.out.println("Clustering dhas to find patterns");
 		for(ActivityGP agp:param.getActivities()){
 			if(agp.getUniqueActivityId()!=0){
+				System.out.println("clustering activity: "+agp.getName());
 				Integer idActivity=agp.getUniqueActivityId();
 				List<DayHasActivityGP> dhaOfActivity=new ArrayList<DayHasActivityGP>();
 				for(Resident r:param.getResidents()){
@@ -48,7 +49,9 @@ public class ClusteringHandler {
 						}
 					}
 				}
+				System.out.println("Found dhas: "+dhaOfActivity.size());
 				agp.setDhaInActivity(dhaOfActivity.size());
+				if(dhaOfActivity.size()>0){
 				//now i have the list of dha (performance) of that activity			
 				Map<DayHasActivityGP, List<DayHasActivityGP>> nNeighbors= new HashMap<DayHasActivityGP, List<DayHasActivityGP>>();
 				
@@ -93,7 +96,9 @@ public class ClusteringHandler {
 				}
 				// here i have nNeighbors like map of dha and List of N closest dhas
 				pattList=computeCluster(agp,nNeighbors,N,K);
+				System.out.println("Found patterns: "+pattList.size());
 				agp.setPatterns(pattList);
+				}
 			}else{
 				//System.out.println("Not clustering activity"+agp.getName());
 			}

@@ -24,27 +24,28 @@ public class DSParser {
 	public static void main(String[] args) throws SQLException {
 
 		
-		//ArasParser ap=ArasParser.getInstance();
-		KasterenParser kp=KasterenParser.getInstance();
+		ArasParser ap=ArasParser.getInstance();
+		//ap.updateHouseData("KasterenGenerated", "HouseC");
+		//ap.saveDataset();
 		
 		//example load data from file and save in database
-		//
-		//kp.deleteDatasetById(27);
-		kp.updateHouseData("Kasteren", "HouseC");
-		kp.saveDataset();
+		//KasterenParser kp=KasterenParser.getInstance();
+		//kp.deleteDatasetById(38);
+		//kp.updateHouseData("Kasteren", "HouseC");
+		//kp.saveDataset();
 		
 
 		
 		//example load data from database
 		//
-		//DatasetDAOSql d=DatasetDAOSql.getInstance();
-		//kp.setDs(d.getDatasetByName("Kasteren"));
+		DatasetDAOSql d=DatasetDAOSql.getInstance();
+		ap.setDs(d.getDatasetByName("KasterenGenerated"));
 
-		
+		//kp.setDs(d.getDatasetByName("Kasteren"));
 		
 		//example load data from database and export to matlab format
 		//
-		//MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
+		MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
 		
 		
 

@@ -40,7 +40,7 @@ public class ParametersHandlerK {
 	 * 
 	 * 
 	 */
-	private static String directoryInput = "dataIn/generatorParam";
+	private static String directoryInput = "dataIn/generatorParamKasteren";
 	private static String directoryOutput = "dataOut/generatorParam";
 	private static ParametersHandlerK instance;
 	private final static int cluster_param_N=7;
@@ -75,6 +75,13 @@ public class ParametersHandlerK {
 		this.house = house;
 		this.parseGeneratorParam();
 		this.setDay();
+		/*for(HSensorset ss:this.parameters.getSensorsets()){
+			System.out.println(ss.getUniqueSensorsetId());
+			for(Integer s:ss.getActivatedSensorsId()){
+				System.out.print(s+"-");
+			}
+			System.out.println();
+		}*/
 		this.setTransitionMatrices();
 		ClusteringHandler.getInstance().clusterizeDha(parameters,cluster_param_N,cluster_param_K);
 		this.computeProbMatrices();
@@ -383,14 +390,16 @@ public class ParametersHandlerK {
 		for(ActivityGP agp:this.parameters.getActivities()){
 			if(!agp.getUniqueActivityId().equals(0))
 			for(Pattern pattern:agp.getPatterns()){
-				pattern.setInitialProb((float) (pattern.getDhasInCluster().size()/agp.getDhaInActivity()));
+				Float p=(float) pattern.getDhasInCluster().size()/agp.getDhaInActivity();
+				pattern.setInitialProb(p);
+				//System.out.println("act "+agp.getName()+" patt "+pattern.getUniqueIdPattern()+" dha inside "+pattern.getDhasInCluster().size()+" ini prob: "+p.toString());
 			}
 		}
 
 	}
 
 	private void computeProbMatrices() throws Exception {
-		System.out.println("Computing transitions matrices");
+		System.out.println("Computing prob transitions matrices");
 		//compute the overallProbSS from the overallTransitionSS
 		this.parameters.setOverallProbSS(normalizeByRow(this.parameters.getOverallTransitionSS()));
 		//compute SSProbMatrix of every pattern using its SStransMatrix that is sum of SStransMatrix
@@ -469,7 +478,6 @@ public class ParametersHandlerK {
 		//initialization
 		Integer numUniqueSS=this.parameters.getSensorsets().size();
 		int[][] allTransSS=new int[numUniqueSS][numUniqueSS];
-		//allTransSS=initializeMatrix(allTransSS,numUniqueSS);
 
 		for(Resident r:this.parameters.getResidents()){
 			Integer previousSSid=0;
@@ -478,9 +486,9 @@ public class ParametersHandlerK {
 				if(daygp.resident.getUniqueResidentId()==r.getUniqueResidentId()){
 					String[] ssidSecond=daygp.getSSid();
 					for(DayHasActivity dha: daygp.getDailyActivities()){
+						//System.out.println("computing tp day "+daygp.getIncrementalDay()+" dha start time"+dha.getStartSec());
 						if(!dha.getActivity().getUniqueActivityId().equals(0)){
 						int[][] dhaTransSS=new int[numUniqueSS][numUniqueSS];
-						//dhaTransSS=initializeMatrix(dhaTransSS,numUniqueSS);
 						//transition from previous activity
 						currentSSid=Integer.valueOf(ssidSecond[dha.getStartSec()]);
 						if((currentSSid!=0)&&(previousSSid!=0)){
@@ -489,8 +497,8 @@ public class ParametersHandlerK {
 						}
 						previousSSid=currentSSid;
 						//inside dha loop... all the transition inside
-						for(Integer sec=dha.getStartSec()+1;sec<dha.getEndSec();sec++){
-							currentSSid=Integer.valueOf(ssidSecond[sec-1]);
+						for(Integer sec=dha.getStartSec();sec<dha.getEndSec();sec++){
+							currentSSid=Integer.valueOf(ssidSecond[sec]);
 							if((currentSSid!=0)&&(previousSSid!=0)){
 								Integer prev=allTransSS[previousSSid-1][currentSSid-1];
 								allTransSS[previousSSid-1][currentSSid-1]=prev+1;
@@ -499,6 +507,13 @@ public class ParametersHandlerK {
 							}
 							previousSSid=currentSSid;
 						}
+						/*
+						for(int i=0; i<dhaTransSS.length;i++){
+							for(int ii=0;ii<dhaTransSS[i].length;ii++){
+								if(dhaTransSS[i][ii]!=0)
+									System.out.println(i+","+ii+" -> "+dhaTransSS[i][ii]+"-");
+							}
+						}*/
 						dha.setSStransMatrix(dhaTransSS);
 						}
 					}
@@ -558,6 +573,13 @@ public class ParametersHandlerK {
 						dhaRes.add(dhaNew);
 						Integer startSec=dha.getStartSec();
 						Integer endSec=dha.getEndSec();
+						for(Integer sec=startSec;sec<=endSec;sec++){
+							//filtering data
+							if(agp.getUniqueActivityId()!=0){
+								Integer previousSSId=Integer.parseInt(ids[sec]);
+								dhaNew.addUsedSSId(previousSSId);
+							}
+						}
 					}
 				}
 				System.out.println("Total seconds parsed: "+(okSec+koSec)+" -> not accepted seconds: "+koSec);	
@@ -682,6 +704,7 @@ public class ParametersHandlerK {
 		ActivityGP a=new ActivityGP(0,0,"DO NOT CONSIDER",new ArrayList<Activity>(),new ArrayList<HSensor>());
 		this.parameters.addActivity(a);
 		this.parameters.setSensorsets(house.getSensorsets());
+		this.parameters.setSensors(house.getSensors());
 	}
 
 }
