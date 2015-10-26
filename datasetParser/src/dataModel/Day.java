@@ -57,6 +57,10 @@ public class Day {
 		return secondIdSS.split(",");
 	}
 	
+	public void setSSid(String s){
+		this.secondIdSS=s;
+	}
+	
 	public void setSSid(Integer[] ids){
 		String str="";
 		for(Integer i=0;i<ids.length;i++){
@@ -110,18 +114,9 @@ public class Day {
 	}
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		Day other = (Day) obj;
-		if (dailyActivities == null) {
-			if (other.dailyActivities != null)
-				return false;
-		} else if (!dailyActivities.equals(other.dailyActivities))
-			return false;
 		if (day == null) {
 			if (other.day != null)
 				return false;
@@ -136,11 +131,6 @@ public class Day {
 			if (other.month != null)
 				return false;
 		} else if (!month.equals(other.month))
-			return false;
-		if (secondIdSS == null) {
-			if (other.secondIdSS != null)
-				return false;
-		} else if (!secondIdSS.equals(other.secondIdSS))
 			return false;
 		if (year == null) {
 			if (other.year != null)
@@ -165,4 +155,5 @@ public class Day {
 		str=str.substring(0,str.length()-1);
 		this.secondIdSS=str;
 	}
+	
 }

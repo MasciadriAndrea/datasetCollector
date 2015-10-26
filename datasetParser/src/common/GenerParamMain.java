@@ -2,6 +2,7 @@ package common;
 
 import generatorParameters.Parameters;
 import generatorParameters.ParametersHandler;
+import generatorParameters.ParametersHandlerK;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -10,6 +11,7 @@ import java.util.Map;
 
 import persistance.DatasetDAOSql;
 import specificParser.ArasParser;
+import specificParser.KasterenParser;
 import dataModel.Activity;
 import dataModel.DayHasActivity;
 import dataModel.HSensorset;
@@ -20,17 +22,27 @@ import dataModel.SensorTime;
 public class GenerParamMain {
 
 	public static void main(String[] args) throws SQLException, IOException {
-		System.out.println("loading Aras dataset from database");
+		System.out.println("loading dataset from database");
 		System.out.println("----------------------------------");
-		ArasParser ds =ArasParser.getInstance();
+		
+		
 		DatasetDAOSql d=DatasetDAOSql.getInstance();
-		ds.setDs(d.getDatasetByName("ArasDs"));
 		
 		
-		ParametersHandler ph = ParametersHandler.getInstance();
+		
+		// ---- FOR ARAS
+		//ArasParser ds =ArasParser.getInstance();
+		//ds.setDs(d.getDatasetByName("ArasDS"));
+		//ParametersHandler ph = ParametersHandler.getInstance();
+		
+		
+		// ---- FOR KASTEREN
+		KasterenParser kp=KasterenParser.getInstance();
+		kp.setDs(d.getDatasetByName("Kasteren"));
+		ParametersHandlerK ph = ParametersHandlerK.getInstance();
 		
 		try{
-			ph.processChain(ds.getDataset().getHouses().get(0));
+			ph.processChain(kp.getDataset().getHouses().get(0));
 		}catch(Exception e){
 			e.printStackTrace();
 		}

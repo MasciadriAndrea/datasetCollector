@@ -15,9 +15,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import common.ClusteringHandler;
+import common.DbManager;
 import dataModel.Activity;
+import dataModel.Dataset;
 import dataModel.Day;
 import dataModel.DayHasActivity;
 import dataModel.HSensor;
@@ -25,16 +29,20 @@ import dataModel.HSensorset;
 import dataModel.House;
 import dataModel.Resident;
 import dataModel.SensorTime;
+import persistance.DatasetDAOSql;
+import specificParser.ArasParser;
 
-public class ParametersHandler {
+public class ParametersHandlerK {
+	
 	/*
 	 * 
-	 * THIS IS FOR ARAS with filtering
+	 * THIS IS for KASTEREN -> NO FILTERING, SECONDS FROM ZERO
+	 * 
 	 * 
 	 */
 	private static String directoryInput = "dataIn/generatorParam";
 	private static String directoryOutput = "dataOut/generatorParam";
-	private static ParametersHandler instance;
+	private static ParametersHandlerK instance;
 	private final static int cluster_param_N=7;
 	private final static int cluster_param_K=3;
 	private final static int DCT_K=10;
@@ -42,15 +50,15 @@ public class ParametersHandler {
 	private House house;
 
 
-	private ParametersHandler(){
+	private ParametersHandlerK(){
 		super();
 		this.parameters = new Parameters();
 		this.house = null;
 	}
 
-	public static ParametersHandler getInstance(){
+	public static ParametersHandlerK getInstance(){
 		if(instance==null){
-			instance=new ParametersHandler();
+			instance=new ParametersHandlerK();
 		}
 		return instance;
 	}
@@ -474,7 +482,7 @@ public class ParametersHandler {
 						int[][] dhaTransSS=new int[numUniqueSS][numUniqueSS];
 						//dhaTransSS=initializeMatrix(dhaTransSS,numUniqueSS);
 						//transition from previous activity
-						currentSSid=Integer.valueOf(ssidSecond[dha.getStartSec()-1]);
+						currentSSid=Integer.valueOf(ssidSecond[dha.getStartSec()]);
 						if((currentSSid!=0)&&(previousSSid!=0)){
 							Integer prev=allTransSS[previousSSid-1][currentSSid-1];
 							allTransSS[previousSSid-1][currentSSid-1]=prev+1;
@@ -539,39 +547,21 @@ public class ParametersHandler {
 						}
 						dhaUniqueId++;
 						DayHasActivityGP dhaNew= new DayHasActivityGP(0,dhaUniqueId,dha.getStartSec(),dha.getEndSec(),agp,dha.getResident());
-						System.out.println("end "+dha.getEndSec());
-						System.out.println("start "+dha.getStartSec());
-						System.out.println("diff "+(dha.getEndSec()-dha.getStartSec()));
+						//System.out.println("end "+dha.getEndSec());
+						//System.out.println("start "+dha.getStartSec());
+						//System.out.println("diff "+(dha.getEndSec()-dha.getStartSec()));
 						int[] vChangeSS=new int[(dha.getEndSec()-dha.getStartSec())+1];
-						for(Integer s=dha.getStartSec();s<=dha.getEndSec();s++){
-							vChangeSS[s-dha.getStartSec()]=ssChanges[s-1];
+						for(Integer s=dha.getStartSec();s<dha.getEndSec();s++){
+							vChangeSS[s-dha.getStartSec()]=ssChanges[s];
 						}
 						dhaNew.setVectorChangeSS(vChangeSS);						
 						dhaRes.add(dhaNew);
 						Integer startSec=dha.getStartSec();
 						Integer endSec=dha.getEndSec();
-						for(Integer sec=startSec;sec<=endSec;sec++){
-							//filtering data
-							if(agp.getUniqueActivityId()!=0){
-								Integer previousSSId=Integer.parseInt(ids[sec-1]);
-								HSensorset previousSS=house.getSensorsetByUniqueId(previousSSId);
-								List<Integer> filteredSIds=previousSS.getActivatedSensorsId();
-								filteredSIds.retainAll(agp.getAllowedSensorsId());
-								Integer newSSId=this.manageSS(filteredSIds);
-								idsInt[sec-1]=newSSId;
-								dhaNew.addUsedSSId(newSSId);
-								okSec++;
-								//System.out.println("Changing ss "+previousSSId+" in "+newSSId+" for day "+daygp.getIncrementalDay());
-							}else{
-								idsInt[sec-1]=0;koSec++;
-							}
-						}
-
-
 					}
 				}
 				System.out.println("Total seconds parsed: "+(okSec+koSec)+" -> not accepted seconds: "+koSec);	
-				daygp.setSSid(idsInt);
+				daygp.setSSid(realDay.getSecondIdSS());
 				daygp.setDailyActivities(dhaRes);
 				dayGP.add(daygp);
 			}
@@ -637,7 +627,7 @@ public class ParametersHandler {
 				String[] residentIds = line.split(",");
 
 				for (String id: residentIds){
-					ParametersHandler.getInstance().getParameters().addResident(this.house.getResidentByUniqueId(Integer.valueOf(id)));
+					ParametersHandlerK.getInstance().getParameters().addResident(this.house.getResidentByUniqueId(Integer.valueOf(id)));
 				}
 
 			}
@@ -691,6 +681,7 @@ public class ParametersHandler {
 		}
 		ActivityGP a=new ActivityGP(0,0,"DO NOT CONSIDER",new ArrayList<Activity>(),new ArrayList<HSensor>());
 		this.parameters.addActivity(a);
+		this.parameters.setSensorsets(house.getSensorsets());
 	}
 
 }

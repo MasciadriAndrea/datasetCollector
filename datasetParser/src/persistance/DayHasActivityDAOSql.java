@@ -130,6 +130,10 @@ private static DayHasActivityDAOSql instance;
 		
 		//insert in the database
 		Integer newIdDha=0;
+		//System.out.println(dha.getStartSec().toString());
+		//System.out.println(dha.getEndSec().toString());
+		//System.out.println(dha.getActivity().getId().toString());
+		//System.out.println(dha.getResident().getId().toString());
 		newIdDha= insertDayHasActivity(dha.getStartSec().toString(),dha.getEndSec().toString(),dha.getActivity().getId(),idDay,dha.getResident().getId());
 				
 		//upload the id
