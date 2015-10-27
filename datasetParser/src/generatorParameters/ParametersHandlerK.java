@@ -75,19 +75,12 @@ public class ParametersHandlerK {
 		this.house = house;
 		this.parseGeneratorParam();
 		this.setDay();
-		/*for(HSensorset ss:this.parameters.getSensorsets()){
-			System.out.println(ss.getUniqueSensorsetId());
-			for(Integer s:ss.getActivatedSensorsId()){
-				System.out.print(s+"-");
-			}
-			System.out.println();
-		}*/
 		this.setTransitionMatrices();
 		ClusteringHandler.getInstance().clusterizeDha(parameters,cluster_param_N,cluster_param_K);
 		this.computeProbMatrices();
 		this.computePatternInitialProb();
 		this.computeSSiniProbInPattern();
-		this.computeActivitiesRhytm();
+		//this.computeActivitiesRhytm(); NOT USED
 		this.computeTimeDistribution();
 		this.exportAll();
 	}
@@ -104,7 +97,7 @@ public class ParametersHandlerK {
 		//------------------save Patterns
 		exportPatterns();
 		//---------------save rhythm
-		exportRhythm();
+		//exportRhythm(); NOT USED
 		//---------------save sensorsets
 		exportSensorsets();
 	}
@@ -175,22 +168,20 @@ public class ParametersHandlerK {
 		}}
 	}
 	private void exportSensorsets() throws IOException{
-		// idSensorset, 100 element of durationDistribution, list of the ids of the activated sensors
+		// idSensorset, maxDuration, expectedValueTimeDistr , list of the ids of the activated sensors
 		File folder = new File(directoryOutput);
 		if (!folder.exists()) {
 			throw new NotDirectoryException(null);
 		}
 
-		//	save Rhythm
+		//
 		BufferedWriter writerSS = new BufferedWriter(new FileWriter(directoryOutput+"/sensorsets.conf"));
 		for (HSensorset ss: this.parameters.getSensorsets()){
 			if(!ss.getUniqueSensorsetId().equals(0)){
 				List<Integer> as= ss.getActivatedSensorsId();
 				String line = ss.getUniqueSensorsetId().toString();
-				float[] td=ss.getTimeDistr();
-				for(int i=0;i<100;i++){
-					line+=","+td[i];
-				}
+				line+=","+ss.getMaxDuration();
+				line+=","+ss.getExpValTimeDist();
 				for (Integer column : as){
 					line += ","+column;
 				}
@@ -203,6 +194,12 @@ public class ParametersHandlerK {
 
 
 	private void exportRhythm() throws IOException{
+		/*
+		 * 
+		 * NO MORE USED
+		 * 
+		 * 
+		 */
 		File folder = new File(directoryOutput);
 		if (!folder.exists()) {
 			throw new NotDirectoryException(null);
@@ -244,22 +241,42 @@ public class ParametersHandlerK {
 				}
 			}
 		}
-		//found all of the durations
-		for(HSensorset ss:this.parameters.getSensorsets()){
-			if(!ss.getUniqueSensorsetId().equals(0)){
-				Collections.sort(ss.getDurations());
-				int[] time=new int[ss.getDurations().size()];
-				int pos=0;
-				for(Integer n:ss.getDurations()){
-					time[pos]=n;
-					pos++;
+		//found all of the durations -> now computing expected value and max duration
+				for(HSensorset ss:this.parameters.getSensorsets()){
+					if(!ss.getUniqueSensorsetId().equals(0)){
+						Collections.sort(ss.getDurations());
+						int maxV=0;
+						int dur=0;
+						int occurrencesOfdur=0;
+						int totalOccurrences=ss.getDurations().size();
+						float expV=0;
+						for(Integer n:ss.getDurations()){
+							if(n.equals(dur)){
+								occurrencesOfdur++;
+							}else{
+								expV+=(occurrencesOfdur/totalOccurrences)*dur;
+								dur=n;
+								occurrencesOfdur=1;
+							}
+							
+							//compute max
+							if(n>maxV){
+								maxV=n;
+							}
+						}
+						ss.setMaxDuration(maxV);
+						ss.setExpValTimeDist(expV);
+					}
 				}
-				ss.setTimeDistr(this.stretchVector(time, 100));
-			}
-		}
 	}
 
 	private void computeActivitiesRhytm() {
+		/*
+		 * 
+		 * NO MORE USED
+		 * 
+		 * 
+		 */
 		System.out.println("Computing rhythm");
 		for(ActivityGP agp:this.parameters.getActivities()){
 			if(agp.getUniqueActivityId()!=0){
