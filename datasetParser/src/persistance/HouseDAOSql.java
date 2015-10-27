@@ -176,16 +176,17 @@ private static HouseDAOSql instance;
 			st=sensorTypeDao.updateSensorType(st,newIdHouse);
 		 }
 		
-		//retrieve all the sensorset
-			 SensorsetDAOSql sensorsetDao=SensorsetDAOSql.getInstance();
-			 for(HSensorset s: h.getSensorsets()){
-				s=sensorsetDao.updateSensorset(s,newIdHouse);
-			 }
 		  
 		//retrieve all the sensors
 		 SensorDAOSql sensorDao=SensorDAOSql.getInstance();
 		 for(HSensor s: h.getSensors()){
 			s=sensorDao.updateSensor(s,newIdHouse);
+		 }
+		 
+		//retrieve all the sensorset
+		 SensorsetDAOSql sensorsetDao=SensorsetDAOSql.getInstance();
+		 for(HSensorset s: h.getSensorsets()){
+			s=sensorsetDao.updateSensorset(s,newIdHouse);
 		 }
 		 
 		 System.gc();

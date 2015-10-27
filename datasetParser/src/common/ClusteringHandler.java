@@ -29,26 +29,29 @@ public class ClusteringHandler {
 		return instance;
 	}
 
-	public void clusterizeDha(Parameters param,Integer N, Integer K){
+	public void clusterizeDha(Parameters param,Integer N, Integer K) throws Exception{
 		List<Pattern> pattList=new ArrayList<Pattern>();
 		System.out.println("Clustering dhas to find patterns");
 		for(ActivityGP agp:param.getActivities()){
 			if(agp.getUniqueActivityId()!=0){
+				System.out.println("clustering activity: "+agp.getName());
 				Integer idActivity=agp.getUniqueActivityId();
 				List<DayHasActivityGP> dhaOfActivity=new ArrayList<DayHasActivityGP>();
 				for(Resident r:param.getResidents()){
 					for(DayGP daygp:param.getDays()){
-						if(daygp.resident.getUniqueResidentId()==r.getUniqueResidentId()){
+						if(daygp.resident.getUniqueResidentId().equals(r.getUniqueResidentId())){
 							for(DayHasActivity dha:daygp.getDailyActivities()){
 								DayHasActivityGP dha1=(DayHasActivityGP) dha;
-								if(dha.getActivity().getUniqueActivityId()==idActivity){
+								if(dha.getActivity().getUniqueActivityId().equals(idActivity)){
 									dhaOfActivity.add(dha1);
 								}
 							}
 						}
 					}
 				}
+				System.out.println("Found dhas: "+dhaOfActivity.size());
 				agp.setDhaInActivity(dhaOfActivity.size());
+				if(dhaOfActivity.size()>0){
 				//now i have the list of dha (performance) of that activity			
 				Map<DayHasActivityGP, List<DayHasActivityGP>> nNeighbors= new HashMap<DayHasActivityGP, List<DayHasActivityGP>>();
 				
@@ -62,7 +65,7 @@ public class ClusteringHandler {
 							if(neighbors.size()>=N){
 								if(distance<maxValueInList){
 									for(Entry<DayHasActivityGP, Float> neighbor : neighbors.entrySet()){
-										if(neighbor.getValue()==maxValueInList){
+										if(neighbor.getValue().equals(maxValueInList)){
 											neighbors.remove(neighbor.getKey());
 											neighbors.put(dha2,distance);
 											break;
@@ -93,7 +96,9 @@ public class ClusteringHandler {
 				}
 				// here i have nNeighbors like map of dha and List of N closest dhas
 				pattList=computeCluster(agp,nNeighbors,N,K);
+				System.out.println("Found patterns: "+pattList.size());
 				agp.setPatterns(pattList);
+				}
 			}else{
 				//System.out.println("Not clustering activity"+agp.getName());
 			}
@@ -176,7 +181,7 @@ public class ClusteringHandler {
 		Integer common=0;
 		for(DayHasActivityGP dhaN1:neigh1){
 			for(DayHasActivityGP dhaN2:neigh2){
-				if(dhaN1.getUniqueDayHasActivityId()==dhaN2.getUniqueDayHasActivityId()){
+				if(dhaN1.getUniqueDayHasActivityId().equals(dhaN2.getUniqueDayHasActivityId())){
 					common++;
 				}
 			}
@@ -228,17 +233,17 @@ public class ClusteringHandler {
 		}
 	}
 
-	public Float dhaDistance(DayHasActivityGP day1,DayHasActivityGP day2){
+	public float dhaDistance(DayHasActivityGP day1,DayHasActivityGP day2) throws Exception{
 		return matrixdistance(day1.getSStransMatrix(),day2.getSStransMatrix());
 	}
 
-	public Float matrixdistance(Integer[][] m1,Integer[][] m2){
-		Integer d11=m1.length;
-		Integer d12=m2.length;
-		Integer d21=m1[0].length;
-		Integer d22=m2[0].length;
-		Integer sumM=0;
-		if((d11==d12)&&(d21==d22)){
+	public float matrixdistance(int[][] m1,int[][] m2) throws Exception{
+		int d11=m1.length;
+		int d12=m2.length;
+		int d21=m1[0].length;
+		int d22=m2[0].length;
+		int sumM=0;
+		if((d11==(d12))&&(d21==(d22))){
 			for(int row=0;row<d11;row++){
 				for(int col=0;col<d21;col++){
 					sumM+=(int) Math.pow((m1[row][col]-m2[row][col]), 2);
@@ -246,7 +251,8 @@ public class ClusteringHandler {
 			}
 			return (float) sumM/(d11*d21);
 		}else{
-			return null;
+			System.out.println("Length error: d11: "+d11+" d12: "+d12+" d21: "+d21+" d22: "+d22);
+			throw new Exception("Error in length");
 		}
 	}
 }

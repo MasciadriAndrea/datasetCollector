@@ -97,7 +97,7 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 	}
 	
 	@Override
-	public SensorTime updateSensorTime(SensorTime st,Integer idSS) throws SQLException{
+	public SensorTime updateSensorTime(SensorTime st,Integer idSS, Integer idHouse) throws SQLException{
 		Integer idST=st.getId();
 		
 		// check if exist -> if exists remove it
@@ -110,9 +110,21 @@ public class SensorTimeDAOSql implements SensorTimeDAO {
 			deleteSensorTime(idST);
 		}
 		
+		Integer sensorId=0;
+		
+		//Retrieving the id of the sensor
+		selectSQL = "SELECT id FROM Sensor WHERE uniqueSensorId = ? and House_id = ?";
+		preparedStatement = dbConnection.prepareStatement(selectSQL);
+		preparedStatement.setInt(1, st.getSensor().getUniqueSensorId());
+		preparedStatement.setInt(2, idHouse);
+		rs = preparedStatement.executeQuery();
+		while (rs.next()) {
+			sensorId=Integer.parseInt(rs.getString("id"));
+		}
+		
 		//insert in the database
 		Integer newIdST=0;
-		newIdST= insertSensorTime(st.getValue(),st.getSensor().getUniqueSensorId(),idSS);
+		newIdST= insertSensorTime(st.getValue(),sensorId,idSS);
 				
 		//upload the id
 		st.setId(newIdST);

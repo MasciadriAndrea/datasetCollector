@@ -8,7 +8,7 @@ public class HSensorset {
 	private Integer uniqueSensorsetId;
 	private List<SensorTime> sensors;
 	private List<Integer> durations;
-	private Float[] timeDistr;
+	private float[] timeDistr;
 	
 	public HSensorset(Integer id, Integer uniqueId, List<SensorTime> sensors) {
 		super();
@@ -56,6 +56,22 @@ public class HSensorset {
 		return activeSensors;
 	}
 	
+	public String getStringSS(){
+		Integer prevSensId=0;
+		String line="";
+		for(SensorTime st:this.sensors){
+			if(prevSensId>st.getSensor().getUniqueSensorId()){
+				System.out.println("Error in sensor order! prev: "+prevSensId+" next "+st.getSensor().getUniqueSensorId());
+				return null;
+			}
+			line+=st.getValue()+",";
+			prevSensId=st.getSensor().getUniqueSensorId();
+			//line+=st.getSensor().getUniqueSensorId()+",";
+		}
+		line=line.substring(0,line.length()-1);
+		return line;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -100,11 +116,11 @@ public class HSensorset {
 	public void addDuration(Integer num){
 		this.durations.add(num);
 	}
-	public Float[] getTimeDistr() {
+	public float[] getTimeDistr() {
 		return timeDistr;
 	}
 
-	public void setTimeDistr(Float[] timeDistr) {
+	public void setTimeDistr(float[] timeDistr) {
 		this.timeDistr = timeDistr;
 	}
 

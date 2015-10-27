@@ -28,8 +28,8 @@ import dataModel.SensorType;
 
 public class ArasParser extends GenericParser {
 	
-	private static String urlData="dataIn/aras";
-	//private static String urlData="dataIn/generated";
+	//private static String urlData="dataIn/aras";
+	private static String urlData="dataIn/generatedKasteren";
 
 	private static String folderConf="/confFile";
 	private static String fileSensor="/sensors.txt";
@@ -37,9 +37,11 @@ public class ArasParser extends GenericParser {
 	private static String fileResident="/residents.txt";
 	private static String filePRE="DAY";
 	private static ArasParser instance;
+	private int numSensor;
 	
 	private ArasParser(){
 		super();
+		numSensor=0;
 	}
 
 	public static ArasParser getInstance(){
@@ -197,15 +199,16 @@ public class ArasParser extends GenericParser {
 			Integer c=0;
 			for (String pattern : configLines) {
 				String[] chunks = pattern.split(",");
-				if(chunks.length>1){
+				if(chunks.length>2){
 					//since there is no Location and sensor type using standard one
 					House h=super.getDataset().getHouses().get(0);
 					Location loc=h.getLocationByUniqueId(1);
 					SensorType st=h.getSensorTypeByUniqueId(1);
-					sl.add(new HSensor(0, c+1, chunks[0], chunks[1], chunks[2], st, loc));
+					sl.add(new HSensor(0, Integer.valueOf(chunks[0]), chunks[1], chunks[2], chunks[3], st, loc));
 					c++;
 				}
 			}
+			this.numSensor=c;
 			System.out.println("Imported "+c.toString()+" sensors");
 		}catch(IOException e){
 			e.printStackTrace();
@@ -308,13 +311,13 @@ public class ArasParser extends GenericParser {
             for(String pattern:configLines){
             	//for every line -> it is a second
                 String[] chunks = pattern.split(" ");
-                if (chunks.length > 21){
+                if (chunks.length > numSensor+1){
                 	if(secondtime.equals(0)){
                 		//initialization
-                		previousActivity1=Integer.parseInt(chunks[20]);
+                		previousActivity1=Integer.parseInt(chunks[numSensor]);
                 		startSec1=1;
                 		endSec1=1;
-                		previousActivity2=Integer.parseInt(chunks[21]);
+                		previousActivity2=Integer.parseInt(chunks[numSensor+1]);
                 		startSec2=1;
                 		endSec2=1;
                 	}
@@ -325,23 +328,17 @@ public class ArasParser extends GenericParser {
 	                HSensor sens=null;
 	                String value="";
 	                SensorTime st=null;
-	                for(Integer i=0;i<20;i++){
-	                	uniqueIdSensor=i+1;
-	                	sens=h.getSensorByUniqueId(uniqueIdSensor);
+	                for(Integer i=0;i<numSensor;i++){
+	                	sens=h.getSensors().get(i);
 	                	value=chunks[i];
 	                	st=new SensorTime(0,sens,value);
 	                	listST.add(st);
 	                }
 	                //list of SensorTime ready... if any sensorset has the same list -> add to Sensorsets list
-	                HSensorset ss=getUniqueSS(h.getSensorsets(),listST);
+	                HSensorset ss=getUniqueSS(h,h.getSensorsets(),listST);
 	                secondIdSS+=ss.getUniqueSensorsetId()+",";
-	                currentActivity1=Integer.parseInt(chunks[20]); 
-	                currentActivity2=Integer.parseInt(chunks[21]); 
-	                
-	                
-                	
-	                
-	                
+	                currentActivity1=Integer.parseInt(chunks[numSensor]); 
+	                currentActivity2=Integer.parseInt(chunks[numSensor+1]); 
 	                if((!previousActivity1.equals(currentActivity1))||(secondtime==86400)){
 	                	//if changed activity
 	                	Activity currAct1=h.getActivityByUniqueId(previousActivity1);
@@ -371,7 +368,8 @@ public class ArasParser extends GenericParser {
                 }
                 
             }
-            secondIdSS=secondIdSS.substring(0,secondIdSS.length()-1);
+            secondIdSS=secondIdSS.substring(0,secondIdSS.length());
+            //ARAS secondIdSS=secondIdSS.substring(0,secondIdSS.length()-1);
             Day currentDay=new Day(0,nFile,"","","",secondIdSS);
             currentDay.setDailyActivities(ldha);
             ld.add(currentDay);
@@ -388,19 +386,16 @@ public class ArasParser extends GenericParser {
 		return ld;
 	}
 	
-	private HSensorset getUniqueSS(List<HSensorset> lss,List<SensorTime> listST){
+	private HSensorset getUniqueSS(House h,List<HSensorset> lss,List<SensorTime> listST){
 		Integer numSS=lss.size();
 		Boolean foundSS=false;
 		HSensorset SSfound=null;
 		for(HSensorset ss:lss){
 			List<SensorTime> lst=ss.getSensors();
-			if(lst.size()!=20){
-				System.out.println("Strange number of Sensors in SS");
-			}else{
 				Integer numEqual=0;
-				for(Integer sid=1;sid<=20;sid++){
-					SensorTime stSS=lst.get(sid-1);
-					SensorTime stCompare=listST.get(sid-1);
+				for(Integer sid=0;sid<lst.size();sid++){
+					SensorTime stSS=lst.get(sid);
+					SensorTime stCompare=listST.get(sid);
 					if(stSS.getValue().equals(stCompare.getValue())){
 						if(stSS.getSensor().equals(stCompare.getSensor())){
 							numEqual++;
@@ -409,16 +404,16 @@ public class ArasParser extends GenericParser {
 						break;
 					}
 				}
-				if(numEqual.equals(20)){
+				if(numEqual.equals(lst.size())){
 					foundSS=true;
 					SSfound=ss;
 					break;
 				}
 			}
-		}
 		if(!foundSS){
 			HSensorset hss=new HSensorset(0,numSS+1,listST);
 			lss.add(hss);
+			h.setSensorsets(lss);
 			SSfound=hss;
 		}
 		return SSfound;

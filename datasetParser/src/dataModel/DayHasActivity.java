@@ -6,7 +6,7 @@ public class DayHasActivity {
 	private Integer endSec;
 	private Activity activity;
 	private Resident resident;
-	private Integer[][] SStransMatrix;
+	private int[][] SStransMatrix;
 	
 	public DayHasActivity(Integer id, Integer startSec, Integer endSec,
 			Activity activity,Resident resident) {
@@ -92,10 +92,10 @@ public class DayHasActivity {
 			return false;
 		return true;
 	}
-	public Integer[][] getSStransMatrix() {
+	public int[][] getSStransMatrix() {
 		return SStransMatrix;
 	}
-	public void setSStransMatrix(Integer[][] sStransMatrix) {
+	public void setSStransMatrix(int[][] sStransMatrix) {
 		SStransMatrix = sStransMatrix;
 	}
 }

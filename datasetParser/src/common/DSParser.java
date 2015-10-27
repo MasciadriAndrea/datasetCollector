@@ -6,6 +6,7 @@ import java.util.List;
 
 import persistance.DatasetDAOSql;
 import specificParser.ArasParser;
+import specificParser.KasterenParser;
 import dataModel.Activity;
 import dataModel.Dataset;
 import dataModel.Day;
@@ -24,25 +25,36 @@ public class DSParser {
 
 		
 		ArasParser ap=ArasParser.getInstance();
+
 		
 		//example load data from file and save in database
 		//
-		ap.updateHouseData("ArasDSshort", "House1");
-		ap.saveDataset();
+		//ap.updateHouseData("ArasDSshort", "House1");
+		//ap.saveDataset();
+		//ap.updateHouseData("KasterenGenerated", "HouseC");
+		//ap.saveDataset();
 		
+		//example load data from file and save in database
+		//KasterenParser kp=KasterenParser.getInstance();
+		//kp.deleteDatasetById(38);
+		//kp.updateHouseData("Kasteren", "HouseC");
+		//kp.saveDataset();
 		
-		//example load data from database and print
+
+		
+		//example load data from database
 		//
-	/*	DatasetDAOSql d=DatasetDAOSql.getInstance();
-		ap.setDs(d.getDatasetByName("ArasDs"));
-		System.out.println(ap.getDataset().getHouses().get(0).getName());
+		//DatasetDAOSql d=DatasetDAOSql.getInstance();
+		//ap.setDs(d.getDatasetByName("KasterenGenerated"));
+
+		//kp.setDs(d.getDatasetByName("Kasteren"));
 		
 		//example load data from database and export to matlab format
 		//
-
+		//MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
+		
 		
 
-*/
 	}
 
 }

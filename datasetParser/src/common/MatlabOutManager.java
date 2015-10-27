@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import dataModel.Activity;
 import dataModel.Day;
 import dataModel.DayHasActivity;
+import dataModel.HSensorset;
 import dataModel.House;
 import dataModel.Resident;
 
@@ -20,6 +21,7 @@ public class MatlabOutManager {
 	private static String urlData = "dataOut/matlab";
 	private static String fileSad = "/sadResident";
 	private static String fileSecDay = "/secondDay";
+	private static String fileSS = "/uniqueSS";
 
 	private MatlabOutManager() {
 		super();
@@ -35,7 +37,31 @@ public class MatlabOutManager {
 	public void createMatrices(House h) {
 		computeSadMatrix(h);
 		computeSecondDayMatrix(h);
+		computeSensorsets(h);
 		System.out.println("Finish exporting Matlab matrices");
+	}
+
+	private void computeSensorsets(House h) {
+		System.out.println("Computing uniqueSS");
+		try {
+			File folder = new File(urlData);
+			if (!folder.exists()) {
+				throw new NotDirectoryException(null);
+			}
+			File currentFile = new File(urlData+fileSS+".txt");
+			FileOutputStream fos = new FileOutputStream(currentFile);
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+			for (HSensorset ss : h.getSensorsets()) {
+				String line=ss.getUniqueSensorsetId().toString();
+				line+=","+ss.getStringSS();
+				bw.write(line);
+				bw.newLine();
+			}
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public void computeSadMatrix(House h) {
@@ -50,6 +76,7 @@ public class MatlabOutManager {
 				FileOutputStream fos = new FileOutputStream(currentFile);
 				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 				for (Day d : h.getDays()) {
+					int[] actSeconds=new int[86400];
 					String line="";
 					TreeMap<Integer, DayHasActivity> orderedAct = new TreeMap<Integer, DayHasActivity>();
 					for(DayHasActivity a:d.getDailyActivities()){
@@ -61,8 +88,11 @@ public class MatlabOutManager {
 						  DayHasActivity dha=orderedAct.get(key);
 						  Integer idA=dha.getActivity().getUniqueActivityId();
 						  for(Integer sec=dha.getStartSec();sec<=dha.getEndSec();sec++){
-							  line+= idA+ ",";
+							  actSeconds[sec]=idA;
 						  }  
+					}
+					for(int i=0;i<86400;i++){
+						line+= actSeconds[i]+ ",";
 					}
 					line=line.substring(0,line.length()-1);
 					bw.write(line);

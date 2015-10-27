@@ -110,7 +110,7 @@ public class House {
 	}
 	public Resident getResidentByUniqueId(Integer id){
 		for(Resident e:this.residents){
-			if(e.getUniqueResidentId() == id){
+			if(e.getUniqueResidentId().equals(id)){
 				return e;
 			}		
 		}
@@ -242,5 +242,37 @@ public class House {
 		} else if (!sensorsets.equals(other.sensorsets))
 			return false;
 		return true;
+	}
+	
+	public Location getLocationByName(String name){
+		int p=0;
+		for(Location l:this.locations){
+			if(l.getName().equals(name)){
+				return l;
+			}
+			p++;
+		}
+		p++;
+		Location newp=new Location(0,p,name);
+		this.locations.add(newp);
+		return newp;
+	}
+	
+	public Integer getIncrementalDayIdByDate(String day,String month,String year){
+		for(Day d:this.days){
+			if((d.getDay().equals(day))&&(d.getMonth().equals(month))&&(d.getYear().equals(year))){
+				return d.getIncrementalDay();
+			}
+		}
+		return 0;//0 means day not found
+	}
+	
+	public Day getDayByIncremental(Integer v){
+		for(Day d:this.days){
+			if(d.getIncrementalDay().equals(v)){
+				return d;
+			}
+		}
+		return null;
 	}
 }
