@@ -25,7 +25,6 @@ public class HSensorset {
 		super();
 		this.id=0;
 		this.uniqueSensorsetId=0;
-		List<SensorTime> lst=new ArrayList<SensorTime>();
 		this.sensors=new ArrayList<SensorTime>();
 		this.durations=new ArrayList<Integer>();
 		this.expValTimeDist=0;
