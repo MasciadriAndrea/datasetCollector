@@ -22,7 +22,6 @@ import dataModel.HSensorset;
 public class DSParser {
 
 	public static void main(String[] args) throws SQLException {
-
 		
 		ArasParser ap=ArasParser.getInstance();
 
@@ -32,29 +31,63 @@ public class DSParser {
 		//ap.updateHouseData("ArasDSshort", "House1");
 		//ap.saveDataset();
 		//ap.updateHouseData("KasterenGenerated", "HouseC");
+
+		/**********************************
+		 ** IMPORT FROM FILE TO DATABASE **
+		 **********************************/
+		//ArasParser ap=ArasParser.getInstance();
+		//----------import data in database from real ARAS dataset (Aras Format)
+		//ap.updateHouseData("Aras", "House 1","dataIn/aras");
+
 		//ap.saveDataset();
 		
-		//example load data from file and save in database
+		//----------import data in database from data generated like aras (but generated in Aras Format)
+		//ap.updateHouseData("ArasGeneratedRes2", "House 1","dataIn/generatedAras");
+		//ap.saveDataset();
+		
+		//----------import data in database from data generated like kasteren (but generated in Aras Format)
+		//ap.updateHouseData("KasterenGenerated", "HouseC","dataIn/generatedKasteren");
+		//ap.saveDataset();
+		
+		//----------import data in database from real Kasteren dataset (kasteren format)
 		//KasterenParser kp=KasterenParser.getInstance();
-		//kp.deleteDatasetById(38);
-		//kp.updateHouseData("Kasteren", "HouseC");
+		//kp.updateHouseData("Kasteren", "HouseC", "dataIn/kasteren");
 		//kp.saveDataset();
 		
+		/**************************************
+		 ** DELETE ONE DATASET FROM DATABASE **
+		 **************************************/
+		
+		//KasterenParser kp=KasterenParser.getInstance();
+		//kp.deleteDatasetById(2);
+		
+		/*****************************
+		 ** LOAD DATA FROM DATABASE **
+		 *****************************/
+		
+		//ArasParser ap=ArasParser.getInstance();
+		//DatasetDAOSql d=DatasetDAOSql.getInstance();
+		//ap.setDs(d.getDatasetByName("ArasGeneratedRes2"));
 
 		
+
 		//example load data from database
 		//
 		//DatasetDAOSql d=DatasetDAOSql.getInstance();
 		//ap.setDs(d.getDatasetByName("KasterenGenerated"));
 
 		//kp.setDs(d.getDatasetByName("Kasteren"));
-		
+
+		/***************************
+		 ** EXPORT DATA TO MATLAB **
+		 ***************************/
+		//MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
+
 		//example load data from database and export to matlab format
 		//
 		//MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
 		
 		
-
 	}
 
 }
