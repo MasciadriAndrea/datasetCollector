@@ -13,7 +13,6 @@ import java.util.List;
 
 import persistance.DatasetDAOSql;
 import common.DbManager;
-import common.GenericParser;
 import dataModel.Activity;
 import dataModel.Dataset;
 import dataModel.Day;
@@ -28,9 +27,7 @@ import dataModel.SensorType;
 
 public class ArasParser extends GenericParser {
 	
-	//private static String urlData="dataIn/aras";
-	private static String urlData="dataIn/generatedKasteren";
-
+	private static String urlData;
 	private static String folderConf="/confFile";
 	private static String fileSensor="/sensors.txt";
 	private static String fileActivity="/activities.txt";
@@ -65,8 +62,9 @@ public class ArasParser extends GenericParser {
 	}
 	
 	@Override
-	public void updateHouseData(String nameDs,String nameHouse){
+	public void updateHouseData(String nameDs,String nameHouse,String pathN){
 		createDataset(0,nameDs);
+		this.urlData=pathN;
 		House h=createHouse(nameHouse);
 		h.setActivities(getActivityList());
 		h.setResidents(getResidentList());

@@ -226,7 +226,9 @@ public class ParametersHandler {
 					Integer id=Integer.parseInt(precValue);
 					if(!id.equals(0)){
 						HSensorset ss=this.parameters.getSensorsetByUniqueId(id);
-						ss.addDuration(duration);
+						if(duration>0){
+							ss.addDuration(duration);
+						}
 					}
 					duration=0;
 					precValue=secId[pos];
@@ -238,15 +240,22 @@ public class ParametersHandler {
 			if(!ss.getUniqueSensorsetId().equals(0)){
 				Collections.sort(ss.getDurations());
 				int maxV=0;
+				int totalOccurrences=ss.getDurations().size();
 				int dur=0;
 				int occurrencesOfdur=0;
-				int totalOccurrences=ss.getDurations().size();
+				if(totalOccurrences>0){
+					dur=ss.getDurations().get(0);
+					occurrencesOfdur=1;
+				}
 				float expV=0;
+				int countOcc=0;
 				for(Integer n:ss.getDurations()){
-					if(n.equals(dur)){
+					countOcc++;
+					if((n==dur)&&(totalOccurrences>1)&&(countOcc<totalOccurrences)){
 						occurrencesOfdur++;
 					}else{
-						expV+=(occurrencesOfdur/totalOccurrences)*dur;
+						Float nf=(float) (((float) occurrencesOfdur/totalOccurrences)*dur);
+						expV+=nf.floatValue();
 						dur=n;
 						occurrencesOfdur=1;
 					}

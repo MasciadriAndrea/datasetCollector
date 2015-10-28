@@ -22,33 +22,48 @@ import dataModel.HSensorset;
 public class DSParser {
 
 	public static void main(String[] args) throws SQLException {
-
 		
-		ArasParser ap=ArasParser.getInstance();
-		//ap.updateHouseData("KasterenGenerated", "HouseC");
+		/**********************************
+		 ** IMPORT FROM FILE TO DATABASE **
+		 **********************************/
+		//ArasParser ap=ArasParser.getInstance();
+		//----------import data in database from real ARAS dataset (Aras Format)
+		//ap.updateHouseData("ArasGenerated", "House 1","dataIn/aras");
+				
+		
+		//----------import data in database from data generated like kasteren (but generated in Aras Format)
+		//ap.updateHouseData("ArasGenerated", "House 1","dataIn/generatedAras");
+		
+		//----------import data in database from data generated like kasteren (but generated in Aras Format)
+		//ap.updateHouseData("KasterenGenerated", "HouseC","dataIn/generatedKasteren");
 		//ap.saveDataset();
 		
-		//example load data from file and save in database
+		//----------import data in database from real Kasteren dataset (kasteren format)
 		//KasterenParser kp=KasterenParser.getInstance();
-		//kp.deleteDatasetById(38);
-		//kp.updateHouseData("Kasteren", "HouseC");
+		//kp.updateHouseData("Kasteren", "HouseC", "dataIn/kasteren");
 		//kp.saveDataset();
 		
-
+		/**************************************
+		 ** DELETE ONE DATASET FROM DATABASE **
+		 **************************************/
 		
-		//example load data from database
-		//
+		//KasterenParser kp=KasterenParser.getInstance();
+		//kp.deleteDatasetById(1);
+		
+		/*****************************
+		 ** LOAD DATA FROM DATABASE **
+		 *****************************/
+		
+		ArasParser ap=ArasParser.getInstance();
 		DatasetDAOSql d=DatasetDAOSql.getInstance();
 		ap.setDs(d.getDatasetByName("KasterenGenerated"));
 
-		//kp.setDs(d.getDatasetByName("Kasteren"));
 		
-		//example load data from database and export to matlab format
-		//
+		/***************************
+		 ** EXPORT DATA TO MATLAB **
+		 ***************************/
 		MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
 		
-		
-
 	}
 
 }

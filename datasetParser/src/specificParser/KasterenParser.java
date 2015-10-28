@@ -18,7 +18,6 @@ import java.util.TimeZone;
 
 import persistance.DatasetDAOSql;
 import common.DbManager;
-import common.GenericParser;
 import dataModel.Activity;
 import dataModel.Day;
 import dataModel.DayHasActivity;
@@ -32,9 +31,7 @@ import dataModel.SensorType;
 
 public class KasterenParser extends GenericParser {
 
-	private static String urlData="dataIn/kasteren";
-	//private static String urlData="dataIn/generated";
-
+	private static String urlData;
 	private static String fileSensor="/sensors.txt";
 	private static String fileActivity="/activities.txt";
 	private static String fileas="/as.txt";
@@ -79,7 +76,8 @@ public class KasterenParser extends GenericParser {
 	}
 
 	@Override
-	public void updateHouseData(String nameDs,String nameHouse){
+	public void updateHouseData(String nameDs,String nameHouse,String pathN){
+		this.urlData=pathN;
 		createDataset(0,nameDs);
 		House h=createHouse(nameHouse);
 		h.setActivities(getActivityList());
