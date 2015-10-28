@@ -28,11 +28,12 @@ public class DSParser {
 		 **********************************/
 		//ArasParser ap=ArasParser.getInstance();
 		//----------import data in database from real ARAS dataset (Aras Format)
-		//ap.updateHouseData("ArasGenerated", "House 1","dataIn/aras");
-				
+		//ap.updateHouseData("Aras", "House 1","dataIn/aras");
+		//ap.saveDataset();
 		
-		//----------import data in database from data generated like kasteren (but generated in Aras Format)
-		//ap.updateHouseData("ArasGenerated", "House 1","dataIn/generatedAras");
+		//----------import data in database from data generated like aras (but generated in Aras Format)
+		//ap.updateHouseData("ArasGeneratedRes2", "House 1","dataIn/generatedAras");
+		//ap.saveDataset();
 		
 		//----------import data in database from data generated like kasteren (but generated in Aras Format)
 		//ap.updateHouseData("KasterenGenerated", "HouseC","dataIn/generatedKasteren");
@@ -48,21 +49,21 @@ public class DSParser {
 		 **************************************/
 		
 		//KasterenParser kp=KasterenParser.getInstance();
-		//kp.deleteDatasetById(1);
+		//kp.deleteDatasetById(2);
 		
 		/*****************************
 		 ** LOAD DATA FROM DATABASE **
 		 *****************************/
 		
-		ArasParser ap=ArasParser.getInstance();
-		DatasetDAOSql d=DatasetDAOSql.getInstance();
-		ap.setDs(d.getDatasetByName("KasterenGenerated"));
+		//ArasParser ap=ArasParser.getInstance();
+		//DatasetDAOSql d=DatasetDAOSql.getInstance();
+		//ap.setDs(d.getDatasetByName("ArasGeneratedRes2"));
 
 		
 		/***************************
 		 ** EXPORT DATA TO MATLAB **
 		 ***************************/
-		MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
+		//MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
 		
 	}
 

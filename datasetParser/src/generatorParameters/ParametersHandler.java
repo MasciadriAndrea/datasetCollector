@@ -32,7 +32,7 @@ public class ParametersHandler {
 	 * THIS IS FOR ARAS with filtering
 	 * 
 	 */
-	private static String directoryInput = "dataIn/generatorParam";
+	private static String directoryInput = "dataIn/generatorParamAras";
 	private static String directoryOutput = "dataOut/generatorParam";
 	private static ParametersHandler instance;
 	private final static int cluster_param_N=7;

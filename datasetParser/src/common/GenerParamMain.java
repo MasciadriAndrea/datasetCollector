@@ -31,17 +31,17 @@ public class GenerParamMain {
 		
 		
 		// ---- FOR ARAS
-		//ArasParser ds =ArasParser.getInstance();
-		//ds.setDs(d.getDatasetByName("ArasDS"));
-		//ParametersHandler ph = ParametersHandler.getInstance();
+		ArasParser ds =ArasParser.getInstance();
+		ds.setDs(d.getDatasetByName("Aras"));
+		ParametersHandler ph = ParametersHandler.getInstance();
 		
 		
 		// ---- FOR KASTEREN
-		KasterenParser kp=KasterenParser.getInstance();
-		kp.setDs(d.getDatasetByName("Kasteren"));
-		ParametersHandlerK ph = ParametersHandlerK.getInstance();
+		//KasterenParser kp=KasterenParser.getInstance();
+		//kp.setDs(d.getDatasetByName("Kasteren"));
+		//ParametersHandlerK ph = ParametersHandlerK.getInstance();
 		try{
-			ph.processChain(kp.getDataset().getHouses().get(0));
+			ph.processChain(ds.getDataset().getHouses().get(0));
 		}catch(Exception e){
 			e.printStackTrace();
 		}
