@@ -78,13 +78,16 @@ public class ParametersHandlerK {
 		this.setTransitionMatrices();
 		ClusteringHandler.getInstance().clusterizeDha(parameters,cluster_param_N,cluster_param_K);
 		this.computeProbMatrices();
-		this.computePatternInitialProb();
-		this.computeSSiniProbInPattern();
+		this.compurePatternParams();
 		//this.computeActivitiesRhytm(); NOT USED
-		this.computeTimeDistribution();
 		this.exportAll();
 	}
-
+	
+	private void compurePatternParams() {
+		this.computePatternTimeDist();
+		this.computePatternInitialProb();
+		this.computeSSiniProbInPattern();
+	}
 
 	private void exportAll() throws IOException {
 		System.out.println("Exporting all");
@@ -115,9 +118,36 @@ public class ParametersHandlerK {
 		}
 		writerGlobalSStransProb.close();
 	}
+	
+	private void computePatternTimeDist() {
+		for (ActivityGP agp : parameters.getActivities()){
+			if(!agp.getUniqueActivityId().equals(0)){
+				for(Pattern patt:agp.getPatterns()){
+					//set the SSid of the pattern
+					Map<Integer,Integer> ssInPatt=new HashMap<Integer,Integer>();
+					for(DayHasActivityGP dha:patt.getDhasInCluster()){
+						Map<Integer,Integer> ssInDha=dha.getUsedSS();
+						for(Integer ssid:ssInDha.keySet()){
+							ssInPatt.put(ssid, 0);
+						}
+					}
+					int numSSinPatt=ssInPatt.size();
+					for(Integer ssid:ssInPatt.keySet()){
+						int ssidInt=Integer.valueOf(ssid);
+						if(ssidInt!=0){
+							patt.getSsInPatt().add(ssidInt);
+							patt.getPercentageDurations().put(ssidInt, new ArrayList<Float>());
+						}
+					}
+					//computing the expValue of each SS
+					patt.setExpValueTimeDisSSs(this.computeTimeDistribution(patt));
+				}
+			}
+		}
+	}
 
 	private void exportPatterns() throws IOException{
-		// idAct, prob, Name, numberOfSSInPattern, listOfSSID (comma separated), listOfInitialProb, matrix of probability in line
+		// idAct, prob, Name, numberOfSSInPattern, listOfSSID (comma separated), list of expv for ss,listOfInitialProb, matrix of probability in line
 		for (ActivityGP agp : parameters.getActivities()){
 			if(!agp.getUniqueActivityId().equals(0)){
 			BufferedWriter writerActivity = new BufferedWriter(new FileWriter(directoryOutput+"/pattSS_"+agp.getName()+".conf"));
@@ -144,6 +174,9 @@ public class ParametersHandlerK {
 						allowedSS.add(ssidInt);
 						shortiniProbSSinPatt.add(iniProbSSinPatt.get(ssidInt-1));
 					}
+				}
+				for(Float expv:patt.getExpValueTimeDisSSs()){
+					line+=","+expv.toString();
 				}
 				for(Float iniss:shortiniProbSSinPatt){
 					line+=","+iniss.toString();
@@ -180,8 +213,6 @@ public class ParametersHandlerK {
 			if(!ss.getUniqueSensorsetId().equals(0)){
 				List<Integer> as= ss.getActivatedSensorsId();
 				String line = ss.getUniqueSensorsetId().toString();
-				line+=","+ss.getMaxDuration();
-				line+=","+ss.getExpValTimeDist();
 				for (Integer column : as){
 					line += ","+column;
 				}
@@ -221,64 +252,68 @@ public class ParametersHandlerK {
 		writerRhythm.close();
 	}
 
-	private void computeTimeDistribution() {
-		System.out.println("Computing durations");
-		for(DayGP daygp:this.parameters.getDays()){
-			String[] secId=daygp.getSSid();
-			String precValue=secId[0];
-			Integer duration=0;
-			for(int pos=0;pos<secId.length;pos++){
-				if(secId[pos].equals(precValue)){
-					duration++;
-				}else{
-					Integer id=Integer.parseInt(precValue);
-					if(!id.equals(0)){
-						HSensorset ss=this.parameters.getSensorsetByUniqueId(id);
-						if(duration>0){
-							ss.addDuration(duration);
+	private List<Float> computeTimeDistribution(Pattern patt) {
+		List<Float> td=new ArrayList<Float>();
+		List<Integer> idSS=patt.getSsInPatt();
+		for(DayHasActivityGP dha:patt.getDhasInCluster()){
+			Integer totalDuration=dha.getEndSec()-dha.getStartSec();
+			for(DayGP daygp:this.parameters.getDays()){
+				for(DayHasActivity dha2:daygp.getDailyActivities()){
+					if(dha.equals(dha2)){
+						String[] secId=daygp.getSSid();
+						String precValue=secId[0];
+						Integer duration=0;
+						for(int pos=dha.getStartSec();pos<dha.getEndSec();pos++){
+							if(secId[pos].equals(precValue)){
+								duration++;
+							}else{
+								Integer id=Integer.parseInt(precValue);
+								if(!id.equals(0)){
+									if(duration>0){
+										Float v= (float) duration/totalDuration;
+										patt.getPercentageDurations().get(id).add(v);
+									}
+								}
+								duration=0;
+								precValue=secId[pos];
+							}
 						}
 					}
-					duration=0;
-					precValue=secId[pos];
 				}
 			}
 		}
-		//found all of the durations -> now computing expected value and max duration
-				for(HSensorset ss:this.parameters.getSensorsets()){
-					if(!ss.getUniqueSensorsetId().equals(0)){
-						Collections.sort(ss.getDurations());
-						int maxV=0;
-						int totalOccurrences=ss.getDurations().size();
-						int dur=0;
-						int occurrencesOfdur=0;
-						if(totalOccurrences>0){
-							dur=ss.getDurations().get(0);
-							occurrencesOfdur=1;
-						}
-						float expV=0;
-						int countOcc=0;
-						for(Integer n:ss.getDurations()){
-							countOcc++;
-							if((n==dur)&&(totalOccurrences>1)&&(countOcc<totalOccurrences)){
-								occurrencesOfdur++;
-							}else{
-								Float nf=(float) (((float) occurrencesOfdur/totalOccurrences)*dur);
-								expV+=nf.floatValue();
-								dur=n;
-								occurrencesOfdur=1;
-							}
-							
-							//compute max
-							if(n>maxV){
-								maxV=n;
-							}
-						}
-						ss.setMaxDuration(maxV);
-						ss.setExpValTimeDist(expV);
-					}
+		//found all of the durations -> now computing expected value
+		
+		for(Integer ssId:patt.getSsInPattId()){
+			if(ssId!=0){
+				Collections.sort(patt.getPercentageDurations().get(ssId));
+				int totalOccurrences=patt.getPercentageDurations().get(ssId).size();
+				float dur=0;
+				int occurrencesOfdur=0;
+				if(totalOccurrences>0){
+					dur=patt.getPercentageDurations().get(ssId).get(0);
+					dur=(float) (Math.ceil(dur*100))/100;
+					occurrencesOfdur=1;
 				}
+				float expV=0;
+				int countOcc=0;
+				for(Float n:patt.getPercentageDurations().get(ssId)){
+					n=(float) (Math.ceil(n*100))/100;
+					countOcc++;
+					if((n==dur)&&(totalOccurrences>1)&&(countOcc<totalOccurrences)){
+						occurrencesOfdur++;
+					}else{
+						Float nf=(float) (((float) occurrencesOfdur/totalOccurrences)*dur);
+						expV+=nf.floatValue();
+						dur=n;
+						occurrencesOfdur=1;
+					}				
+				}
+				td.add(expV);
+			}
+		}
+		return td;
 	}
-
 	private void computeActivitiesRhytm() {
 		/*
 		 * 

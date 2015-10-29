@@ -70,11 +70,16 @@ public class ParametersHandler {
 		this.setTransitionMatrices();
 		ClusteringHandler.getInstance().clusterizeDha(parameters,cluster_param_N,cluster_param_K);
 		this.computeProbMatrices();
+		this.compurePatternParams();
+		//this.computeActivitiesRhytm(); NOT USED
+		this.exportAll();
+	}
+
+
+	private void compurePatternParams() {
+		this.computePatternTimeDist();
 		this.computePatternInitialProb();
 		this.computeSSiniProbInPattern();
-		//this.computeActivitiesRhytm(); NOT USED
-		this.computeTimeDistribution();
-		this.exportAll();
 	}
 
 
@@ -108,59 +113,82 @@ public class ParametersHandler {
 		writerGlobalSStransProb.close();
 	}
 
-	private void exportPatterns() throws IOException{
-		// idAct, prob, Name, numberOfSSInPattern, listOfSSID (comma separated), listOfInitialProb, matrix of probability in line
+	private void computePatternTimeDist() {
 		for (ActivityGP agp : parameters.getActivities()){
 			if(!agp.getUniqueActivityId().equals(0)){
-			BufferedWriter writerActivity = new BufferedWriter(new FileWriter(directoryOutput+"/pattSS_"+agp.getName()+".conf"));
-			int npatt=0;
-			for(Pattern patt:agp.getPatterns()){
-				npatt++;
-				Map<Integer,Integer> ssInPatt=new HashMap<Integer,Integer>();
-				for(DayHasActivityGP dha:patt.getDhasInCluster()){
-					Map<Integer,Integer> ssInDha=dha.getUsedSS();
-					for(Integer ssid:ssInDha.keySet()){
-						ssInPatt.put(ssid, 0);
-					}
-				}
-				int numSSinPatt=ssInPatt.size();
-				String line = agp.getUniqueActivityId()+","+patt.getInitialProb()+",Patt_"+npatt+","+numSSinPatt;
-				//add list of SS in Patt
-				List<Float> iniProbSSinPatt=patt.getSsIniProbInPattern();
-				List<Float> shortiniProbSSinPatt=new ArrayList<Float>();
-				List<Integer> allowedSS=new ArrayList<Integer>();
-				for(Integer ssid:ssInPatt.keySet()){
-					line+=","+ssid;
-					int ssidInt=Integer.valueOf(ssid);
-					if(ssidInt!=0){
-						allowedSS.add(ssidInt);
-						shortiniProbSSinPatt.add(iniProbSSinPatt.get(ssidInt-1));
-					}
-				}
-				for(Float iniss:shortiniProbSSinPatt){
-					line+=","+iniss.toString();
-				}
-				float[][] ssProbMatrix=patt.getSSProbMatrix();
-				for(int row=0;row<allowedSS.size();row++){
-					for(int col=0;col<allowedSS.size();col++){
-						int indR=allowedSS.get(row);
-						int indC=allowedSS.get(col);
-						if((indR<=ssProbMatrix.length)&&(indC<=ssProbMatrix[0].length)){
-							line+=","+ssProbMatrix[indR-1][indC-1];
-						}else{
-							System.out.println("Err indR: "+indR+" indC: "+indC+" matR: "+ssProbMatrix.length+" matC:"+ssProbMatrix[0].length);
+				for(Pattern patt:agp.getPatterns()){
+					//set the SSid of the pattern
+					Map<Integer,Integer> ssInPatt=new HashMap<Integer,Integer>();
+					for(DayHasActivityGP dha:patt.getDhasInCluster()){
+						Map<Integer,Integer> ssInDha=dha.getUsedSS();
+						for(Integer ssid:ssInDha.keySet()){
+							ssInPatt.put(ssid, 0);
 						}
 					}
+					int numSSinPatt=ssInPatt.size();
+					for(Integer ssid:ssInPatt.keySet()){
+						int ssidInt=Integer.valueOf(ssid);
+						if(ssidInt!=0){
+							patt.getSsInPatt().add(ssidInt);
+							patt.getPercentageDurations().put(ssidInt, new ArrayList<Float>());
+						}
+					}
+					//computing the expValue of each SS
+					patt.setExpValueTimeDisSSs(this.computeTimeDistribution(patt));
 				}
-				
-				writerActivity.write(line);
-				writerActivity.newLine();
 			}
-			writerActivity.close();
-		}}
+		}
+	}
+
+
+	private void exportPatterns() throws IOException{
+		// idAct, prob, Name, numberOfSSInPattern, listOfSSID (comma separated), list of expValueForSS, listOfInitialProb, matrix of probability in line
+		for (ActivityGP agp : parameters.getActivities()){
+			if(!agp.getUniqueActivityId().equals(0)){
+				BufferedWriter writerActivity = new BufferedWriter(new FileWriter(directoryOutput+"/pattSS_"+agp.getName()+".conf"));
+				int npatt=0;
+				for(Pattern patt:agp.getPatterns()){
+					npatt++;
+					int numSSinPatt=patt.getSsInPatt().size();
+					String line = agp.getUniqueActivityId()+","+patt.getInitialProb()+",Patt_"+npatt+","+numSSinPatt;
+					//add list of SS in Patt
+					List<Float> iniProbSSinPatt=patt.getSsIniProbInPattern();
+					List<Float> shortiniProbSSinPatt=new ArrayList<Float>();
+					for(Integer ssid:patt.getSsInPatt()){
+						line+=","+ssid;
+						int ssidInt=Integer.valueOf(ssid);
+						if(ssidInt!=0){
+							shortiniProbSSinPatt.add(iniProbSSinPatt.get(ssidInt-1));
+						}
+					}
+					for(Float expv:patt.getExpValueTimeDisSSs()){
+						line+=","+expv.toString();
+					}
+					for(Float iniss:shortiniProbSSinPatt){
+						line+=","+iniss.toString();
+					}
+					float[][] ssProbMatrix=patt.getSSProbMatrix();
+					List<Integer> allowedSS=patt.getSsInPatt();
+					for(int row=0;row<allowedSS.size();row++){
+						for(int col=0;col<allowedSS.size();col++){
+							int indR=allowedSS.get(row);
+							int indC=allowedSS.get(col);
+							if((indR<=ssProbMatrix.length)&&(indC<=ssProbMatrix[0].length)){
+								line+=","+ssProbMatrix[indR-1][indC-1];
+							}else{
+								System.out.println("Err indR: "+indR+" indC: "+indC+" matR: "+ssProbMatrix.length+" matC:"+ssProbMatrix[0].length);
+							}
+						}
+					}
+
+					writerActivity.write(line);
+					writerActivity.newLine();
+				}
+				writerActivity.close();
+			}}
 	}
 	private void exportSensorsets() throws IOException{
-		// idSensorset, maxDuration, expectedValueTimeDistr , list of the ids of the activated sensors
+		// idSensorset, list of the ids of the activated sensors
 		File folder = new File(directoryOutput);
 		if (!folder.exists()) {
 			throw new NotDirectoryException(null);
@@ -172,8 +200,6 @@ public class ParametersHandler {
 			if(!ss.getUniqueSensorsetId().equals(0)){
 				List<Integer> as= ss.getActivatedSensorsId();
 				String line = ss.getUniqueSensorsetId().toString();
-				line+=","+ss.getMaxDuration();
-				line+=","+ss.getExpValTimeDist();
 				for (Integer column : as){
 					line += ","+column;
 				}
@@ -213,43 +239,53 @@ public class ParametersHandler {
 		writerRhythm.close();
 	}
 
-	private void computeTimeDistribution() {
-		System.out.println("Computing durations");
-		for(DayGP daygp:this.parameters.getDays()){
-			String[] secId=daygp.getSSid();
-			String precValue=secId[0];
-			Integer duration=0;
-			for(int pos=0;pos<secId.length;pos++){
-				if(secId[pos].equals(precValue)){
-					duration++;
-				}else{
-					Integer id=Integer.parseInt(precValue);
-					if(!id.equals(0)){
-						HSensorset ss=this.parameters.getSensorsetByUniqueId(id);
-						if(duration>0){
-							ss.addDuration(duration);
+	private List<Float> computeTimeDistribution(Pattern patt) {
+		List<Float> td=new ArrayList<Float>();
+		List<Integer> idSS=patt.getSsInPatt();
+		for(DayHasActivityGP dha:patt.getDhasInCluster()){
+			Integer totalDuration=dha.getEndSec()-dha.getStartSec();
+			for(DayGP daygp:this.parameters.getDays()){
+				for(DayHasActivity dha2:daygp.getDailyActivities()){
+					if(dha.equals(dha2)){
+						String[] secId=daygp.getSSid();
+						String precValue=secId[0];
+						Integer duration=0;
+						for(int pos=dha.getStartSec();pos<dha.getEndSec();pos++){
+							if(secId[pos].equals(precValue)){
+								duration++;
+							}else{
+								Integer id=Integer.parseInt(precValue);
+								if(!id.equals(0)){
+									if(duration>0){
+										Float v= (float) duration/totalDuration;
+										patt.getPercentageDurations().get(id).add(v);
+									}
+								}
+								duration=0;
+								precValue=secId[pos];
+							}
 						}
 					}
-					duration=0;
-					precValue=secId[pos];
 				}
 			}
 		}
-		//found all of the durations -> now computing expected value and max duration
-		for(HSensorset ss:this.parameters.getSensorsets()){
-			if(!ss.getUniqueSensorsetId().equals(0)){
-				Collections.sort(ss.getDurations());
-				int maxV=0;
-				int totalOccurrences=ss.getDurations().size();
-				int dur=0;
+		//found all of the durations -> now computing expected value
+		
+		for(Integer ssId:patt.getSsInPattId()){
+			if(ssId!=0){
+				Collections.sort(patt.getPercentageDurations().get(ssId));
+				int totalOccurrences=patt.getPercentageDurations().get(ssId).size();
+				float dur=0;
 				int occurrencesOfdur=0;
 				if(totalOccurrences>0){
-					dur=ss.getDurations().get(0);
+					dur=patt.getPercentageDurations().get(ssId).get(0);
+					dur=(float) (Math.ceil(dur*100))/100;
 					occurrencesOfdur=1;
 				}
 				float expV=0;
 				int countOcc=0;
-				for(Integer n:ss.getDurations()){
+				for(Float n:patt.getPercentageDurations().get(ssId)){
+					n=(float) (Math.ceil(n*100))/100;
 					countOcc++;
 					if((n==dur)&&(totalOccurrences>1)&&(countOcc<totalOccurrences)){
 						occurrencesOfdur++;
@@ -258,17 +294,12 @@ public class ParametersHandler {
 						expV+=nf.floatValue();
 						dur=n;
 						occurrencesOfdur=1;
-					}
-					
-					//compute max
-					if(n>maxV){
-						maxV=n;
-					}
+					}				
 				}
-				ss.setMaxDuration(maxV);
-				ss.setExpValTimeDist(expV);
+				td.add(expV);
 			}
 		}
+		return td;
 	}
 
 	private void computeActivitiesRhytm() {
@@ -386,20 +417,20 @@ public class ParametersHandler {
 		System.out.println("Computing SS initial probobabilities for patterns");
 		for(ActivityGP agp:this.parameters.getActivities()){
 			if(!agp.getUniqueActivityId().equals(0))
-			for(Pattern pattern:agp.getPatterns()){
-				Integer sumOfDiagonal=0;
-				int[][] m=pattern.getSStransMatrix();
-				Integer numOfSS=this.parameters.getSensorsets().size();
-				for(int row=0;row<numOfSS;row++){
-					sumOfDiagonal+=m[row][row];
+				for(Pattern pattern:agp.getPatterns()){
+					Integer sumOfDiagonal=0;
+					int[][] m=pattern.getSStransMatrix();
+					Integer numOfSS=this.parameters.getSensorsets().size();
+					for(int row=0;row<numOfSS;row++){
+						sumOfDiagonal+=m[row][row];
+					}
+					ArrayList<Float> pl=new ArrayList<Float>();
+					for(int row=0;row<numOfSS;row++){
+						pl.add((float) (m[row][row]/sumOfDiagonal));
+					}
+					//System.out.println("Pattern p of "+pattern.getActivity().getName() +" length ssinp "+pl.size());
+					pattern.setSsIniProbInPattern(pl);
 				}
-				ArrayList<Float> pl=new ArrayList<Float>();
-				for(int row=0;row<numOfSS;row++){
-					pl.add((float) (m[row][row]/sumOfDiagonal));
-				}
-				//System.out.println("Pattern p of "+pattern.getActivity().getName() +" length ssinp "+pl.size());
-				pattern.setSsIniProbInPattern(pl);
-			}
 		}
 	}
 
@@ -407,9 +438,9 @@ public class ParametersHandler {
 		System.out.println("Computing initial probability for patterns");
 		for(ActivityGP agp:this.parameters.getActivities()){
 			if(!agp.getUniqueActivityId().equals(0))
-			for(Pattern pattern:agp.getPatterns()){
-				pattern.setInitialProb((float) (pattern.getDhasInCluster().size()/agp.getDhaInActivity()));
-			}
+				for(Pattern pattern:agp.getPatterns()){
+					pattern.setInitialProb((float) (pattern.getDhasInCluster().size()/agp.getDhaInActivity()));
+				}
 		}
 
 	}
@@ -422,20 +453,20 @@ public class ParametersHandler {
 		Integer numOfSS=this.parameters.getSensorsets().size();
 		for(ActivityGP agp:this.parameters.getActivities()){
 			if(!agp.getUniqueActivityId().equals(0))
-			for(Pattern pattern:agp.getPatterns()){	
-				
-				int[][] initialZeroMatrix=new int[numOfSS][numOfSS];
-				//initialZeroMatrix=initializeMatrix(initialZeroMatrix,numOfSS);
-				pattern.setSStransMatrix(initialZeroMatrix);
-				//System.out.println("Considering activity "+agp.getName()+" with "+agp.getPatterns().size()+" patterns");
-				for(DayHasActivity dha:pattern.getDhasInCluster()){
-					if(!dha.getActivity().getUniqueActivityId().equals(0)){
-						//System.out.println("sum");
-						pattern.setSStransMatrix(sumOfMatrices(pattern.getSStransMatrix(),dha.getSStransMatrix()));
+				for(Pattern pattern:agp.getPatterns()){	
+
+					int[][] initialZeroMatrix=new int[numOfSS][numOfSS];
+					//initialZeroMatrix=initializeMatrix(initialZeroMatrix,numOfSS);
+					pattern.setSStransMatrix(initialZeroMatrix);
+					//System.out.println("Considering activity "+agp.getName()+" with "+agp.getPatterns().size()+" patterns");
+					for(DayHasActivity dha:pattern.getDhasInCluster()){
+						if(!dha.getActivity().getUniqueActivityId().equals(0)){
+							//System.out.println("sum");
+							pattern.setSStransMatrix(sumOfMatrices(pattern.getSStransMatrix(),dha.getSStransMatrix()));
+						}
 					}
+					pattern.setSSProbMatrix(normalizeByRow(pattern.getSStransMatrix()));
 				}
-				pattern.setSSProbMatrix(normalizeByRow(pattern.getSStransMatrix()));
-			}
 		}
 	}
 
@@ -504,27 +535,27 @@ public class ParametersHandler {
 					String[] ssidSecond=daygp.getSSid();
 					for(DayHasActivity dha: daygp.getDailyActivities()){
 						if(!dha.getActivity().getUniqueActivityId().equals(0)){
-						int[][] dhaTransSS=new int[numUniqueSS][numUniqueSS];
-						//dhaTransSS=initializeMatrix(dhaTransSS,numUniqueSS);
-						//transition from previous activity
-						currentSSid=Integer.valueOf(ssidSecond[dha.getStartSec()-1]);
-						if((currentSSid!=0)&&(previousSSid!=0)){
-							Integer prev=allTransSS[previousSSid-1][currentSSid-1];
-							allTransSS[previousSSid-1][currentSSid-1]=prev+1;
-						}
-						previousSSid=currentSSid;
-						//inside dha loop... all the transition inside
-						for(Integer sec=dha.getStartSec()+1;sec<dha.getEndSec();sec++){
-							currentSSid=Integer.valueOf(ssidSecond[sec-1]);
+							int[][] dhaTransSS=new int[numUniqueSS][numUniqueSS];
+							//dhaTransSS=initializeMatrix(dhaTransSS,numUniqueSS);
+							//transition from previous activity
+							currentSSid=Integer.valueOf(ssidSecond[dha.getStartSec()-1]);
 							if((currentSSid!=0)&&(previousSSid!=0)){
 								Integer prev=allTransSS[previousSSid-1][currentSSid-1];
 								allTransSS[previousSSid-1][currentSSid-1]=prev+1;
-								prev=dhaTransSS[previousSSid-1][currentSSid-1];
-								dhaTransSS[previousSSid-1][currentSSid-1]=prev+1;
 							}
 							previousSSid=currentSSid;
-						}
-						dha.setSStransMatrix(dhaTransSS);
+							//inside dha loop... all the transition inside
+							for(Integer sec=dha.getStartSec()+1;sec<dha.getEndSec();sec++){
+								currentSSid=Integer.valueOf(ssidSecond[sec-1]);
+								if((currentSSid!=0)&&(previousSSid!=0)){
+									Integer prev=allTransSS[previousSSid-1][currentSSid-1];
+									allTransSS[previousSSid-1][currentSSid-1]=prev+1;
+									prev=dhaTransSS[previousSSid-1][currentSSid-1];
+									dhaTransSS[previousSSid-1][currentSSid-1]=prev+1;
+								}
+								previousSSid=currentSSid;
+							}
+							dha.setSStransMatrix(dhaTransSS);
 						}
 					}
 				}

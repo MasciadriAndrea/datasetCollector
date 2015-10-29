@@ -8,8 +8,6 @@ public class HSensorset {
 	private Integer uniqueSensorsetId;
 	private List<SensorTime> sensors;
 	private List<Integer> durations;
-	private float expValTimeDist;
-	private int maxDuration;
 	
 	public HSensorset(Integer id, Integer uniqueId, List<SensorTime> sensors) {
 		super();
@@ -17,8 +15,6 @@ public class HSensorset {
 		this.sensors = sensors;
 		this.uniqueSensorsetId=uniqueId;
 		this.durations=new ArrayList<Integer>();
-		this.expValTimeDist=0;
-		this.maxDuration=0;
 	}
 	
 	public HSensorset(){
@@ -27,8 +23,6 @@ public class HSensorset {
 		this.uniqueSensorsetId=0;
 		this.sensors=new ArrayList<SensorTime>();
 		this.durations=new ArrayList<Integer>();
-		this.expValTimeDist=0;
-		this.maxDuration=0;
 	}
 	
 	public Integer getId() {
@@ -120,19 +114,5 @@ public class HSensorset {
 	public void addDuration(Integer num){
 		this.durations.add(num);
 	}
-	public float getExpValTimeDist() {
-		return expValTimeDist;
-	}
 
-	public void setExpValTimeDist(float expValTimeDist) {
-		this.expValTimeDist = expValTimeDist;
-	}
-
-	public int getMaxDuration() {
-		return maxDuration;
-	}
-
-	public void setMaxDuration(int maxDuration) {
-		this.maxDuration = maxDuration;
-	}
 }
