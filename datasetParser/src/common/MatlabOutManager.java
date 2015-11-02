@@ -75,7 +75,15 @@ public class MatlabOutManager {
 				File currentFile = new File(urlData+fileSad+resident.getUniqueResidentId().toString()+".txt");
 				FileOutputStream fos = new FileOutputStream(currentFile);
 				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+				int nDays=1;
 				for (Day d : h.getDays()) {
+					if((nDays%31)==0){
+						bw.close();
+						System.out.println("Splitting file");
+						currentFile = new File(urlData+fileSad+resident.getUniqueResidentId().toString()+"-"+nDays+".txt");
+						fos = new FileOutputStream(currentFile);
+						bw = new BufferedWriter(new OutputStreamWriter(fos));
+					}
 					int[] actSeconds=new int[86400];
 					String line="";
 					TreeMap<Integer, DayHasActivity> orderedAct = new TreeMap<Integer, DayHasActivity>();
@@ -97,6 +105,8 @@ public class MatlabOutManager {
 					line=line.substring(0,line.length()-1);
 					bw.write(line);
 					bw.newLine();
+					
+					nDays++;
 				}
 				bw.close();
 			
@@ -116,9 +126,18 @@ public class MatlabOutManager {
 			File currentFile = new File(urlData+fileSecDay+".txt");
 			FileOutputStream fos = new FileOutputStream(currentFile);
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+			int nDays=1;
 			for (Day d : h.getDays()) {
+				if((nDays%31)==0){
+					bw.close();
+					System.out.println("Splitting file");
+					currentFile = new File(urlData+fileSecDay+"-"+nDays+".txt");
+					fos = new FileOutputStream(currentFile);
+					bw = new BufferedWriter(new OutputStreamWriter(fos));
+				}
 				bw.write(d.getSecondIdSS());
 				bw.newLine();
+				nDays++;
 			}
 			bw.close();
 		} catch (IOException e) {
