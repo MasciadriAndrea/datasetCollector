@@ -26,13 +26,13 @@ public class DSParser {
 		/**********************************
 		 ** IMPORT FROM FILE TO DATABASE **
 		 **********************************/
-		ArasParser ap=ArasParser.getInstance();
+		//ArasParser ap=ArasParser.getInstance();
 		//----------import data in database from real ARAS dataset (Aras Format)
 		//ap.updateHouseData("Aras", "House 1","dataIn/aras");
 		//ap.saveDataset();
 		
 		//----------import data in database from data generated like aras (but generated in Aras Format)
-		//ap.updateHouseData("ArasGeneratedRes1", "House 1","dataIn/generatedAras");
+		//ap.updateHouseData("ArasGeneratedRes1-excDrift", "House 1","dataIn/generatedAras");
 		//ap.saveDataset();
 		
 		//----------import data in database from data generated like kasteren (but generated in Aras Format)
@@ -49,7 +49,7 @@ public class DSParser {
 		 **************************************/
 		
 		//KasterenParser kp=KasterenParser.getInstance();
-		//kp.deleteDatasetById(44);
+		//kp.deleteDatasetById(40);
 		
 		/*****************************
 		 ** LOAD DATA FROM DATABASE **
@@ -57,7 +57,7 @@ public class DSParser {
 		
 		//ArasParser ap=ArasParser.getInstance();
 		//DatasetDAOSql d=DatasetDAOSql.getInstance();
-		//ap.setDs(d.getDatasetByName("ArasGeneratedRes1"));
+		//ap.setDs(d.getDatasetByName("ArasGeneratedRes1-excDrift"));
 
 		
 		/***************************

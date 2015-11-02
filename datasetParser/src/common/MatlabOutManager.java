@@ -87,7 +87,7 @@ public class MatlabOutManager {
 					for (Integer key: orderedAct.keySet()) {
 						  DayHasActivity dha=orderedAct.get(key);
 						  Integer idA=dha.getActivity().getUniqueActivityId();
-						  for(Integer sec=dha.getStartSec();sec<dha.getEndSec();sec++){
+						  for(Integer sec=dha.getStartSec();sec<=dha.getEndSec();sec++){
 							  actSeconds[sec]=idA;
 						  }  
 					}

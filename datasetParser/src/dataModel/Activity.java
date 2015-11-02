@@ -1,6 +1,35 @@
 package dataModel;
 
 public class Activity {
+	private Integer id;
+	private Integer uniqueActivityId;
+	private String name;
+	
+	public Activity(Integer id, Integer uid, String name) {
+		super();
+		this.id = id;
+		this.uniqueActivityId = uid;
+		this.name = name;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Integer getUniqueActivityId() {
+		return uniqueActivityId;
+	}
+	public void setUniqueActivityId(Integer uniqueActivityId) {
+		this.uniqueActivityId = uniqueActivityId;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -32,34 +61,4 @@ public class Activity {
 			return false;
 		return true;
 	}
-	private Integer id;
-	private Integer uniqueActivityId;
-	private String name;
-	
-	public Activity(Integer id, Integer uid, String name) {
-		super();
-		this.id = id;
-		this.uniqueActivityId = uid;
-		this.name = name;
-	}
-	public Integer getId() {
-		return id;
-	}
-	public void setId(Integer id) {
-		this.id = id;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public Integer getUniqueActivityId() {
-		return uniqueActivityId;
-	}
-	public void setUniqueActivityId(Integer uniqueActivityId) {
-		this.uniqueActivityId = uniqueActivityId;
-	}
-
-	
 }

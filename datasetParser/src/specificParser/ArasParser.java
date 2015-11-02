@@ -313,10 +313,10 @@ public class ArasParser extends GenericParser {
                 	if(secondtime.equals(0)){
                 		//initialization
                 		previousActivity1=Integer.parseInt(chunks[numSensor]);
-                		startSec1=1;
+                		startSec1=0;
                 		endSec1=1;
                 		previousActivity2=Integer.parseInt(chunks[numSensor+1]);
-                		startSec2=1;
+                		startSec2=0;
                 		endSec2=1;
                 	}
                 	secondtime++;

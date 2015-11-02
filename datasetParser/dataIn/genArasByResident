@@ -3,4 +3,4 @@ Remember that to generate different behavior for each resident we are filtering.
 For better filtering set sleeping 
 sensor 20 for resident 1
 
-sensor 2 for resident2
+sensor 2 for resident2 4 5
