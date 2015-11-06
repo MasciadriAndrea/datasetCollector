@@ -538,7 +538,7 @@ public class ParametersHandler {
 							int[][] dhaTransSS=new int[numUniqueSS][numUniqueSS];
 							//dhaTransSS=initializeMatrix(dhaTransSS,numUniqueSS);
 							//transition from previous activity
-							currentSSid=Integer.valueOf(ssidSecond[dha.getStartSec()-1]);
+							currentSSid=Integer.valueOf(ssidSecond[dha.getStartSec()]);
 							if((currentSSid!=0)&&(previousSSid!=0)){
 								Integer prev=allTransSS[previousSSid-1][currentSSid-1];
 								allTransSS[previousSSid-1][currentSSid-1]=prev+1;
@@ -608,7 +608,7 @@ public class ParametersHandler {
 						System.out.println("diff "+(dha.getEndSec()-dha.getStartSec()));
 						int[] vChangeSS=new int[(dha.getEndSec()-dha.getStartSec())+1];
 						for(Integer s=dha.getStartSec();s<=dha.getEndSec();s++){
-							vChangeSS[s-dha.getStartSec()]=ssChanges[s-1];
+							vChangeSS[s-dha.getStartSec()]=ssChanges[s];
 						}
 						dhaNew.setVectorChangeSS(vChangeSS);						
 						dhaRes.add(dhaNew);
@@ -617,17 +617,17 @@ public class ParametersHandler {
 						for(Integer sec=startSec;sec<=endSec;sec++){
 							//filtering data
 							if(agp.getUniqueActivityId()!=0){
-								Integer previousSSId=Integer.parseInt(ids[sec-1]);
+								Integer previousSSId=Integer.parseInt(ids[sec]);
 								HSensorset previousSS=house.getSensorsetByUniqueId(previousSSId);
 								List<Integer> filteredSIds=previousSS.getActivatedSensorsId();
 								filteredSIds.retainAll(agp.getAllowedSensorsId());
 								Integer newSSId=this.manageSS(filteredSIds);
-								idsInt[sec-1]=newSSId;
+								idsInt[sec]=newSSId;
 								dhaNew.addUsedSSId(newSSId);
 								okSec++;
 								//System.out.println("Changing ss "+previousSSId+" in "+newSSId+" for day "+daygp.getIncrementalDay());
 							}else{
-								idsInt[sec-1]=0;koSec++;
+								idsInt[sec]=0;koSec++;
 							}
 						}
 
