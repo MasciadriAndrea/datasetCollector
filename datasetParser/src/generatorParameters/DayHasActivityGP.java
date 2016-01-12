@@ -75,9 +75,19 @@ public class DayHasActivityGP extends DayHasActivity {
 		this.usedSS = usedSS;
 	}
 
-	public Float getDist(int[][] sStransMatrix) {
+	public Double getDist(int[][] sStransMatrix) {
 		// TODO Auto-generated method stub
-		return null;
+		Double dist = (double) 0;
+		if(sStransMatrix.length == this.getSStransMatrix().length){
+			for(int i = 0; i < sStransMatrix.length; i++){
+				for(int j = 0; j < sStransMatrix.length; j++){
+					dist = dist + Math.pow(sStransMatrix[i][j] - this.getSStransMatrix()[i][j], 2);
+				}
+			}
+		}
+		dist = Math.sqrt(dist);
+		
+		return dist;
 	}
 
 }
