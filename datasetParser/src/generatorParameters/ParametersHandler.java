@@ -757,7 +757,13 @@ public class ParametersHandler {
 		ActivityGP a=new ActivityGP(0,0,"DO NOT CONSIDER",new ArrayList<Activity>(),new ArrayList<HSensor>());
 		this.parameters.addActivity(a);
 	}
+	public House getHouse() {
+		return house;
+	}
 
+	public void setHouse(House house) {
+		this.house = house;
+	}
 }
 
 

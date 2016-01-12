@@ -1,5 +1,7 @@
 package generatorParameters;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.Map;
 
 import dataModel.DayHasActivity;
 import dataModel.HSensorset;
+import dataModel.Day;
 
 public class Pattern {
 	private ActivityGP activity;
@@ -45,7 +48,25 @@ public class Pattern {
 					medoid=dha;
 				}
 			}
-			System.out.println("Act: "+this.activity.getName()+" pattern: "+this.uniqueIdPattern);
+			System.out.println("Exporting Act: "+this.activity.getName()+" pattern: "+this.uniqueIdPattern);
+			PrintWriter outp;
+			try{
+				outp=new PrintWriter(new FileWriter("dataOut/generatorParam/medoids/"+this.activity.getName()+"_"+this.uniqueIdPattern+".txt"));
+				Integer startsec=medoid.getStartSec();
+				Integer endsec=medoid.getEndSec();
+				Day currentDay=null;
+				for(Day day:ParametersHandler.getInstance().getHouse().getDays()){
+					for(DayHasActivity dhas:day.getDailyActivities()){
+						if(dhas.getId().equals(medoid.getId())){
+							currentDay=day;
+						}
+					}
+				}
+				
+				outp.close();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 		
 	}
