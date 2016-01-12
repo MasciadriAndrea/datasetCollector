@@ -36,10 +36,10 @@ public class Pattern {
 	
 	public void retrieveMedoid(){
 		if(this.activity.getId().equals(4)){//TODO add other activities
-			Float minDist=Float.MAX_VALUE;
+			Double minDist=Double.MAX_VALUE;
 			DayHasActivityGP medoid=dhasInCluster.get(0);
 			for(DayHasActivityGP dha:dhasInCluster){
-				Float dist=dha.getDist(this.SStransMatrix);
+				Double dist=dha.getDist(this.SStransMatrix);
 				if(dist<minDist){
 					minDist=dist;
 					medoid=dha;
