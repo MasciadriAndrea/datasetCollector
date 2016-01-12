@@ -183,6 +183,7 @@ public class ParametersHandler {
 
 					writerActivity.write(line);
 					writerActivity.newLine();
+					patt.retrieveMedoid();
 				}
 				writerActivity.close();
 			}}

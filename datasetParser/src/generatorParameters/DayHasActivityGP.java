@@ -75,4 +75,9 @@ public class DayHasActivityGP extends DayHasActivity {
 		this.usedSS = usedSS;
 	}
 
+	public Float getDist(int[][] sStransMatrix) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

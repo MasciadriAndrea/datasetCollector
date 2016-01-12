@@ -26,13 +26,13 @@ public class DSParser {
 		/**********************************
 		 ** IMPORT FROM FILE TO DATABASE **
 		 **********************************/
-		ArasParser ap=ArasParser.getInstance();
+		//ArasParser ap=ArasParser.getInstance();
 		//----------import data in database from real ARAS dataset (Aras Format)
 		//ap.updateHouseData("Aras", "House 1","dataIn/aras");
 		//ap.saveDataset();
 		
 		//----------import data in database from data generated like aras (but generated in Aras Format)
-		//ap.updateHouseData("60dr1", "House 1","dataIn/generatedAras");
+		//ap.updateHouseData("RUN1Def", "House 1","dataIn/generatedAras");
 		//ap.saveDataset();
 		
 		//----------import data in database from data generated like kasteren (but generated in Aras Format)
@@ -49,21 +49,21 @@ public class DSParser {
 		 **************************************/
 		
 		//KasterenParser kp=KasterenParser.getInstance();
-		//kp.deleteDatasetById(51);
+		//kp.deleteDatasetById(53);
 		
 		/*****************************
 		 ** LOAD DATA FROM DATABASE **
 		 *****************************/
 		
 		//ArasParser ap=ArasParser.getInstance();
-		DatasetDAOSql d=DatasetDAOSql.getInstance();
-		ap.setDs(d.getDatasetByName("60dr1"));
+		//DatasetDAOSql d=DatasetDAOSql.getInstance();
+		//ap.setDs(d.getDatasetByName("drDef"));
 
 		
 		/***************************
 		 ** EXPORT DATA TO MATLAB **
 		 ***************************/
-		MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
+		//MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
 		
 	}
 
