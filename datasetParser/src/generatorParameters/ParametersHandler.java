@@ -440,10 +440,11 @@ public class ParametersHandler {
 		for(ActivityGP agp:this.parameters.getActivities()){
 			if(!agp.getUniqueActivityId().equals(0))
 				for(Pattern pattern:agp.getPatterns()){
-					pattern.setInitialProb((float) (pattern.getDhasInCluster().size()/agp.getDhaInActivity()));
+					double fn=((double) pattern.getDhasInCluster().size())/agp.getDhaInActivity();
+					System.out.println("Compute initial activity: "+pattern.getActivity().getName()+" patt: "+pattern.getUniqueIdPattern()+" value: "+fn);
+					pattern.setInitialProb(fn);
 				}
 		}
-
 	}
 
 	private void computeProbMatrices() throws Exception {

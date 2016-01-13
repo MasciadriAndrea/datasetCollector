@@ -76,7 +76,6 @@ public class DayHasActivityGP extends DayHasActivity {
 	}
 
 	public Double getDist(int[][] sStransMatrix) {
-		// TODO Auto-generated method stub
 		Double dist = (double) 0;
 		if(sStransMatrix.length == this.getSStransMatrix().length){
 			for(int i = 0; i < sStransMatrix.length; i++){

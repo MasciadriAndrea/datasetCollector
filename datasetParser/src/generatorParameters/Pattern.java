@@ -17,7 +17,7 @@ public class Pattern {
 	private int[][] SStransMatrix;
 	private float[][] SSProbMatrix;
 	private List<DayHasActivityGP> dhasInCluster;
-	private float initialProb;
+	private double initialProb;
 	private List<Float> ssIniProbInPattern;
 	private List<Integer> ssInPattId;
 	private Map<Integer,List<Float>> percentageDurations;
@@ -38,9 +38,10 @@ public class Pattern {
 	}
 	
 	public void retrieveMedoid(){
-		if(this.activity.getId().equals(4)){//TODO add other activities
+		System.out.println("patt");
+		if((this.activity.getName().equals("Lunch"))||(this.activity.getName().equals("Shower"))||(this.activity.getName().equals("Cleaning"))){
 			Double minDist=Double.MAX_VALUE;
-			DayHasActivityGP medoid=dhasInCluster.get(0);
+			DayHasActivityGP medoid=null;
 			for(DayHasActivityGP dha:dhasInCluster){
 				Double dist=dha.getDist(this.SStransMatrix);
 				if(dist<minDist){
@@ -49,20 +50,29 @@ public class Pattern {
 				}
 			}
 			System.out.println("Exporting Act: "+this.activity.getName()+" pattern: "+this.uniqueIdPattern);
+			System.out.println("minDist: "+minDist);
 			PrintWriter outp;
 			try{
 				outp=new PrintWriter(new FileWriter("dataOut/generatorParam/medoids/"+this.activity.getName()+"_"+this.uniqueIdPattern+".txt"));
 				Integer startsec=medoid.getStartSec();
+				System.out.println("Start sec: "+startsec);
 				Integer endsec=medoid.getEndSec();
+				System.out.println("End sec: "+endsec);
 				Day currentDay=null;
-				for(Day day:ParametersHandler.getInstance().getHouse().getDays()){
+				for(DayGP day:ParametersHandler.getInstance().getParameters().getDays()){
 					for(DayHasActivity dhas:day.getDailyActivities()){
-						if(dhas.getId().equals(medoid.getId())){
+						if(dhas.equals(medoid)){
 							currentDay=day;
 						}
 					}
 				}
-				
+				System.out.println("Day: "+currentDay.getIncrementalDay());
+				for(Integer sec=startsec;sec<endsec;sec++){
+					Integer ssId=currentDay.getSSidBySecond(sec);
+					HSensorset ss=ParametersHandler.getInstance().getHouse().getSensorsetByUniqueId(ssId);
+					String arasLine=ss.getStringSSARAS()+" "+this.getActivity().getUniqueActivityId();
+					outp.println(arasLine);
+				}
 				outp.close();
 			}catch(Exception e){
 				e.printStackTrace();
@@ -109,11 +119,11 @@ public class Pattern {
 	public void setSSProbMatrix(float[][] sSProbMatrix) {
 		SSProbMatrix = sSProbMatrix;
 	}
-	public Float getInitialProb() {
+	public double getInitialProb() {
 		return initialProb;
 	}
 
-	public void setInitialProb(Float initialProb) {
+	public void setInitialProb(double initialProb) {
 		this.initialProb = initialProb;
 	}
 	
