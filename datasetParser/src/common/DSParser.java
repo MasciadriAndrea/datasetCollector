@@ -23,12 +23,22 @@ public class DSParser {
 
 	public static void main(String[] args) throws SQLException {
 		
+		ArasParser ap=ArasParser.getInstance();
+
+		
+		//example load data from file and save in database
+		//
+		//ap.updateHouseData("ArasDSshort", "House1");
+		//ap.saveDataset();
+		//ap.updateHouseData("KasterenGenerated", "HouseC");
+
 		/**********************************
 		 ** IMPORT FROM FILE TO DATABASE **
 		 **********************************/
 		//ArasParser ap=ArasParser.getInstance();
 		//----------import data in database from real ARAS dataset (Aras Format)
 		//ap.updateHouseData("Aras", "House 1","dataIn/aras");
+
 		//ap.saveDataset();
 		
 		//----------import data in database from data generated like aras (but generated in Aras Format)
@@ -60,10 +70,23 @@ public class DSParser {
 		//ap.setDs(d.getDatasetByName("drDef"));
 
 		
+
+		//example load data from database
+		//
+		//DatasetDAOSql d=DatasetDAOSql.getInstance();
+		//ap.setDs(d.getDatasetByName("KasterenGenerated"));
+
+		//kp.setDs(d.getDatasetByName("Kasteren"));
+
 		/***************************
 		 ** EXPORT DATA TO MATLAB **
 		 ***************************/
 		//MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
+
+		//example load data from database and export to matlab format
+		//
+		//MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
+		
 		
 	}
 
