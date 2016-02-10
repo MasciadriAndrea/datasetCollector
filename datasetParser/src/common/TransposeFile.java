@@ -30,10 +30,24 @@ public class TransposeFile {
 			}
 
 			BufferedReader reader = null;
-			ArrayList<File> fileList = new ArrayList<File>(Arrays.asList(folder.listFiles()));
+			
+			 FilenameFilter ActFilter = (dir, name) -> {
+		            if(name.lastIndexOf('.')>0){
+		                        int lastIndexDot = name.lastIndexOf('.');
+		                        String filename = name.subSequence(0, lastIndexDot).toString();
+		                        String extension = name.substring(lastIndexDot);
+		                        if(extension.equals(".txt")){
+		                            return true;
+		                        }
+		                    }      
+		            return false;
+		        };
+			
+			ArrayList<File> fileList = new ArrayList<File>(Arrays.asList(folder.listFiles(ActFilter)));
 			if(fileList.isEmpty()){
 				throw new FileNotFoundException(null);
 			}
+			
 			
 			for (File currentFile : fileList) {
 				ArrayList<String> configLines = new ArrayList<String>();

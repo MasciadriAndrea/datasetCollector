@@ -42,8 +42,8 @@ public class DSParser {
 		//ap.saveDataset();
 		
 		//----------import data in database from data generated like aras (but generated in Aras Format)
-		//ap.updateHouseData("RUN1Def", "House 1","dataIn/generatedAras");
-		//ap.saveDataset();
+//				ap.updateHouseData("simProb", "House 1","dataIn/generatedAras");
+//				ap.saveDataset();
 		
 		//----------import data in database from data generated like kasteren (but generated in Aras Format)
 		//ap.updateHouseData("KasterenGenerated", "HouseC","dataIn/generatedKasteren");
@@ -58,16 +58,17 @@ public class DSParser {
 		 ** DELETE ONE DATASET FROM DATABASE **
 		 **************************************/
 		
-		//KasterenParser kp=KasterenParser.getInstance();
-		//kp.deleteDatasetById(53);
+//		KasterenParser kp=KasterenParser.getInstance();
+//		kp.deleteDatasetById(73);
+
 		
 		/*****************************
 		 ** LOAD DATA FROM DATABASE **
 		 *****************************/
 		
 		//ArasParser ap=ArasParser.getInstance();
-		//DatasetDAOSql d=DatasetDAOSql.getInstance();
-		//ap.setDs(d.getDatasetByName("drDef"));
+//		DatasetDAOSql d=DatasetDAOSql.getInstance();
+//		ap.setDs(d.getDatasetByName("simProb"));
 
 		
 
@@ -81,11 +82,11 @@ public class DSParser {
 		/***************************
 		 ** EXPORT DATA TO MATLAB **
 		 ***************************/
-		//MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
+//		MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
 
 		//example load data from database and export to matlab format
 		//
-		//MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
+//		MatlabOutManager.getInstance().createMatrices(ap.getDataset().getHouses().get(0));
 		
 		
 	}
